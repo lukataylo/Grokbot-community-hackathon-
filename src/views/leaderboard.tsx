@@ -47,14 +47,13 @@ export function LeaderboardView({ eventId }: { eventId: string }) {
               const a = who(s.attendeeId);
               const isMe = a.id === state.meId;
               return (
-                <li key={s.attendeeId} className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 ${isMe ? "bg-sky-soft" : ""}`}>
+                <li key={s.attendeeId} className={`flex items-center gap-3 rounded-2xl px-3 py-2 ${isMe ? "bg-sky-soft" : ""}`}>
                   <span className="w-5 text-sm font-bold text-sky">{i + 1}</span>
                   <Avatar a={a} size={38} />
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold">
                       {shortName(a.name)} {isMe && <span className="font-medium text-muted">(you)</span>}
                     </p>
-                    {i < 3 && <p className="truncate text-xs text-muted">🎁 {event.prizes[i]?.prize}</p>}
                   </div>
                   <span className="font-semibold tabular-nums">{s.points}</span>
                 </li>
@@ -75,10 +74,11 @@ export function LeaderboardView({ eventId }: { eventId: string }) {
               ["Post on X / LinkedIn", POINTS.post],
               ["Repost a friend", POINTS.repost],
               ["Helpful comment", POINTS.comment],
+              ...event.prizes.map((p) => [`${p.rank} prize: ${p.prize}`, ""]),
             ].map(([label, pts]) => (
-              <div key={label as string} className="flex justify-between rounded-xl bg-ice px-3 py-2">
+              <div key={label as string} className={`flex justify-between rounded-xl bg-ice px-3 py-2 ${pts === "" ? "col-span-2" : ""}`}>
                 <span className="text-ink">{label}</span>
-                <span className="font-bold">+{pts}</span>
+                {pts !== "" && <span className="font-bold">+{pts}</span>}
               </div>
             ))}
           </div>

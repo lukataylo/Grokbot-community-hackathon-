@@ -19,6 +19,8 @@ export interface Attendee {
   name: string;
   xHandle: string;
   linkedin: string;
+  email?: string;
+  avatarUrl?: string;
   /** Self-described appearance Grok uses to match people in photos. */
   lookFor: string;
   color: string;

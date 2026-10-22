@@ -11,8 +11,13 @@ export function Mascot({ pose = "wave", className = "" }: { pose?: "wave" | "pee
   return <img src={`${BASE}/brand/mascot-${pose}.png`} alt="" className={`pointer-events-none select-none drop-shadow-[0_18px_22px_rgba(14,29,79,0.25)] ${className}`} />;
 }
 
-export function Avatar({ a, size = 36 }: { a: Pick<Attendee, "name" | "color">; size?: number }) {
+export function Avatar({ a, size = 36 }: { a: Pick<Attendee, "name" | "color" | "avatarUrl">; size?: number }) {
   const initials = a.name.split(" ").map((w) => w[0]).slice(0, 2).join("");
+  if (a.avatarUrl)
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={a.avatarUrl.startsWith("/") ? `${BASE}${a.avatarUrl}` : a.avatarUrl} alt={a.name} width={size} height={size} className="shrink-0 rounded-full object-cover ring-2 ring-white" style={{ width: size, height: size }} />
+    );
   return (
     <span
       className="inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-white"

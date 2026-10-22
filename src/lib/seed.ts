@@ -1,39 +1,39 @@
 import type { Attendee, DB, Photo } from "./types";
+import { applyTags, buildPlan, completeTask, mockIdentify, savePlan } from "./engine";
 
 export const EVENT_ID = "grokbot-london";
+export const DEMO_ME = "a_luka";
 
 const people: Omit<Attendee, "eventId" | "joinedAt">[] = [
-  { id: "a_maya", name: "Maya Patel", xHandle: "mayabuilds", linkedin: "mayapatel", lookFor: "orange hoodie, long dark hair", color: "#f97316", followersX: 18400, followersLinkedIn: 9200, consentPhoto: true, consentTag: true, role: "organiser" },
-  { id: "a_tom", name: "Tom Okafor", xHandle: "tomokafor", linkedin: "tom-okafor", lookFor: "blue denim jacket, glasses", color: "#3b82f6", followersX: 4200, followersLinkedIn: 6100, consentPhoto: true, consentTag: true, role: "speaker" },
-  { id: "a_lena", name: "Lena Fischer", xHandle: "lenacodes", linkedin: "lenafischer", lookFor: "green bomber jacket, short blonde hair", color: "#22c55e", followersX: 2900, followersLinkedIn: 3400, consentPhoto: true, consentTag: true, role: "attendee" },
-  { id: "a_raj", name: "Raj Mehta", xHandle: "rajships", linkedin: "rajmehta", lookFor: "purple t-shirt, beard", color: "#a855f7", followersX: 31200, followersLinkedIn: 12800, consentPhoto: true, consentTag: true, role: "speaker" },
-  { id: "a_sofia", name: "Sofia Rossi", xHandle: "sofiaml", linkedin: "sofia-rossi", lookFor: "red dress, curly hair", color: "#ef4444", followersX: 7600, followersLinkedIn: 15400, consentPhoto: true, consentTag: true, role: "attendee" },
-  { id: "a_ben", name: "Ben Carter", xHandle: "bencarter_dev", linkedin: "bencarter", lookFor: "yellow cap, grey t-shirt", color: "#eab308", followersX: 1300, followersLinkedIn: 2100, consentPhoto: true, consentTag: false, role: "attendee" },
-  { id: "a_aisha", name: "Aisha Bello", xHandle: "aishab", linkedin: "aishabello", lookFor: "pink blazer, headscarf", color: "#ec4899", followersX: 5400, followersLinkedIn: 8800, consentPhoto: true, consentTag: true, role: "attendee" },
-  { id: "a_kenji", name: "Kenji Tanaka", xHandle: "kenjit", linkedin: "kenjitanaka", lookFor: "teal jumper, man bun", color: "#14b8a6", followersX: 9800, followersLinkedIn: 4300, consentPhoto: true, consentTag: true, role: "attendee" },
+  { id: "a_anna", name: "Anna Zhou", xHandle: "annazhou", linkedin: "annazhou", lookFor: "dark hair, black top", avatarUrl: "/demo/face-anna.jpg", color: "#f97316", followersX: 21400, followersLinkedIn: 9800, consentPhoto: true, consentTag: true, role: "speaker" },
+  { id: "a_luka", name: "Luka Dadiani", xHandle: "lukataylo", linkedin: "lukadadiani", lookFor: "white t-shirt, glasses", avatarUrl: "/demo/face-luka.jpg", color: "#3b82f6", followersX: 6200, followersLinkedIn: 7400, consentPhoto: true, consentTag: true, role: "attendee" },
+  { id: "a_sam", name: "Sam Reyes", xHandle: "samreyes", linkedin: "sam-reyes", lookFor: "glasses, grey t-shirt", avatarUrl: "/demo/face-sam.jpg", color: "#22c55e", followersX: 3900, followersLinkedIn: 5100, consentPhoto: true, consentTag: true, role: "attendee" },
+  { id: "a_maya", name: "Maya King", xHandle: "mayabuilds", linkedin: "mayaking", lookFor: "curly hair, black blazer", avatarUrl: "/demo/face-maya.jpg", color: "#a855f7", followersX: 18400, followersLinkedIn: 12800, consentPhoto: true, consentTag: true, role: "organiser" },
+  { id: "a_alex", name: "Alex Carter", xHandle: "alexships", linkedin: "alexcarter", lookFor: "curly hair, beard, navy t-shirt", avatarUrl: "/demo/face-alex.jpg", color: "#ef4444", followersX: 7600, followersLinkedIn: 4400, consentPhoto: true, consentTag: true, role: "attendee" },
+  { id: "a_priya", name: "Priya Shah", xHandle: "priyaml", linkedin: "priyashah", lookFor: "long dark hair, grey cardigan", color: "#ec4899", followersX: 5400, followersLinkedIn: 8800, consentPhoto: true, consentTag: true, role: "attendee" },
+  { id: "a_ben", name: "Ben Hughes", xHandle: "benhughes_dev", linkedin: "benhughes", lookFor: "short brown hair, navy jumper", color: "#eab308", followersX: 1300, followersLinkedIn: 2100, consentPhoto: true, consentTag: false, role: "attendee" },
+  { id: "a_mei", name: "Mei Lin", xHandle: "meilin", linkedin: "meilin", lookFor: "white t-shirt, long dark hair", color: "#14b8a6", followersX: 9800, followersLinkedIn: 4300, consentPhoto: true, consentTag: true, role: "attendee" },
+  { id: "a_kenji", name: "Kenji Tanaka", xHandle: "kenjit", linkedin: "kenjitanaka", lookFor: "glasses, black hoodie", color: "#0ea5e9", followersX: 4100, followersLinkedIn: 3600, consentPhoto: true, consentTag: true, role: "attendee" },
   { id: "a_noah", name: "Noah Williams", xHandle: "noahw", linkedin: "noahwilliams", lookFor: "black t-shirt, white headphones", color: "#64748b", followersX: 800, followersLinkedIn: 1200, consentPhoto: false, consentTag: false, role: "attendee" },
   { id: "a_ines", name: "Inês Costa", xHandle: "inescosta", linkedin: "inescosta", lookFor: "sky-blue shirt, ponytail", color: "#38bdf8", followersX: 3100, followersLinkedIn: 5600, consentPhoto: true, consentTag: true, role: "attendee" },
   { id: "a_omar", name: "Omar Haddad", xHandle: "omarhaddad", linkedin: "omar-haddad", lookFor: "maroon sweater, moustache", color: "#9f1239", followersX: 2200, followersLinkedIn: 7300, consentPhoto: true, consentTag: true, role: "attendee" },
-  { id: "a_chloe", name: "Chloe Martin", xHandle: "chloebuilds", linkedin: "chloemartin", lookFor: "lime raincoat, bob haircut", color: "#84cc16", followersX: 6600, followersLinkedIn: 3900, consentPhoto: true, consentTag: true, role: "attendee" },
 ];
 
-const scenes: { id: string; caption: string; by: string; minsAgo: number; who: string[]; bg: string }[] = [
-  { id: "p_keynote", caption: "Raj's opening keynote on Grok agents", by: "a_maya", minsAgo: 150, who: ["a_raj", "a_tom"], bg: "stage" },
-  { id: "p_team1", caption: "Team 'Consent Cam' mid-build", by: "a_lena", minsAgo: 120, who: ["a_lena", "a_kenji", "a_ines", "a_ben"], bg: "desk" },
-  { id: "p_pizza", caption: "Pizza o'clock", by: "a_tom", minsAgo: 100, who: ["a_sofia", "a_aisha", "a_omar", "a_noah"], bg: "crowd" },
-  { id: "p_whiteboard", caption: "Whiteboarding the architecture", by: "a_kenji", minsAgo: 80, who: ["a_kenji", "a_chloe", "a_maya"], bg: "board" },
-  { id: "p_selfie", caption: "Organiser selfie with the speakers", by: "a_maya", minsAgo: 60, who: ["a_maya", "a_raj", "a_tom", "a_sofia", "a_lena"], bg: "crowd" },
-  { id: "p_demo", caption: "First demo dry-run", by: "a_aisha", minsAgo: 30, who: ["a_aisha", "a_chloe", "a_omar"], bg: "stage" },
+const photos: { id: string; url: string; caption: string; by: string; minsAgo: number; who: string[] }[] = [
+  { id: "p_pairing", url: "/demo/photo-1.jpg", caption: "Pairing on the Grok agent", by: "a_anna", minsAgo: 120, who: ["a_anna", "a_luka", "a_sam"] },
+  { id: "p_keynote", url: "/demo/photo-2.jpg", caption: "Maya opening: Build with Grok", by: "a_luka", minsAgo: 150, who: ["a_maya"] },
+  { id: "p_hallway", url: "/demo/photo-3.jpg", caption: "Hallway ideas over coffee", by: "a_anna", minsAgo: 90, who: ["a_ben", "a_priya"] },
+  { id: "p_demo", url: "/demo/photo-4.jpg", caption: "First demo dry-run", by: "a_sam", minsAgo: 45, who: ["a_alex", "a_mei", "a_kenji"] },
 ];
 
 export function buildSeed(): DB {
   const now = Date.now();
   const iso = (minsAgo: number) => new Date(now - minsAgo * 60000).toISOString();
   const attendees: Attendee[] = people.map((p, i) => ({ ...p, eventId: EVENT_ID, joinedAt: iso(200 - i * 7) }));
-  const photos: Photo[] = scenes.map((s) => ({
+  const seeded: Photo[] = photos.map((s) => ({
     id: s.id,
     eventId: EVENT_ID,
-    url: `/scene/${s.id}?bg=${s.bg}&who=${s.who.join(",")}`,
+    url: s.url,
     uploaderId: s.by,
     caption: s.caption,
     takenAt: iso(s.minsAgo),
@@ -44,7 +44,7 @@ export function buildSeed(): DB {
     hidden: false,
     groundTruth: s.who,
   }));
-  return {
+  const db: DB = {
     events: [
       {
         id: EVENT_ID,
@@ -63,7 +63,7 @@ export function buildSeed(): DB {
       },
     ],
     attendees,
-    photos,
+    photos: seeded,
     tasks: [],
     plans: {},
     activity: attendees.slice(0, 6).map((a, i) => ({
@@ -75,4 +75,14 @@ export function buildSeed(): DB {
       attendeeId: a.id,
     })),
   };
+
+  // Start the demo mid-event: photos already tagged, a plan running, a few shares done.
+  for (const p of [...seeded].reverse()) applyTags(db, EVENT_ID, p.id, mockIdentify(p, attendees));
+  savePlan(db, EVENT_ID, buildPlan(db, EVENT_ID), "mock");
+  const mine = (id: string) => db.tasks.filter((t) => t.attendeeId === id);
+  for (const t of mine("a_anna")) completeTask(db, t.id);
+  for (const t of mine("a_luka").slice(0, -1)) completeTask(db, t.id);
+  for (const t of mine("a_sam").slice(0, 1)) completeTask(db, t.id);
+  for (const t of mine("a_maya").slice(0, 1)) completeTask(db, t.id);
+  return db;
 }

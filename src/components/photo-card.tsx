@@ -1,22 +1,19 @@
 import type { Attendee, Photo } from "@/lib/types";
 import { Avatar, relTime } from "./ui";
 
-/** Square gallery tile: tagged faces stacked in the corner, consent state on the image. */
-export function PhotoTile({ photo, src, people, onOpen }: { photo: Photo; src: string; people: Attendee[]; onOpen?: () => void }) {
-  const tagged = photo.tags.map((t) => people.find((a) => a.id === t.attendeeId)).filter((a): a is Attendee => !!a);
+/** Clean square gallery tile; consent state is the only overlay. */
+export function PhotoTile({ photo, src, onOpen, selecting, selected }: { photo: Photo; src: string; onOpen?: () => void; selecting?: boolean; selected?: boolean }) {
   return (
-    <button onClick={onOpen} className="group relative aspect-square overflow-hidden rounded-2xl bg-ice text-left">
+    <button onClick={onOpen} className={`group relative aspect-square overflow-hidden rounded-2xl bg-ice text-left transition ${selected ? "ring-4 ring-sky" : ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt={photo.caption} className={`h-full w-full object-cover transition group-hover:scale-105 ${photo.hidden ? "blur-xl" : ""}`} />
       {photo.status === "pending" && <span className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-bold text-navy">Grok is looking…</span>}
       {photo.hidden && <span className="absolute inset-0 grid place-items-center text-2xl">🔒</span>}
-      {photo.withheld.length > 0 && !photo.hidden && <span className="absolute right-2 top-2 rounded-full bg-white/90 px-1.5 py-0.5 text-[10px] font-bold text-navy">🛡 {photo.withheld.length}</span>}
-      {tagged.length > 0 && (
-        <span className="absolute bottom-2 left-2 flex -space-x-2">
-          {tagged.slice(0, 4).map((a) => (
-            <Avatar key={a.id} a={a} size={22} />
-          ))}
-          {tagged.length > 4 && <span className="grid h-[22px] w-[22px] place-items-center rounded-full bg-white text-[9px] font-bold text-navy ring-2 ring-white">+{tagged.length - 4}</span>}
+      {selecting && (
+        <span className={`absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full border-2 border-white text-white ${selected ? "bg-sky" : "bg-black/20"}`}>
+          {selected && (
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 5 5 9-10" /></svg>
+          )}
         </span>
       )}
     </button>

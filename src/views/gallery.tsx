@@ -12,6 +12,8 @@ export function GalleryView({ eventId }: { eventId: string }) {
   const state = useAppData(5000);
   const [filter, setFilter] = useState<"all" | "me">("all");
   const [openId, setOpenId] = useState<string | null>(null);
+  const [selecting, setSelecting] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
   if (!state) return <AppShell eventId={eventId} tab="photos" state={state}><Loading /></AppShell>;
   const { db } = state;
   const event = db.events.find((e) => e.id === eventId)!;
@@ -21,6 +23,10 @@ export function GalleryView({ eventId }: { eventId: string }) {
   const photos = filter === "me" ? all.filter((p) => p.tags.some((t) => t.attendeeId === me?.id)) : all;
   const contributors = new Set(all.map((p) => p.uploaderId)).size;
   const open = all.find((p) => p.id === openId);
+  const inSelection = [...new Set(all.filter((p) => selected.includes(p.id)).flatMap((p) => p.tags.map((t) => t.attendeeId)))]
+    .filter((id) => id !== me?.id)
+    .map((id) => "@" + people.find((a) => a.id === id)?.xHandle);
+  const shareText = `Photos from ${event.name}${inSelection.length ? ` with ${inSelection.join(" ")}` : ""} 📸 ${event.hashtag}`;
   return (
     <AppShell eventId={eventId} tab="photos" state={state}>
       <div className="space-y-4">
@@ -39,7 +45,14 @@ export function GalleryView({ eventId }: { eventId: string }) {
         {photos.length ? (
           <div className="grid grid-cols-2 gap-2.5">
             {photos.map((p) => (
-              <PhotoTile key={p.id} photo={p} src={photoSrc(p, db)} people={people} onOpen={() => setOpenId(p.id)} />
+              <PhotoTile
+                key={p.id}
+                photo={p}
+                src={photoSrc(p, db)}
+                selecting={selecting}
+                selected={selected.includes(p.id)}
+                onOpen={() => (selecting ? setSelected((s) => (s.includes(p.id) ? s.filter((x) => x !== p.id) : [...s, p.id])) : setOpenId(p.id))}
+              />
             ))}
           </div>
         ) : (
@@ -52,9 +65,26 @@ export function GalleryView({ eventId }: { eventId: string }) {
           <span>
             {all.length} photos · {contributors} contributors
           </span>
-          <span className="font-semibold text-sky">{all.filter((p) => p.status === "tagged").length} tagged by Grok</span>
+          <button
+            className="font-semibold text-sky"
+            onClick={() => {
+              setSelecting((v) => !v);
+              setSelected([]);
+            }}
+          >
+            {selecting ? "Cancel" : "Select"}
+          </button>
         </div>
-        {me ? (
+        {selecting ? (
+          <a
+            className={`btn-primary w-full py-4 text-base ${selected.length ? "" : "pointer-events-none opacity-40"}`}
+            target="_blank"
+            rel="noreferrer"
+            href={`https://x.com/intent/post?text=${encodeURIComponent(shareText)}`}
+          >
+            Share {selected.length || ""} {selected.length === 1 ? "photo" : "photos"} on X
+          </a>
+        ) : me ? (
           <UploadButton />
         ) : (
           <Link href={`/join/${eventId}`} className="btn-grok w-full py-4 text-base">

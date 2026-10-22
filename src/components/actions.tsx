@@ -53,20 +53,17 @@ export function SignInAs({ attendees, currentId, redirect }: { attendees: Pick<A
 export function UploadButton() {
   const [busy, setBusy] = useState(false);
   const input = useRef<HTMLInputElement>(null);
-  const [caption, setCaption] = useState("");
 
   async function upload(files: FileList | null) {
     if (!files?.length) return;
     setBusy(true);
-    await api.upload(Array.from(files), caption || "Event moment");
+    await api.upload(Array.from(files), files.length === 1 ? files[0].name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ") : "Event moments");
     setBusy(false);
-    setCaption("");
     if (input.current) input.current.value = "";
   }
 
   return (
-    <div className="space-y-2">
-      <input className="input rounded-full text-center" placeholder="Add a caption (optional)" value={caption} onChange={(e) => setCaption(e.target.value)} />
+    <div>
       <input ref={input} type="file" accept="image/*" multiple hidden onChange={(e) => upload(e.target.files)} />
       <button className="btn-grok w-full py-4 text-base" disabled={busy} onClick={() => input.current?.click()}>
         {busy ? (
@@ -107,28 +104,17 @@ const fieldInput = "w-full bg-transparent py-3 text-sm text-navy outline-none pl
 
 export function JoinForm({ eventId, initial }: { eventId: string; initial?: Partial<Attendee> }) {
   const router = useRouter();
-  const [step, setStep] = useState<"login" | "profile">(initial?.xHandle ? "profile" : "login");
   const [busy, setBusy] = useState(false);
+  const [more, setMore] = useState(false);
   const [f, setF] = useState({
-    name: initial?.name ?? "",
-    xHandle: initial?.xHandle ?? "",
+    email: initial?.email ?? "",
     linkedin: initial?.linkedin ?? "",
+    xHandle: initial?.xHandle ?? "",
     lookFor: initial?.lookFor ?? "",
     consentPhoto: initial?.consentPhoto ?? false,
     consentTag: initial?.consentTag ?? false,
   });
   const set = (k: keyof typeof f, v: string | boolean) => setF((p) => ({ ...p, [k]: v }));
-
-  if (step === "login")
-    return (
-      <div className="space-y-3">
-        <button className="btn-primary w-full py-4 text-base" onClick={() => setStep("profile")}>
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23 22h-6.8l-5.3-6.9L4.8 22H1.7l8.1-9.3L1 2h7l4.8 6.3L18.9 2Z" /></svg>
-          Continue with X
-        </button>
-        <p className="text-center text-xs text-muted">We only read your public handle. Nothing is posted without your approval.</p>
-      </div>
-    );
 
   return (
     <form
@@ -141,18 +127,26 @@ export function JoinForm({ eventId, initial }: { eventId: string; initial?: Part
         if (a) router.push(`/e/${eventId}`);
       }}
     >
-      <Field label="Name" icon="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 20a8 8 0 0 1 16 0">
-        <input className={fieldInput} required value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Ada Lovelace" />
-      </Field>
-      <Field label="X handle" icon="M4 4l16 16M20 4 4 20">
-        <input className={fieldInput} required value={f.xHandle} onChange={(e) => set("xHandle", e.target.value)} placeholder="@yourhandle" />
+      <Field label="Email" icon="M3 6h18v12H3zM3 7l9 6 9-6">
+        <input className={fieldInput} type="email" required value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="you@example.com" />
       </Field>
       <Field label="LinkedIn profile URL" icon="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1">
         <input className={fieldInput} value={f.linkedin} onChange={(e) => set("linkedin", e.target.value)} placeholder="linkedin.com/in/yourname" />
       </Field>
-      <Field label="How will Grok spot you tonight?" icon="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z">
-        <input className={fieldInput} value={f.lookFor} onChange={(e) => set("lookFor", e.target.value)} placeholder="e.g. orange hoodie, glasses" />
-      </Field>
+      {more ? (
+        <>
+          <Field label="X handle" icon="M4 4l16 16M20 4 4 20">
+            <input className={fieldInput} value={f.xHandle} onChange={(e) => set("xHandle", e.target.value)} placeholder="@yourhandle" />
+          </Field>
+          <Field label="How will Grok spot you tonight?" icon="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z">
+            <input className={fieldInput} value={f.lookFor} onChange={(e) => set("lookFor", e.target.value)} placeholder="e.g. orange hoodie, glasses" />
+          </Field>
+        </>
+      ) : (
+        <button type="button" onClick={() => setMore(true)} className="text-sm font-semibold text-sky">
+          + Add X handle and how Grok can spot you
+        </button>
+      )}
       <div className="space-y-3 pt-1">
         <Check label="I'm happy to be photographed" on={f.consentPhoto} set={(v) => set("consentPhoto", v)} />
         <Check label="People can tag me in posts" on={f.consentPhoto && f.consentTag} disabled={!f.consentPhoto} set={(v) => set("consentTag", v)} />
