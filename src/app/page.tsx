@@ -3,6 +3,7 @@ import { EVENT_ID } from "@/lib/seed";
 import { GrokMark } from "@/components/ui";
 
 const steps = [
+  ["Autopilot", "Drop in a one-line idea, a Luma link and your notes and receipts. Grokbot drafts the run sheet, budget, rota, posts, visuals and newsletter. You approve each one, or all of them in one click."],
   ["Scan & consent", "Attendees scan a QR, sign in with X, add their LinkedIn and choose whether they can be photographed or tagged."],
   ["Upload", "Everyone drops their photos into one shared event gallery."],
   ["Grok tags", "Grok matches the people who opted in and delivers each photo to the people in it. Opted-out people are never tagged."],
@@ -17,13 +18,16 @@ export default function Home() {
         <GrokMark className="h-3 w-3" /> Grok Bot Community Engineering · London
       </div>
       <h1 className="max-w-3xl text-5xl font-black tracking-tight sm:text-6xl">
-        Every event photo, <span className="bg-gradient-to-r from-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">tagged with consent</span> and shared for maximum reach.
+        One event idea in. <span className="bg-gradient-to-r from-fuchsia-400 to-indigo-400 bg-clip-text text-transparent">Run sheet, visuals, posts and newsletter</span> out.
       </h1>
       <p className="mt-5 max-w-2xl text-lg text-zinc-400">
-        Grokbot turns a pile of camera rolls into a coordinated community launch, with no manual tagging, no lost photos and no posting into the void.
+        Grokbot does the weekly admin that burns out volunteers, before the event, on the night and after it. Nothing goes out until the lead approves it, and every approval shows up as volunteer hours saved.
       </p>
       <div className="mt-8 flex flex-wrap gap-3">
-        <Link href={`/join/${EVENT_ID}`} className="btn-grok px-6 py-3 text-base">
+        <Link href={`/organiser/${EVENT_ID}/autopilot`} className="btn-grok px-6 py-3 text-base">
+          Open Event Autopilot
+        </Link>
+        <Link href={`/join/${EVENT_ID}`} className="btn-ghost px-6 py-3 text-base">
           Join as attendee
         </Link>
         <Link href={`/organiser/${EVENT_ID}`} className="btn-ghost px-6 py-3 text-base">
@@ -33,7 +37,7 @@ export default function Home() {
           Event gallery
         </Link>
       </div>
-      <ol className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <ol className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {steps.map(([t, d], i) => (
           <li key={t} className="card p-4">
             <span className="text-xs font-mono text-fuchsia-300">0{i + 1}</span>

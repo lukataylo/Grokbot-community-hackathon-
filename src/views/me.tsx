@@ -27,7 +27,9 @@ export function MeView({ eventId }: { eventId: string }) {
       </>
     );
   const mine = db.photos.filter((p) => p.eventId === eventId && p.tags.some((t) => t.attendeeId === me.id));
-  const tasks = db.tasks.filter((t) => t.attendeeId === me.id).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
+  const plan = db.plans[eventId];
+  // Tasks only reach attendees once the lead has approved the plan.
+  const tasks = db.tasks.filter((t) => t.attendeeId === me.id && plan?.approved).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
   const board = leaderboard(db, eventId);
   const rank = board.findIndex((s) => s.attendeeId === me.id) + 1;
   const score = board.find((s) => s.attendeeId === me.id);
@@ -63,7 +65,9 @@ export function MeView({ eventId }: { eventId: string }) {
               })}
             </div>
           ) : (
-            <p className="card p-4 text-sm text-zinc-400">No tasks yet. Grokbot will assign some once the organiser generates the sharing plan.</p>
+            <p className="card p-4 text-sm text-zinc-400">
+              {plan && !plan.approved ? "Grokbot has drafted the sharing plan. Your tasks appear here as soon as the organiser approves it." : "No tasks yet. Grokbot will assign some once the organiser generates the sharing plan."}
+            </p>
           )}
         </section>
 

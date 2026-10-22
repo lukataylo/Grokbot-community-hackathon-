@@ -15,6 +15,7 @@ export function Nav({ eventId, active, state }: { eventId: string; active: strin
     ["plan", "Share plan", `/e/${eventId}/plan`],
     ["leaderboard", "Leaderboard", `/e/${eventId}/leaderboard`],
     ["organiser", "Organiser", `/organiser/${eventId}`],
+    ["autopilot", "Autopilot", `/organiser/${eventId}/autopilot`],
   ];
   const live = state?.mode === "grok";
   return (
@@ -24,7 +25,7 @@ export function Nav({ eventId, active, state }: { eventId: string; active: strin
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-white text-black">
             <GrokMark className="h-4 w-4" />
           </span>
-          <span className="hidden sm:inline">Grokbot Event Share</span>
+          <span className="hidden sm:inline">Grokbot Event Autopilot</span>
         </Link>
         <span className="hidden text-sm text-zinc-500 md:inline">{event?.hashtag}</span>
         <nav className="flex flex-1 flex-wrap gap-1 text-sm">

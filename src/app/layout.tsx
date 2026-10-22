@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Grokbot Event Share",
-  description: "Scan, consent, share: Grok tags your event photos and coordinates the reach.",
+  title: "Grokbot Event Autopilot",
+  description: "One idea in: run sheet, budget, rota, on-brand visuals, posts and a newsletter out, approved by the lead in one click.",
 };
 
 export default function RootLayout({

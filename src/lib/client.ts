@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { addPhoto, applyTags, botCommand, botContext, buildPlan, completeTask, joinEvent, logBot, mockBotAnswer, mockIdentify, savePlan, uid, type JoinInput } from "./engine";
+import { addPhoto, applyTags, botCommand, botContext, buildPlan, completeTask, joinEvent, logActivity, logBot, mockBotAnswer, mockIdentify, savePlan, uid, type JoinInput } from "./engine";
+import { approveAll, approvePlan, getKit, kitMarkdown, markPublished, mockAnnouncement, mockItem, mockKit, saveKit, setBrand, updateItem } from "./kit";
+import { mockDigest, parseIcs, sampleIcs, thisWeek, updateDigest } from "./digest";
 import { buildSeed } from "./seed";
 import { parseSceneUrl, renderScene } from "./scene";
-import type { DB, Photo } from "./types";
+import type { Brand, DB, KitKey, Photo } from "./types";
 
 /**
  * Static mode (NEXT_PUBLIC_STATIC_DEMO=1) runs the whole app in the browser against a
@@ -21,6 +23,7 @@ export interface AppState {
   db: DB;
   meId: string | null;
   mode: "grok" | "mock";
+  integrations?: { ghost: boolean; discord: boolean; notion: boolean };
 }
 
 let state: AppState | null = null;
@@ -29,7 +32,11 @@ const emit = () => listeners.forEach((l) => l());
 
 function loadLocal(): DB {
   const raw = localStorage.getItem(DB_KEY);
-  if (raw) return JSON.parse(raw) as DB;
+  if (raw) {
+    const db = JSON.parse(raw) as DB;
+    db.kits ??= {};
+    return db;
+  }
   const seed = buildSeed();
   localStorage.setItem(DB_KEY, JSON.stringify(seed));
   return seed;
@@ -155,7 +162,7 @@ export const api = {
         let r = botCommand(db, eventId, command);
         if (r === null) {
           if (cmd === "/tag") r = `Tagged ${tagLocal(db, eventId, db.photos.filter((p) => p.eventId === eventId && p.status === "pending").map((p) => p.id))} new photos. Consent rules applied.`;
-          else if (cmd === "/plan") r = `Sharing plan ready: ${savePlan(db, eventId, buildPlan(db, eventId), "mock")} tasks scheduled. Open the Plan tab.`;
+          else if (cmd === "/plan") r = `Sharing plan ready: ${savePlan(db, eventId, buildPlan(db, eventId), "mock")} tasks drafted. Approve it on the Plan tab to send them to attendees.`;
           else r = mockBotAnswer(botContext(db, eventId));
         }
         logBot(db, eventId, command, r);
@@ -163,6 +170,83 @@ export const api = {
       });
     await refresh();
     return reply;
+  },
+  async generateKit(body: { eventId: string; idea: string; dump: string; luma: string; brand?: Brand }) {
+    if (!STATIC) {
+      const r = await post("/api/kit", body);
+      await refresh();
+      return r as { source?: string; luma?: { ok: boolean }; error?: string };
+    }
+    const kit = mockKit({ ...body, luma: body.luma.trim() ? { id: body.luma.trim(), facts: null } : undefined });
+    local((db) => saveKit(db, kit));
+    await refresh();
+    return { source: kit.source, luma: kit.luma };
+  },
+  async kitItem(eventId: string, key: KitKey, action: "approve" | "unapprove" | "edit" | "regenerate", data?: unknown) {
+    if (!STATIC) await post("/api/kit/item", { eventId, key, action, data });
+    else
+      local((db) => {
+        const kit = getKit(db, eventId);
+        if (!kit) return;
+        if (action === "regenerate") updateItem(db, eventId, key, { regenerated: mockItem(kit, key, kit.items[key].variant + 1) });
+        else updateItem(db, eventId, key, action === "edit" ? { data } : { status: action === "approve" ? "approved" : "draft" });
+      });
+    await refresh();
+  },
+  async publishKit(eventId: string, all: boolean): Promise<{ count: number; errors: string[] }> {
+    let r: { count: number; errors: string[] };
+    if (!STATIC) r = await post("/api/kit/publish", { eventId, all });
+    else
+      r = local((db) => {
+        if (all) approveAll(db, eventId);
+        return { count: markPublished(db, eventId), errors: [] };
+      });
+    await refresh();
+    return r;
+  },
+  async setBrand(eventId: string, brand: Brand) {
+    if (!STATIC) await post("/api/kit/brand", { eventId, brand });
+    else local((db) => setBrand(db, eventId, brand));
+    await refresh();
+  },
+  async exportNotion(eventId: string): Promise<{ ok: boolean; url?: string; markdown?: string; error?: string }> {
+    if (!STATIC) return post("/api/kit/notion", { eventId });
+    const kit = getKit(loadLocal(), eventId);
+    return { ok: false, markdown: kit && kitMarkdown(kit) };
+  },
+  async approvePlan(eventId: string) {
+    if (!STATIC) await post("/api/plan/approve", { eventId });
+    else local((db) => approvePlan(db, eventId));
+    await refresh();
+  },
+  async announce(eventId: string, change: string): Promise<{ text: string; via: string }> {
+    let r: { text: string; via: string };
+    if (!STATIC) r = await post("/api/announce", { eventId, change });
+    else
+      r = local((db) => {
+        const name = getKit(db, eventId)?.facts.name ?? db.events.find((e) => e.id === eventId)?.name ?? "tonight";
+        const text = mockAnnouncement(change, name);
+        logActivity(db, { eventId, kind: "announce", text: `Pushed update (WhatsApp share link): ${text.slice(0, 120)}` });
+        return { text, via: "WhatsApp share link" };
+      });
+    await refresh();
+    return r;
+  },
+  async digest(calendar: string, community: string): Promise<{ feed: string; events: number }> {
+    let r: { feed: string; events: number };
+    if (!STATIC) r = await post("/api/digest", { calendar, community });
+    else
+      r = local((db) => {
+        db.digest = mockDigest(calendar, "sample", thisWeek(parseIcs(sampleIcs())), community);
+        return { feed: "sample", events: db.digest.events.length };
+      });
+    await refresh();
+    return r;
+  },
+  async digestItem(part: "newsletter" | "whatsapp", patch: { status?: "draft" | "approved" | "sent"; text?: string; subject?: string }) {
+    if (!STATIC) await post("/api/digest/item", { part, ...patch });
+    else local((db) => updateDigest(db, part, patch));
+    await refresh();
   },
   async reset() {
     if (!STATIC) await post("/api/reset");

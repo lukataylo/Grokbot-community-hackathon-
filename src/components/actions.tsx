@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { api } from "@/lib/client";
-import type { Attendee } from "@/lib/types";
+import { dayLabel, nowNext, timeLabel } from "@/lib/kit";
+import type { Attendee, EventKit } from "@/lib/types";
 
 export function ActionButton({ run, label, busyLabel, className = "btn-grok" }: { run: () => Promise<unknown>; label: React.ReactNode; busyLabel?: string; className?: string }) {
   const [busy, setBusy] = useState(false);
@@ -221,6 +223,68 @@ export function BotConsole({ eventId }: { eventId: string }) {
       >
         <input className="input font-mono" value={cmd} onChange={(e) => setCmd(e.target.value)} placeholder="/announce Demos start in 10 min!" />
         <button className="btn-primary">Send</button>
+      </form>
+    </div>
+  );
+}
+
+/** Night-of helper: what's on now and next from the run sheet, and last-minute changes pushed to the group. */
+export function NightOf({ eventId, kit }: { eventId: string; kit?: EventKit }) {
+  const [change, setChange] = useState("");
+  const [sent, setSent] = useState<{ text: string; via: string } | null>(null);
+  const [tick, setTick] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setTick(Date.now()), 30000);
+    return () => clearInterval(t);
+  }, []);
+  const { now, next } = nowNext(kit, tick);
+  return (
+    <div className="card grid gap-4 p-4 lg:grid-cols-[1fr_1.4fr]">
+      <div>
+        <h3 className="mb-2 font-semibold">Run sheet{kit ? ` · ${kit.facts.name}` : ""}</h3>
+        {kit ? (
+          <div className="space-y-2 text-sm">
+            <div className="rounded-xl bg-fuchsia-500/10 p-3">
+              <p className="text-xs uppercase tracking-wider text-fuchsia-300">Now</p>
+              <p className="font-semibold">{now ? `${timeLabel(now.time)} · ${now.item}` : "Not started yet"}</p>
+              {now && <p className="text-xs text-zinc-400">{now.owner}{now.notes ? ` · ${now.notes}` : ""}</p>}
+            </div>
+            <div className="rounded-xl bg-white/5 p-3">
+              <p className="text-xs uppercase tracking-wider text-zinc-500">Next</p>
+              <p className="font-semibold">{next ? `${now ? "" : `${dayLabel(next.time)}, `}${timeLabel(next.time)} · ${next.item}` : "That's a wrap"}</p>
+              {next && <p className="text-xs text-zinc-400">{next.owner}</p>}
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-zinc-400">
+            No run sheet yet. <Link href={`/organiser/${eventId}/autopilot`} className="text-fuchsia-300 hover:underline">Generate one with Autopilot</Link>.
+          </p>
+        )}
+      </div>
+      <form
+        className="flex flex-col gap-2"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          if (!change.trim()) return;
+          setSent(await api.announce(eventId, change));
+          setChange("");
+        }}
+      >
+        <h3 className="font-semibold">Push a last-minute change</h3>
+        <textarea className="input h-20" value={change} onChange={(e) => setChange(e.target.value)} placeholder="Demos moved to 21:45, pizza is in the kitchen not the hall" />
+        <div className="flex flex-wrap items-center gap-2">
+          <button className="btn-grok">📣 Write & push</button>
+          {sent && (
+            <a href={`https://wa.me/?text=${encodeURIComponent(sent.text)}`} target="_blank" rel="noreferrer" className="btn-ghost px-3 py-1 text-xs">
+              Open WhatsApp ↗
+            </a>
+          )}
+        </div>
+        {sent && (
+          <p className="rounded-lg bg-black/40 px-3 py-2 text-sm text-zinc-200">
+            {sent.text} <span className="text-xs text-zinc-500">· {sent.via}</span>
+          </p>
+        )}
       </form>
     </div>
   );

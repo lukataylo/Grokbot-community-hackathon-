@@ -24,10 +24,14 @@ export function PlanView({ eventId }: { eventId: string }) {
             <h1 className="text-3xl font-bold">Sharing plan</h1>
             <p className="text-zinc-400">A timed schedule of who posts, who comments and who reposts whom.</p>
           </div>
-          <ActionButton run={() => api.plan(eventId)} label={<><GrokMark className="h-4 w-4" /> {plan ? "Regenerate plan" : "Generate plan with Grok"}</>} busyLabel="Grok is planning…" />
+          <div className="flex flex-wrap gap-2">
+            {plan && !plan.approved && <ActionButton run={() => api.approvePlan(eventId)} label="✓ Approve & send to attendees" busyLabel="Approving…" />}
+            <ActionButton run={() => api.plan(eventId)} label={<><GrokMark className="h-4 w-4" /> {plan ? "Regenerate plan" : "Generate plan with Grok"}</>} busyLabel="Grok is planning…" className={plan && !plan.approved ? "btn-ghost" : "btn-grok"} />
+          </div>
         </div>
         {plan && (
           <div className="card flex flex-wrap items-center gap-3 p-4 text-sm">
+            <Badge tone={plan.approved ? "green" : "amber"}>{plan.approved ? "Approved" : "Draft · attendees can't see this yet"}</Badge>
             <Badge tone="fuchsia">Strategy</Badge>
             <p className="flex-1 text-zinc-300">{plan.strategy}</p>
             <span className="text-xs text-zinc-500">

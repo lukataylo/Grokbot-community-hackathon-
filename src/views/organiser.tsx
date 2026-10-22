@@ -6,10 +6,11 @@ import QRCode from "qrcode";
 import { api, BASE, STATIC, useAppData } from "@/lib/client";
 import { leaderboard } from "@/lib/points";
 import { Loading, Nav } from "@/components/nav";
-import { ActionButton, BotConsole } from "@/components/actions";
+import { ActionButton, BotConsole, NightOf } from "@/components/actions";
+import { HoursSaved } from "@/components/hours";
 import { Avatar, GrokMark, relTime } from "@/components/ui";
 
-const KIND_ICON = { join: "🎟", upload: "📷", tag: "🏷", task: "🚀", bot: "🤖", plan: "🗓" } as const;
+const KIND_ICON = { join: "🎟", upload: "📷", tag: "🏷", task: "🚀", bot: "🤖", plan: "🗓", kit: "✨", announce: "📣" } as const;
 
 export function OrganiserView({ eventId }: { eventId: string }) {
   const state = useAppData(4000);
@@ -30,12 +31,13 @@ export function OrganiserView({ eventId }: { eventId: string }) {
   const reach = leaderboard(db, eventId).reduce((s, x) => s + x.reach, 0);
   const pending = photos.filter((p) => p.status === "pending").length;
   const stats = [
-    ["Attendees", people.length, `${people.filter((a) => a.consentTag).length} opted into tagging`],
+    ["Checked in", people.length, `via QR · ${people.filter((a) => a.consentTag).length} opted into tagging`],
     ["Photos", photos.length, `${pending} waiting for Grok`],
     ["Tags delivered", photos.reduce((s, p) => s + p.tags.length, 0), `${photos.reduce((s, p) => s + p.withheld.length, 0)} withheld for consent`],
-    ["Share tasks", `${done.length}/${tasks.length}`, "done / planned"],
+    ["Share tasks", `${done.length}/${tasks.length}`, db.plans[eventId] ? (db.plans[eventId].approved ? "done / planned" : "plan awaiting your approval") : "done / planned"],
     ["Est. reach", reach.toLocaleString(), "followers reached"],
   ];
+  const kit = db.kits?.[eventId];
   return (
     <>
       <Nav eventId={eventId} active="organiser" state={state} />
@@ -51,13 +53,15 @@ export function OrganiserView({ eventId }: { eventId: string }) {
             <h1 className="text-3xl font-bold">{event.name}</h1>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Link href={`/organiser/${eventId}/autopilot`} className="btn-primary">✨ Event Autopilot</Link>
             <ActionButton run={() => api.tag(eventId)} label={<><GrokMark className="h-4 w-4" /> Run Grok tagging{pending ? ` (${pending})` : ""}</>} busyLabel="Grok is looking…" />
             <ActionButton run={() => api.plan(eventId)} label={<><GrokMark className="h-4 w-4" /> Generate share plan</>} busyLabel="Planning…" />
             <ActionButton run={() => api.reset()} label="Reset demo" className="btn-ghost" />
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <HoursSaved db={db} eventId={eventId} />
           {stats.map(([label, value, sub]) => (
             <div key={label as string} className="card p-4">
               <p className="text-xs uppercase tracking-wider text-zinc-500">{label}</p>
@@ -66,6 +70,8 @@ export function OrganiserView({ eventId }: { eventId: string }) {
             </div>
           ))}
         </div>
+
+        <NightOf eventId={eventId} kit={kit} />
 
         <div className="grid gap-4 lg:grid-cols-[280px_1fr_1fr]">
           <div className="card flex flex-col items-center p-5 text-center">
