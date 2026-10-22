@@ -70,3 +70,17 @@ create table activity (
 alter table attendees enable row level security;
 create policy "attendees edit own consent" on attendees
   for update using (auth.uid() = auth_user_id);
+
+-- Event Autopilot: one kit per event. Items are kept as jsonb so each piece's status
+-- (draft / approved / sent) and data can be updated independently.
+create table event_kits (
+  event_id text primary key references events(id) on delete cascade,
+  idea text not null,
+  dump text default '',
+  source text default 'mock',
+  facts jsonb not null,
+  brand jsonb not null,
+  items jsonb not null,
+  generated_at timestamptz default now(),
+  published_at timestamptz
+);

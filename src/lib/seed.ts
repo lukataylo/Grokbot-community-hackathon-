@@ -1,4 +1,5 @@
-import type { Attendee, DB, Photo } from "./types";
+import type { Attendee, DB, KitKey, Photo } from "./types";
+import { mockKit } from "./kit";
 
 export const EVENT_ID = "grokbot-london";
 
@@ -26,9 +27,27 @@ const scenes: { id: string; caption: string; by: string; minsAgo: number; who: s
   { id: "p_demo", caption: "First demo dry-run", by: "a_aisha", minsAgo: 30, who: ["a_aisha", "a_chloe", "a_omar"], bg: "stage" },
 ];
 
+export const SEED_IDEA = "Grok Bot community engineering hackathon tonight at Expedite London HQ for 60 builders with pizza";
+
+export const SEED_DUMP = `Venue hire from Expedite, sponsored £0 quote
+Pizza for 60 from Franco Manca £420 receipt
+Drinks from Beer52 £150 quote
+Lanyards and badges via Moo £36 paid
+Volunteers: Lena, Kenji, Inês, Omar
+Speakers: Raj Mehta, Tom Okafor
+Step-free access via the side entrance on Lyric Square.`;
+
 export function buildSeed(): DB {
   const now = Date.now();
   const iso = (minsAgo: number) => new Date(now - minsAgo * 60000).toISOString();
+  // A kit for tonight that the lead has partly approved, so the demo opens mid-flow.
+  const kit = mockKit({
+    eventId: EVENT_ID,
+    idea: SEED_IDEA,
+    dump: SEED_DUMP,
+    facts: { name: "Grok Bot Community Engineering Hackathon", startsAt: iso(240), endsAt: new Date(now + 90 * 60000).toISOString(), venue: "Expedite London HQ, 7 Lyric Square", hashtag: "#GrokBotLondon" },
+  }, new Date(now));
+  for (const k of ["page", "runSheet", "budget", "rota", "post:linkedin"] as KitKey[]) kit.items[k].status = "approved";
   const attendees: Attendee[] = people.map((p, i) => ({ ...p, eventId: EVENT_ID, joinedAt: iso(200 - i * 7) }));
   const photos: Photo[] = scenes.map((s) => ({
     id: s.id,
@@ -49,6 +68,7 @@ export function buildSeed(): DB {
       {
         id: EVENT_ID,
         name: "Grok Bot Community Engineering Hackathon",
+        shortName: "Grok Bot Hackathon",
         venue: "London",
         startsAt: iso(240),
         endsAt: new Date(now + 90 * 60000).toISOString(),
@@ -65,6 +85,7 @@ export function buildSeed(): DB {
     photos,
     tasks: [],
     plans: {},
+    kits: { [EVENT_ID]: kit },
     activity: attendees.slice(0, 6).map((a, i) => ({
       id: `seed_${i}`,
       eventId: EVENT_ID,

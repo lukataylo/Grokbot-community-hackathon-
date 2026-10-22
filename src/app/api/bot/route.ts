@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   let reply = botCommand(db, eventId, command);
   if (reply === null) {
     if (cmd === "/tag") reply = `Tagged ${await tagPhotos(eventId)} new photos. Consent rules applied.`;
-    else if (cmd === "/plan") reply = `Sharing plan ready: ${await generatePlan(eventId)} tasks scheduled. Open the Plan tab.`;
+    else if (cmd === "/plan") reply = `Sharing plan ready: ${await generatePlan(eventId)} tasks drafted. Approve it on the Plan tab to send them to attendees.`;
     else reply = await botAnswer(command, botContext(db, eventId));
   }
   mutate((d) => logBot(d, eventId, command, reply));

@@ -2,46 +2,40 @@
 
 import Link from "next/link";
 import type { AppState } from "@/lib/client";
-import { Avatar, Badge, GrokMark } from "./ui";
-import { SignInAs } from "./actions";
+import { Badge, Wordmark } from "./ui";
 
+/** Organiser navigation (desktop). Attendees get the mobile AppShell instead. */
 export function Nav({ eventId, active, state }: { eventId: string; active: string; state: AppState | null }) {
   const event = state?.db.events.find((e) => e.id === eventId);
-  const people = state?.db.attendees.filter((a) => a.eventId === eventId) ?? [];
-  const me = people.find((a) => a.id === state?.meId);
   const links = [
-    ["gallery", "Gallery", `/e/${eventId}`],
-    ["me", "My photos", `/e/${eventId}/me`],
+    ["organiser", "Dashboard", `/organiser/${eventId}`],
+    ["autopilot", "Autopilot", `/organiser/${eventId}/autopilot`],
+    ["digest", "Weekly digest", `/organiser/digest`],
     ["plan", "Share plan", `/e/${eventId}/plan`],
-    ["leaderboard", "Leaderboard", `/e/${eventId}/leaderboard`],
-    ["organiser", "Organiser", `/organiser/${eventId}`],
   ];
   const live = state?.mode === "grok";
   return (
-    <header className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 font-bold">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-white text-black">
-            <GrokMark className="h-4 w-4" />
-          </span>
-          <span className="hidden sm:inline">Grokbot Event Share</span>
+    <header className="sticky top-0 z-20 border-b border-line bg-white/85 backdrop-blur">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
+        <Link href="/" className="flex items-baseline gap-2">
+          <Wordmark className="text-2xl" />
+          <span className="eyebrow hidden sm:inline">Organiser</span>
         </Link>
-        <span className="hidden text-sm text-zinc-500 md:inline">{event?.hashtag}</span>
         <nav className="flex flex-1 flex-wrap gap-1 text-sm">
           {links.map(([k, label, href]) => (
-            <Link key={k} href={href} className={`rounded-lg px-3 py-1.5 ${active === k ? "bg-white/10 text-white" : "text-zinc-400 hover:text-white"}`}>
+            <Link key={k} href={href} className={`rounded-full px-3.5 py-1.5 font-medium transition ${active === k ? "bg-navy text-white" : "text-muted hover:bg-mist hover:text-navy"}`}>
               {label}
             </Link>
           ))}
         </nav>
+        <span className="hidden text-sm text-muted md:inline">{event?.hashtag}</span>
         {state && <Badge tone={live ? "green" : "amber"}>{live ? "Grok live" : "Grok mock"}</Badge>}
-        <SignInAs attendees={people} currentId={me?.id} />
-        {me && <Avatar a={me} size={30} />}
+        <Link href={`/e/${eventId}`} className="btn-ghost px-3.5 py-1.5 text-xs">Attendee app ↗</Link>
       </div>
     </header>
   );
 }
 
 export function Loading() {
-  return <div className="grid min-h-[50vh] place-items-center text-sm text-zinc-500">Loading event…</div>;
+  return <div className="grid min-h-[50vh] place-items-center text-sm text-muted">Loading…</div>;
 }

@@ -17,7 +17,7 @@ export function TaskCard({ task, people, photo, photoUrl, target, compact }: { t
   const due = new Date(task.scheduledAt).getTime() <= Date.now() + 60000;
   const done = task.status === "done";
   return (
-    <div className={`card flex gap-3 p-3 ${done ? "opacity-60" : due ? "ring-1 ring-fuchsia-400/60" : ""}`}>
+    <div className={`card flex gap-3 p-3 ${done ? "opacity-60" : due ? "ring-1 ring-2 ring-glow" : ""}`}>
       {photo && !compact && (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={photoUrl} alt="" className="h-20 w-24 shrink-0 rounded-lg object-cover" />
@@ -26,7 +26,7 @@ export function TaskCard({ task, people, photo, photoUrl, target, compact }: { t
         <div className="flex flex-wrap items-center gap-2 text-sm">
           <Avatar a={a} size={22} />
           <span className="font-semibold">@{a.xHandle}</span>
-          <span className="text-zinc-400">
+          <span className="text-muted">
             {VERB[task.type]} {targetWho ? `@${targetWho.xHandle}'s post` : "a photo"}
           </span>
           <Badge tone={task.platform === "x" ? "zinc" : "sky"}>
@@ -34,12 +34,12 @@ export function TaskCard({ task, people, photo, photoUrl, target, compact }: { t
             {task.platform === "x" ? "X" : "LinkedIn"}
           </Badge>
           <Badge tone="green">+{POINTS[task.type]} pts</Badge>
-          <span className="ml-auto text-xs text-zinc-400">
+          <span className="ml-auto text-xs text-muted">
             {fmtTime(task.scheduledAt)} · {done ? "done ✓" : relTime(task.scheduledAt)}
           </span>
         </div>
-        <p className="rounded-lg bg-black/40 px-3 py-2 text-sm text-zinc-200">{task.copy}</p>
-        {!compact && <p className="text-xs text-zinc-500">💡 {task.why}</p>}
+        <p className="rounded-lg bg-mist px-3 py-2 text-sm text-navy">{task.copy}</p>
+        {!compact && <p className="text-xs text-muted">💡 {task.why}</p>}
         {!done && (
           <div className="flex gap-2 pt-1">
             <a href={intentUrl(task)} target="_blank" rel="noreferrer" className="btn-ghost px-3 py-1 text-xs">

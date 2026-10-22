@@ -18,7 +18,9 @@ export function readDB(): DB {
     writeDB(seed);
     return seed;
   }
-  return JSON.parse(fs.readFileSync(DB_PATH, "utf8")) as DB;
+  const db = JSON.parse(fs.readFileSync(DB_PATH, "utf8")) as DB;
+  db.kits ??= {};
+  return db;
 }
 
 export function writeDB(db: DB) {
