@@ -1,5 +1,5 @@
 export type Platform = "x" | "linkedin";
-export type TaskType = "post" | "comment" | "repost";
+export type TaskType = "post" | "comment" | "repost" | "like";
 
 export interface EventInfo {
   id: string;
@@ -52,6 +52,8 @@ export interface Photo {
   withheld: { attendeeId: string; reason: "no-tag" | "no-photo" }[];
   hidden: boolean;
   grokNote?: string;
+  /** Where in the venue Grok thinks the photo was taken, e.g. "Main stage". */
+  place?: string;
   /** Demo-only: who is actually in a seeded SVG scene. */
   groundTruth?: string[];
 }
@@ -69,6 +71,8 @@ export interface ShareTask {
   why: string;
   status: "todo" | "done";
   doneAt?: string;
+  /** Link to the live post, shared by the poster so others can comment and upvote. */
+  postUrl?: string;
 }
 
 export interface Plan {

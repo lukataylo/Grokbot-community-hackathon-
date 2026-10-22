@@ -1,4 +1,5 @@
 import type { Attendee, DB, KitKey, Photo } from "./types";
+import { placeFor } from "./engine";
 import { mockKit } from "./kit";
 
 export const EVENT_ID = "grokbot-london";
@@ -19,11 +20,14 @@ const people: Omit<Attendee, "eventId" | "joinedAt">[] = [
 ];
 
 const scenes: { id: string; caption: string; by: string; minsAgo: number; who: string[]; bg: string }[] = [
+  { id: "p_doors", caption: "Doors open, QR check-in", by: "a_maya", minsAgo: 185, who: ["a_ines", "a_omar", "a_chloe"], bg: "crowd" },
   { id: "p_keynote", caption: "Raj's opening keynote on Grok agents", by: "a_maya", minsAgo: 150, who: ["a_raj", "a_tom"], bg: "stage" },
   { id: "p_team1", caption: "Team 'Consent Cam' mid-build", by: "a_lena", minsAgo: 120, who: ["a_lena", "a_kenji", "a_ines", "a_ben"], bg: "desk" },
+  { id: "p_hacking", caption: "Hacking in full swing", by: "a_ines", minsAgo: 112, who: ["a_ines", "a_sofia", "a_raj"], bg: "desk" },
   { id: "p_pizza", caption: "Pizza o'clock", by: "a_tom", minsAgo: 100, who: ["a_sofia", "a_aisha", "a_omar", "a_noah"], bg: "crowd" },
   { id: "p_whiteboard", caption: "Whiteboarding the architecture", by: "a_kenji", minsAgo: 80, who: ["a_kenji", "a_chloe", "a_maya"], bg: "board" },
   { id: "p_selfie", caption: "Organiser selfie with the speakers", by: "a_maya", minsAgo: 60, who: ["a_maya", "a_raj", "a_tom", "a_sofia", "a_lena"], bg: "crowd" },
+  { id: "p_debug", caption: "Late-night debugging", by: "a_kenji", minsAgo: 14, who: ["a_kenji", "a_tom", "a_lena"], bg: "desk" },
   { id: "p_demo", caption: "First demo dry-run", by: "a_aisha", minsAgo: 30, who: ["a_aisha", "a_chloe", "a_omar"], bg: "stage" },
 ];
 
@@ -63,6 +67,7 @@ export function buildSeed(): DB {
     hidden: false,
     groundTruth: s.who,
   }));
+  for (const p of photos) p.place = placeFor(p);
   return {
     events: [
       {

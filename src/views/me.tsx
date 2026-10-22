@@ -31,6 +31,10 @@ export function MeView({ eventId }: { eventId: string }) {
   // Tasks only reach attendees once the lead has approved the plan.
   const tasks = db.tasks.filter((t) => t.attendeeId === me.id && plan?.approved).sort((a, b) => a.scheduledAt.localeCompare(b.scheduledAt));
   const open = tasks.filter((t) => t.status === "todo");
+  // The next thing you can actually do: unlocked first, then the soonest locked one.
+  const unlocked = (t: (typeof tasks)[number]) => !t.targetTaskId || db.tasks.find((x) => x.id === t.targetTaskId)?.status === "done";
+  const next = open.find(unlocked) ?? open[0];
+  const rest = [...open.filter((t) => t !== next), ...tasks.filter((t) => t.status === "done")];
   const board = leaderboard(db, eventId);
   const rank = board.findIndex((s) => s.attendeeId === me.id) + 1;
   const score = board.find((s) => s.attendeeId === me.id);
@@ -52,7 +56,30 @@ export function MeView({ eventId }: { eventId: string }) {
         </Link>
       </div>
 
-      <section className="card mb-4 overflow-hidden">
+      <section>
+        {next && (
+          <div className="mb-4">
+            <p className="eyebrow mb-2 px-1">Next up</p>
+            <TaskCard hero task={next} people={people} photo={db.photos.find((p) => p.id === next.photoId)} photoUrl={(() => { const p = db.photos.find((x) => x.id === next.photoId); return p && photoSrc(p, db); })()} target={db.tasks.find((x) => x.id === next.targetTaskId)} />
+          </div>
+        )}
+        <h2 className="mb-2 px-1 text-lg font-bold">
+          Your share plan {open.length > 0 && <span className="text-sm font-medium text-muted">· {open.length} to do</span>}
+        </h2>
+        {rest.length ? (
+          <div className="space-y-3">
+            {rest.map((t) => {
+              const photo = db.photos.find((p) => p.id === t.photoId);
+              return <TaskCard key={t.id} task={t} people={people} photo={photo} photoUrl={photo && photoSrc(photo, db)} target={db.tasks.find((x) => x.id === t.targetTaskId)} />;
+            })}
+          </div>
+        ) : !next ? (
+          <p className="card p-4 text-sm text-muted">
+            {plan && !plan.approved ? "Grok has drafted the sharing plan. Your tasks appear here as soon as the organiser approves it." : "No tasks yet. Grok assigns them once the organiser publishes the sharing plan."}
+          </p>
+        ) : null}
+      </section>
+      <section className="card mt-6 overflow-hidden">
         <div className="flex items-center gap-3 bg-gradient-to-br from-[#6cc8ff] to-[#3fb3fa] px-4 py-3">
           <Mascot pose="wave" className="w-14" />
           <div className="flex-1">
@@ -96,23 +123,6 @@ export function MeView({ eventId }: { eventId: string }) {
         </div>
       </section>
 
-      <section>
-        <h2 className="mb-2 px-1 text-lg font-bold">
-          Your share tasks {open.length > 0 && <span className="text-sm font-medium text-muted">· {open.length} to do</span>}
-        </h2>
-        {tasks.length ? (
-          <div className="space-y-3">
-            {tasks.map((t) => {
-              const photo = db.photos.find((p) => p.id === t.photoId);
-              return <TaskCard key={t.id} task={t} people={people} photo={photo} photoUrl={photo && photoSrc(photo, db)} target={db.tasks.find((x) => x.id === t.targetTaskId)} />;
-            })}
-          </div>
-        ) : (
-          <p className="card p-4 text-sm text-muted">
-            {plan && !plan.approved ? "Grok has drafted the sharing plan. Your tasks appear here as soon as the organiser approves it." : "No tasks yet. Grok assigns them once the organiser publishes the sharing plan."}
-          </p>
-        )}
-      </section>
     </AppShell>
   );
 }

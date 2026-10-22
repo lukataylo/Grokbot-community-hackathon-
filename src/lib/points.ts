@@ -1,6 +1,6 @@
 import type { DB } from "./types";
 
-export const POINTS = { upload: 10, tagged: 2, post: 25, comment: 5, repost: 10 } as const;
+export const POINTS = { upload: 10, tagged: 2, post: 25, comment: 5, repost: 10, like: 3 } as const;
 
 export interface Score {
   attendeeId: string;
@@ -10,13 +10,14 @@ export interface Score {
   posts: number;
   comments: number;
   reposts: number;
+  likes: number;
   reach: number;
 }
 
 export function leaderboard(db: DB, eventId: string): Score[] {
   const scores = new Map<string, Score>();
   for (const a of db.attendees.filter((a) => a.eventId === eventId)) {
-    scores.set(a.id, { attendeeId: a.id, points: 0, uploads: 0, tagged: 0, posts: 0, comments: 0, reposts: 0, reach: 0 });
+    scores.set(a.id, { attendeeId: a.id, points: 0, uploads: 0, tagged: 0, posts: 0, comments: 0, reposts: 0, likes: 0, reach: 0 });
   }
   for (const p of db.photos.filter((p) => p.eventId === eventId)) {
     const s = scores.get(p.uploaderId);
@@ -33,10 +34,11 @@ export function leaderboard(db: DB, eventId: string): Score[] {
     if (t.type === "post") s.posts++;
     if (t.type === "comment") s.comments++;
     if (t.type === "repost") s.reposts++;
+    if (t.type === "like") s.likes++;
     s.reach += t.platform === "x" ? a.followersX : a.followersLinkedIn;
   }
   for (const s of scores.values()) {
-    s.points = s.uploads * POINTS.upload + s.tagged * POINTS.tagged + s.posts * POINTS.post + s.comments * POINTS.comment + s.reposts * POINTS.repost;
+    s.points = s.uploads * POINTS.upload + s.tagged * POINTS.tagged + s.posts * POINTS.post + s.comments * POINTS.comment + s.reposts * POINTS.repost + s.likes * POINTS.like;
   }
   return [...scores.values()].sort((a, b) => b.points - a.points || b.reach - a.reach);
 }

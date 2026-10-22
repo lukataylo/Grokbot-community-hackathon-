@@ -40,7 +40,7 @@ export async function identifyPeople(
   photo: Photo,
   roster: Attendee[],
   imageDataUrl?: string,
-): Promise<{ matches: PhotoTag[]; note: string }> {
+): Promise<{ matches: PhotoTag[]; note: string; place?: string; caption?: string }> {
   if (grokMode() === "grok" && imageDataUrl) {
     try {
       const list = roster.map((a) => `- id=${a.id} name=${a.name} looks like: ${a.lookFor}`).join("\n");
@@ -50,15 +50,21 @@ export async function identifyPeople(
           {
             role: "user",
             content: [
-              { type: "text", text: `Roster:\n${list}\n\nReturn {"matches":[{"attendeeId":"...","confidence":0-1,"reason":"..."}],"note":"one-line scene description"}` },
+              { type: "text", text: `Roster:\n${list}\n\nReturn {"matches":[{"attendeeId":"...","confidence":0-1,"reason":"..."}],"note":"one-line scene description","place":"where in the venue, 1-3 words, e.g. Main stage, Hack floor, Kitchen","caption":"a short, warm photo caption, max 8 words"}` },
               { type: "image_url", image_url: { url: imageDataUrl } },
             ],
           },
         ],
         VISION_MODEL,
       );
-      const parsed = parseJSON<{ matches: PhotoTag[]; note: string }>(out);
-      if (parsed) return { matches: parsed.matches.filter((m) => roster.some((a) => a.id === m.attendeeId)), note: parsed.note };
+      const parsed = parseJSON<{ matches: PhotoTag[]; note: string; place?: string; caption?: string }>(out);
+      if (parsed)
+        return {
+          matches: (parsed.matches ?? []).filter((m) => roster.some((a) => a.id === m.attendeeId)),
+          note: parsed.note,
+          place: typeof parsed.place === "string" ? parsed.place.slice(0, 30) : undefined,
+          caption: typeof parsed.caption === "string" ? parsed.caption.slice(0, 60) : undefined,
+        };
     } catch (e) {
       console.error("Grok vision failed, falling back to mock", e);
     }
