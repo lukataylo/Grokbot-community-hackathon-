@@ -14,6 +14,10 @@ npm run dev                  # http://localhost:3000
 
 Demo data is seeded into `data/db.json` on first run. Use **Reset demo** on the organiser page to start over.
 
+### Static preview (GitHub Pages)
+
+`./scripts/build-static.sh` builds a browser-only version into `out/`: mock Grok, seeded data kept in localStorage, and the same consent, plan and points logic (`src/lib/engine.ts`). `.github/workflows/pages.yml` publishes it to the `gh-pages` branch on every push to `main`. One-time setup: **Settings → Pages → Deploy from a branch → `gh-pages` / root**. The site is then served at `https://<owner>.github.io/<repo>/`.
+
 ## Pages
 
 | Route | What it is |
