@@ -1,4 +1,4 @@
-# Grokbot Event Share
+# afterglow (Grokbot Event Share)
 
 Built at the Grok Bot Community Engineering Hackathon, London (22 Oct 2026).
 

@@ -1,32 +1,41 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
+  --color-sky: #4fb3f6;
+  --color-sky-soft: #dceffd;
+  --color-ice: #eef6fd;
+  --color-navy: #0e1d4f;
+  --color-ink: #1c2b5a;
+  --color-muted: #6b7a99;
+  --color-line: #e3ebf5;
 }
 
 body {
-  background: radial-gradient(1200px 600px at 10% -10%, #1e1b4b 0%, transparent 60%),
-    radial-gradient(900px 500px at 110% 0%, #3b0764 0%, transparent 55%), #05060a;
-  color: #e5e7eb;
+  background: #e9f3fc;
+  color: var(--color-navy);
   min-height: 100vh;
 }
 
 @utility card {
-  @apply rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur;
+  @apply rounded-3xl border border-line bg-white shadow-[0_8px_30px_-12px_rgba(14,29,79,0.18)];
 }
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:opacity-50;
 }
 @utility btn-primary {
-  @apply btn bg-white text-black hover:bg-zinc-200;
+  @apply btn bg-navy text-white hover:bg-ink;
 }
 @utility btn-ghost {
-  @apply btn border border-white/15 bg-white/5 text-white hover:bg-white/10;
+  @apply btn border border-line bg-white text-navy hover:bg-ice;
 }
 @utility btn-grok {
-  @apply btn bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white hover:brightness-110;
+  @apply btn bg-sky text-navy shadow-[0_10px_24px_-10px_rgba(79,179,246,0.9)] hover:brightness-105;
 }
 @utility input {
-  @apply w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-fuchsia-400;
+  @apply w-full rounded-2xl border border-line bg-ice px-4 py-3 text-sm text-navy placeholder:text-muted/70 outline-none focus:border-sky focus:bg-white;
+}
+@utility eyebrow {
+  @apply text-[11px] font-bold uppercase tracking-[0.14em] text-muted;
 }

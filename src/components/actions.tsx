@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/client";
 import type { Attendee } from "@/lib/types";
+import { Mascot } from "./ui";
 
 export function ActionButton({ run, label, busyLabel, className = "btn-grok" }: { run: () => Promise<unknown>; label: React.ReactNode; busyLabel?: string; className?: string }) {
   const [busy, setBusy] = useState(false);
@@ -32,7 +33,7 @@ export function SignInAs({ attendees, currentId, redirect }: { attendees: Pick<A
   const router = useRouter();
   return (
     <select
-      className="rounded-lg border border-white/15 bg-black/50 px-2 py-1 text-xs text-zinc-300"
+      className="w-full rounded-xl border border-line bg-ice px-3 py-2 text-sm text-navy"
       value={currentId ?? ""}
       onChange={async (e) => {
         await api.login(e.target.value || null);
@@ -49,9 +50,8 @@ export function SignInAs({ attendees, currentId, redirect }: { attendees: Pick<A
   );
 }
 
-export function UploadForm() {
+export function UploadButton() {
   const [busy, setBusy] = useState(false);
-  const [drag, setDrag] = useState(false);
   const input = useRef<HTMLInputElement>(null);
   const [caption, setCaption] = useState("");
 
@@ -61,34 +61,49 @@ export function UploadForm() {
     await api.upload(Array.from(files), caption || "Event moment");
     setBusy(false);
     setCaption("");
+    if (input.current) input.current.value = "";
   }
 
   return (
-    <div
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDrag(true);
-      }}
-      onDragLeave={() => setDrag(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setDrag(false);
-        upload(e.dataTransfer.files);
-      }}
-      className={`card flex flex-col gap-3 border-dashed p-5 sm:flex-row sm:items-center ${drag ? "border-fuchsia-400 bg-fuchsia-500/10" : ""}`}
-    >
-      <div className="flex-1">
-        <p className="font-semibold">Upload your event photos</p>
-        <p className="text-sm text-zinc-400">Grok finds the people who opted in, tags them and delivers the photo to them. Anyone who opted out is never tagged.</p>
-      </div>
-      <input className="input sm:w-56" placeholder="Caption (optional)" value={caption} onChange={(e) => setCaption(e.target.value)} />
+    <div className="space-y-2">
+      <input className="input rounded-full text-center" placeholder="Add a caption (optional)" value={caption} onChange={(e) => setCaption(e.target.value)} />
       <input ref={input} type="file" accept="image/*" multiple hidden onChange={(e) => upload(e.target.files)} />
-      <button className="btn-grok" disabled={busy} onClick={() => input.current?.click()}>
-        {busy ? "Grok is tagging…" : "Upload photos"}
+      <button className="btn-grok w-full py-4 text-base" disabled={busy} onClick={() => input.current?.click()}>
+        {busy ? (
+          <>
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-navy border-t-transparent" /> Grok is tagging…
+          </>
+        ) : (
+          <>
+            <span className="text-xl leading-none">+</span> Upload photos
+          </>
+        )}
       </button>
     </div>
   );
 }
+
+function FieldIcon({ d }: { d: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className="h-4 w-4 text-muted" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d={d} />
+    </svg>
+  );
+}
+
+function Field({ label, icon, children }: { label: string; icon: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-semibold text-navy">{label}</span>
+      <span className="flex items-center gap-2 rounded-2xl border border-line bg-ice px-4 focus-within:border-sky focus-within:bg-white">
+        <FieldIcon d={icon} />
+        {children}
+      </span>
+    </label>
+  );
+}
+
+const fieldInput = "w-full bg-transparent py-3 text-sm text-navy outline-none placeholder:text-muted/70";
 
 export function JoinForm({ eventId, initial }: { eventId: string; initial?: Partial<Attendee> }) {
   const router = useRouter();
@@ -99,19 +114,19 @@ export function JoinForm({ eventId, initial }: { eventId: string; initial?: Part
     xHandle: initial?.xHandle ?? "",
     linkedin: initial?.linkedin ?? "",
     lookFor: initial?.lookFor ?? "",
-    consentPhoto: initial?.consentPhoto ?? true,
-    consentTag: initial?.consentTag ?? true,
+    consentPhoto: initial?.consentPhoto ?? false,
+    consentTag: initial?.consentTag ?? false,
   });
   const set = (k: keyof typeof f, v: string | boolean) => setF((p) => ({ ...p, [k]: v }));
 
   if (step === "login")
     return (
       <div className="space-y-3">
-        <button className="btn w-full bg-black py-3 text-white ring-1 ring-white/20 hover:bg-zinc-900" onClick={() => setStep("profile")}>
+        <button className="btn-primary w-full py-4 text-base" onClick={() => setStep("profile")}>
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23 22h-6.8l-5.3-6.9L4.8 22H1.7l8.1-9.3L1 2h7l4.8 6.3L18.9 2Z" /></svg>
           Continue with X
         </button>
-        <p className="text-center text-xs text-zinc-500">We only read your public handle. Nothing is posted without your approval.</p>
+        <p className="text-center text-xs text-muted">We only read your public handle. Nothing is posted without your approval.</p>
       </div>
     );
 
@@ -123,49 +138,41 @@ export function JoinForm({ eventId, initial }: { eventId: string; initial?: Part
         setBusy(true);
         const a = await api.join({ eventId, ...f });
         setBusy(false);
-        if (a) router.push(`/e/${eventId}/me`);
+        if (a) router.push(`/e/${eventId}`);
       }}
     >
-      <div className="grid grid-cols-2 gap-3">
-        <label className="col-span-2 text-sm">
-          Name
-          <input className="input mt-1" required value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Ada Lovelace" />
-        </label>
-        <label className="text-sm">
-          X handle
-          <input className="input mt-1" required value={f.xHandle} onChange={(e) => set("xHandle", e.target.value)} placeholder="@ada" />
-        </label>
-        <label className="text-sm">
-          LinkedIn
-          <input className="input mt-1" value={f.linkedin} onChange={(e) => set("linkedin", e.target.value)} placeholder="linkedin.com/in/ada" />
-        </label>
-        <label className="col-span-2 text-sm">
-          How will Grok spot you tonight?
-          <input className="input mt-1" value={f.lookFor} onChange={(e) => set("lookFor", e.target.value)} placeholder="e.g. orange hoodie, glasses" />
-          <span className="mt-1 block text-xs text-zinc-500">A description instead of face biometrics. Delete it any time.</span>
-        </label>
+      <Field label="Name" icon="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 20a8 8 0 0 1 16 0">
+        <input className={fieldInput} required value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Ada Lovelace" />
+      </Field>
+      <Field label="X handle" icon="M4 4l16 16M20 4 4 20">
+        <input className={fieldInput} required value={f.xHandle} onChange={(e) => set("xHandle", e.target.value)} placeholder="@yourhandle" />
+      </Field>
+      <Field label="LinkedIn profile URL" icon="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1">
+        <input className={fieldInput} value={f.linkedin} onChange={(e) => set("linkedin", e.target.value)} placeholder="linkedin.com/in/yourname" />
+      </Field>
+      <Field label="How will Grok spot you tonight?" icon="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z">
+        <input className={fieldInput} value={f.lookFor} onChange={(e) => set("lookFor", e.target.value)} placeholder="e.g. orange hoodie, glasses" />
+      </Field>
+      <div className="space-y-3 pt-1">
+        <Check label="I'm happy to be photographed" on={f.consentPhoto} set={(v) => set("consentPhoto", v)} />
+        <Check label="People can tag me in posts" on={f.consentPhoto && f.consentTag} disabled={!f.consentPhoto} set={(v) => set("consentTag", v)} />
       </div>
-      <div className="space-y-2 rounded-xl border border-white/10 bg-black/30 p-3">
-        <Toggle label="I'm happy to appear in event photos" sub="If off, photos you appear in are hidden from the shared gallery" on={f.consentPhoto} set={(v) => set("consentPhoto", v)} />
-        <Toggle label="Tag me and send me my photos" sub="Grok tags you and adds you to the sharing plan" on={f.consentPhoto && f.consentTag} disabled={!f.consentPhoto} set={(v) => set("consentTag", v)} />
-      </div>
-      <button className="btn-grok w-full py-3" disabled={busy}>
-        {busy ? "Joining…" : "Join the event"}
+      <button className="btn-primary w-full py-4 text-base" disabled={busy}>
+        {busy ? "Joining…" : <>Join event <span aria-hidden>→</span></>}
       </button>
     </form>
   );
 }
 
-function Toggle({ label, sub, on, set, disabled }: { label: string; sub: string; on: boolean; set: (v: boolean) => void; disabled?: boolean }) {
+function Check({ label, on, set, disabled }: { label: string; on: boolean; set: (v: boolean) => void; disabled?: boolean }) {
   return (
-    <button type="button" disabled={disabled} onClick={() => set(!on)} className="flex w-full items-center gap-3 text-left disabled:opacity-40">
-      <span className={`relative h-6 w-11 shrink-0 rounded-full transition ${on ? "bg-fuchsia-500" : "bg-zinc-700"}`}>
-        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition ${on ? "left-5" : "left-0.5"}`} />
+    <button type="button" disabled={disabled} onClick={() => set(!on)} className="flex w-full items-center gap-3 text-left text-sm text-ink disabled:opacity-40">
+      <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-lg border-2 transition ${on ? "border-navy bg-navy text-white" : "border-[#c9d6e8] bg-white"}`}>
+        {on && (
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 5 5 9-10" /></svg>
+        )}
       </span>
-      <span>
-        <span className="block text-sm font-medium">{label}</span>
-        <span className="block text-xs text-zinc-500">{sub}</span>
-      </span>
+      {label}
     </button>
   );
 }
@@ -192,12 +199,17 @@ export function BotConsole({ eventId }: { eventId: string }) {
   }
 
   return (
-    <div className="card flex h-full flex-col p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <h3 className="font-semibold">Grokbot console</h3>
+    <div className="card flex h-full flex-col p-5">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="flex items-center gap-2 font-bold">
+          <span className="grid h-8 w-8 place-items-center overflow-hidden rounded-xl bg-sky">
+            <Mascot pose="peek" className="w-8 translate-y-0.5 drop-shadow-none" />
+          </span>
+          Grokbot
+        </h3>
         <div className="flex gap-1">
           {["/stats", "/nudge", "/winners"].map((c) => (
-            <button key={c} className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-xs text-zinc-300 hover:bg-white/10" onClick={() => send(c)}>
+            <button key={c} className="rounded-full bg-ice px-2.5 py-1 font-mono text-xs text-ink hover:bg-sky-soft" onClick={() => send(c)}>
               {c}
             </button>
           ))}
@@ -206,10 +218,10 @@ export function BotConsole({ eventId }: { eventId: string }) {
       <div className="flex-1 space-y-2 overflow-y-auto pr-1 text-sm" style={{ maxHeight: 280 }}>
         {log.map((m, i) => (
           <div key={i} className={m.who === "you" ? "text-right" : ""}>
-            <span className={`inline-block whitespace-pre-wrap rounded-xl px-3 py-2 ${m.who === "you" ? "bg-white text-black" : "bg-fuchsia-500/15 text-fuchsia-100"}`}>{m.text}</span>
+            <span className={`inline-block whitespace-pre-wrap rounded-2xl px-3.5 py-2 text-left ${m.who === "you" ? "bg-navy text-white" : "bg-ice text-navy"}`}>{m.text}</span>
           </div>
         ))}
-        {busy && <div className="text-xs text-zinc-500">Grokbot is thinking…</div>}
+        {busy && <div className="text-xs text-muted">Grokbot is thinking…</div>}
         <div ref={end} />
       </div>
       <form
@@ -219,7 +231,7 @@ export function BotConsole({ eventId }: { eventId: string }) {
           send(cmd);
         }}
       >
-        <input className="input font-mono" value={cmd} onChange={(e) => setCmd(e.target.value)} placeholder="/announce Demos start in 10 min!" />
+        <input className="input rounded-full font-mono" value={cmd} onChange={(e) => setCmd(e.target.value)} placeholder="/announce Demos start in 10 min!" />
         <button className="btn-primary">Send</button>
       </form>
     </div>

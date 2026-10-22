@@ -4,6 +4,7 @@ export type TaskType = "post" | "comment" | "repost";
 export interface EventInfo {
   id: string;
   name: string;
+  shortName?: string;
   venue: string;
   startsAt: string;
   endsAt: string;

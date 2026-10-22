@@ -49,6 +49,7 @@ export function buildSeed(): DB {
       {
         id: EVENT_ID,
         name: "Grok Bot Community Engineering Hackathon",
+        shortName: "Grok Bot Hackathon",
         venue: "London",
         startsAt: iso(240),
         endsAt: new Date(now + 90 * 60000).toISOString(),

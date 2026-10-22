@@ -14,7 +14,7 @@ import type { DB, Photo } from "./types";
 export const STATIC = process.env.NEXT_PUBLIC_STATIC_DEMO === "1";
 export const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-const DB_KEY = "gb_db_v1";
+const DB_KEY = "gb_db_v2";
 const SESSION_KEY = "gb_session";
 
 export interface AppState {
