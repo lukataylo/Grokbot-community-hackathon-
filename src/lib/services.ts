@@ -10,7 +10,7 @@ function imageDataUrl(photo: Photo): string | undefined {
   if (!photo.url.startsWith("/uploads/")) return undefined;
   const file = path.join(process.cwd(), "data", photo.url);
   if (!fs.existsSync(file)) return undefined;
-  const ext = path.extname(file).slice(1).replace("jpg", "jpeg");
+  const ext = path.extname(file).slice(1).replace("jpg", "jpeg").replace("svg", "svg+xml");
   return `data:image/${ext};base64,${fs.readFileSync(file).toString("base64")}`;
 }
 

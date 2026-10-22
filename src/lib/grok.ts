@@ -63,8 +63,11 @@ export async function identifyPeople(
       console.error("Grok vision failed, falling back to mock", e);
     }
   }
+  const svg = imageDataUrl?.startsWith("data:image/svg") ? Buffer.from(imageDataUrl.split(",")[1], "base64").toString("utf8") : "";
+  const bySvgColour = svg ? roster.filter((a) => svg.includes(`fill="${a.color}"`)).map((a) => a.id) : [];
   const ids =
     photo.groundTruth ??
+    (bySvgColour.length ? bySvgColour : null) ??
     [photo.uploaderId, ...roster.filter((a) => a.id !== photo.uploaderId).sort((a, b) => hash(photo.id + a.id) - hash(photo.id + b.id)).slice(0, 2).map((a) => a.id)];
   const matches = ids
     .map((id) => roster.find((a) => a.id === id))

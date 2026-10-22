@@ -199,7 +199,9 @@ export function BotConsole({ eventId }: { eventId: string }) {
   const [cmd, setCmd] = useState("");
   const [busy, setBusy] = useState(false);
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => end.current?.scrollIntoView({ block: "nearest" }), [log]);
+  useEffect(() => {
+    end.current?.scrollIntoView({ block: "nearest" });
+  }, [log]);
 
   async function send(c: string) {
     if (!c.trim()) return;
