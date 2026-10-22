@@ -2,7 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import { addPhoto, applyTags, botCommand, botContext, buildPlan, completeTask, joinEvent, logBot, mockBotAnswer, mockIdentify, savePlan, uid, type JoinInput } from "./engine";
-import { buildSeed } from "./seed";
+import { buildSeed, DEMO_ME } from "./seed";
 import { parseSceneUrl, renderScene } from "./scene";
 import type { DB, Photo } from "./types";
 
@@ -14,7 +14,7 @@ import type { DB, Photo } from "./types";
 export const STATIC = process.env.NEXT_PUBLIC_STATIC_DEMO === "1";
 export const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
-const DB_KEY = "gb_db_v1";
+const DB_KEY = "gb_db_v3";
 const SESSION_KEY = "gb_session";
 
 export interface AppState {
@@ -32,6 +32,7 @@ function loadLocal(): DB {
   if (raw) return JSON.parse(raw) as DB;
   const seed = buildSeed();
   localStorage.setItem(DB_KEY, JSON.stringify(seed));
+  if (!localStorage.getItem(SESSION_KEY)) localStorage.setItem(SESSION_KEY, DEMO_ME);
   return seed;
 }
 

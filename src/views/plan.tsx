@@ -1,14 +1,14 @@
 "use client";
 
 import { api, photoSrc, useAppData } from "@/lib/client";
-import { Loading, Nav } from "@/components/nav";
+import { Loading, OrganiserBar } from "@/components/nav";
 import { TaskCard } from "@/components/task-card";
 import { ActionButton } from "@/components/actions";
-import { Badge, GrokMark, relTime } from "@/components/ui";
+import { Mascot, SparkleIcon, relTime } from "@/components/ui";
 
 export function PlanView({ eventId }: { eventId: string }) {
   const state = useAppData(5000);
-  if (!state) return <><Nav eventId={eventId} active="plan" state={state} /><Loading /></>;
+  if (!state) return <><OrganiserBar eventId={eventId} state={state} /><Loading /></>;
   const { db } = state;
   const people = db.attendees.filter((a) => a.eventId === eventId);
   const plan = db.plans[eventId];
@@ -17,34 +17,32 @@ export function PlanView({ eventId }: { eventId: string }) {
   const done = tasks.filter((t) => t.status === "done").length;
   return (
     <>
-      <Nav eventId={eventId} active="plan" state={state} />
-      <main className="mx-auto max-w-6xl space-y-6 px-4 py-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">Sharing plan</h1>
-            <p className="text-zinc-400">A timed schedule of who posts, who comments and who reposts whom.</p>
+      <OrganiserBar eventId={eventId} state={state} />
+      <main className="mx-auto max-w-6xl space-y-6 px-5 py-8">
+        <div className="relative overflow-hidden rounded-[32px] bg-sky p-7 pr-56">
+          <p className="eyebrow text-navy/70">Grok · coordinated reach</p>
+          <h1 className="mt-1 text-4xl font-extrabold tracking-tight text-navy">Sharing plan</h1>
+          <p className="mt-2 max-w-xl text-navy/80">{plan ? plan.strategy : "A timed schedule of who posts, who comments and who reposts whom across X and LinkedIn."}</p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <ActionButton run={() => api.plan(eventId)} className="btn-primary" label={<><SparkleIcon className="h-4 w-4" /> {plan ? "Regenerate plan" : "Generate plan with Grok"}</>} busyLabel="Grok is planning…" />
+            {plan && (
+              <span className="text-sm font-medium text-navy/80">
+                {done}/{tasks.length} done · generated {relTime(plan.generatedAt)} · copy by {plan.source === "grok" ? "Grok" : "templates (mock)"}
+              </span>
+            )}
           </div>
-          <ActionButton run={() => api.plan(eventId)} label={<><GrokMark className="h-4 w-4" /> {plan ? "Regenerate plan" : "Generate plan with Grok"}</>} busyLabel="Grok is planning…" />
+          <Mascot pose="wave" className="absolute -bottom-4 right-4 w-52" />
         </div>
-        {plan && (
-          <div className="card flex flex-wrap items-center gap-3 p-4 text-sm">
-            <Badge tone="fuchsia">Strategy</Badge>
-            <p className="flex-1 text-zinc-300">{plan.strategy}</p>
-            <span className="text-xs text-zinc-500">
-              {done}/{tasks.length} done · generated {relTime(plan.generatedAt)} · copy by {plan.source === "grok" ? "Grok" : "templates (mock)"}
-            </span>
-          </div>
-        )}
-        {!tasks.length && <p className="card p-6 text-center text-zinc-400">No plan yet. Tag some photos, then generate.</p>}
-        <div className="space-y-8">
+        {!tasks.length && <p className="card p-6 text-center text-muted">No plan yet. Tag some photos, then generate.</p>}
+        <div className="grid gap-6 lg:grid-cols-2">
           {anchors.map((anchor, i) => {
             const wave = tasks.filter((t) => t.targetTaskId === anchor.id);
             const photo = db.photos.find((p) => p.id === anchor.photoId);
             return (
-              <section key={anchor.id}>
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-fuchsia-300">{anchor.photoId ? `Wave ${i + 1}` : "Recap"}</h2>
+              <section key={anchor.id} className="space-y-2">
+                <h2 className="eyebrow text-sky">{anchor.photoId ? `Wave ${i + 1}` : "Recap"}</h2>
                 <TaskCard task={anchor} people={people} photo={photo} photoUrl={photo && photoSrc(photo, db)} />
-                <div className="ml-6 mt-2 space-y-2 border-l border-white/10 pl-4">
+                <div className="ml-5 space-y-2 border-l-2 border-sky-soft pl-4">
                   {wave.map((t) => (
                     <TaskCard key={t.id} task={t} people={people} target={anchor} compact />
                   ))}

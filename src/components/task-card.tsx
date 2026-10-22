@@ -17,35 +17,37 @@ export function TaskCard({ task, people, photo, photoUrl, target, compact }: { t
   const due = new Date(task.scheduledAt).getTime() <= Date.now() + 60000;
   const done = task.status === "done";
   return (
-    <div className={`card flex gap-3 p-3 ${done ? "opacity-60" : due ? "ring-1 ring-fuchsia-400/60" : ""}`}>
-      {photo && !compact && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={photoUrl} alt="" className="h-20 w-24 shrink-0 rounded-lg object-cover" />
-      )}
-      <div className="min-w-0 flex-1 space-y-1.5">
-        <div className="flex flex-wrap items-center gap-2 text-sm">
-          <Avatar a={a} size={22} />
-          <span className="font-semibold">@{a.xHandle}</span>
-          <span className="text-zinc-400">
-            {VERB[task.type]} {targetWho ? `@${targetWho.xHandle}'s post` : "a photo"}
-          </span>
-          <Badge tone={task.platform === "x" ? "zinc" : "sky"}>
-            <PlatformIcon p={task.platform} className="h-3 w-3" />
-            {task.platform === "x" ? "X" : "LinkedIn"}
-          </Badge>
-          <Badge tone="green">+{POINTS[task.type]} pts</Badge>
-          <span className="ml-auto text-xs text-zinc-400">
+    <div className={`card space-y-2.5 p-4 ${done ? "opacity-60" : due ? "ring-2 ring-sky" : ""}`}>
+      <div className="flex items-center gap-2.5">
+        {photo && !compact ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={photoUrl} alt="" className="h-11 w-11 shrink-0 rounded-xl object-cover" />
+        ) : (
+          <Avatar a={a} size={32} />
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-bold">
+            @{a.xHandle} <span className="font-medium text-muted">· {VERB[task.type]} {targetWho ? `@${targetWho.xHandle}'s post` : "a photo"}</span>
+          </p>
+          <p className="text-xs text-muted">
             {fmtTime(task.scheduledAt)} · {done ? "done ✓" : relTime(task.scheduledAt)}
-          </span>
+          </p>
         </div>
-        <p className="rounded-lg bg-black/40 px-3 py-2 text-sm text-zinc-200">{task.copy}</p>
-        {!compact && <p className="text-xs text-zinc-500">💡 {task.why}</p>}
+        <Badge tone={task.platform === "x" ? "zinc" : "sky"}>
+          <PlatformIcon p={task.platform} className="h-3 w-3" />
+          {task.platform === "x" ? "X" : "LinkedIn"}
+        </Badge>
+      </div>
+      <p className="rounded-2xl bg-ice px-3.5 py-2.5 text-sm text-ink">{task.copy}</p>
+      {!compact && <p className="text-xs text-muted">✨ {task.why}</p>}
+      <div className="flex items-center gap-2">
+        <Badge tone="green">+{POINTS[task.type]} pts</Badge>
         {!done && (
-          <div className="flex gap-2 pt-1">
-            <a href={intentUrl(task)} target="_blank" rel="noreferrer" className="btn-ghost px-3 py-1 text-xs">
+          <div className="ml-auto flex gap-2">
+            <a href={intentUrl(task)} target="_blank" rel="noreferrer" className="btn-ghost px-3.5 py-1.5 text-xs">
               Open {task.platform === "x" ? "X" : "LinkedIn"}
             </a>
-            <ActionButton run={() => api.completeTask(task.id)} label="Mark done" className="btn-primary px-3 py-1 text-xs" busyLabel="Saving" />
+            <ActionButton run={() => api.completeTask(task.id)} label="Mark done" className="btn-primary px-3.5 py-1.5 text-xs" busyLabel="Saving" />
           </div>
         )}
       </div>

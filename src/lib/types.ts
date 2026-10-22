@@ -4,6 +4,7 @@ export type TaskType = "post" | "comment" | "repost";
 export interface EventInfo {
   id: string;
   name: string;
+  shortName?: string;
   venue: string;
   startsAt: string;
   endsAt: string;
@@ -18,6 +19,8 @@ export interface Attendee {
   name: string;
   xHandle: string;
   linkedin: string;
+  email?: string;
+  avatarUrl?: string;
   /** Self-described appearance Grok uses to match people in photos. */
   lookFor: string;
   color: string;

@@ -1,10 +1,26 @@
 import type { Attendee, Platform } from "@/lib/types";
 
-export function Avatar({ a, size = 36 }: { a: Pick<Attendee, "name" | "color">; size?: number }) {
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
+export function Logo({ className = "text-2xl", light }: { className?: string; light?: boolean }) {
+  return <span className={`font-extrabold tracking-tight ${light ? "text-white" : "text-navy"} ${className}`}>afterglow</span>;
+}
+
+export function Mascot({ pose = "wave", className = "" }: { pose?: "wave" | "peek" | "walk"; className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={`${BASE}/brand/mascot-${pose}.png`} alt="" className={`pointer-events-none select-none drop-shadow-[0_18px_22px_rgba(14,29,79,0.25)] ${className}`} />;
+}
+
+export function Avatar({ a, size = 36 }: { a: Pick<Attendee, "name" | "color" | "avatarUrl">; size?: number }) {
   const initials = a.name.split(" ").map((w) => w[0]).slice(0, 2).join("");
+  if (a.avatarUrl)
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={a.avatarUrl.startsWith("/") ? `${BASE}${a.avatarUrl}` : a.avatarUrl} alt={a.name} width={size} height={size} className="shrink-0 rounded-full object-cover ring-2 ring-white" style={{ width: size, height: size }} />
+    );
   return (
     <span
-      className="inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-black/40"
+      className="inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-white"
       style={{ width: size, height: size, background: a.color, fontSize: size * 0.38 }}
     >
       {initials}
@@ -34,21 +50,64 @@ export function PlatformIcon({ p, className }: { p: Platform; className?: string
 
 export function Badge({ children, tone = "zinc" }: { children: React.ReactNode; tone?: "zinc" | "green" | "amber" | "fuchsia" | "red" | "sky" }) {
   const tones = {
-    zinc: "bg-white/10 text-zinc-200",
-    green: "bg-emerald-500/15 text-emerald-300",
-    amber: "bg-amber-500/15 text-amber-300",
-    fuchsia: "bg-fuchsia-500/15 text-fuchsia-300",
-    red: "bg-rose-500/15 text-rose-300",
-    sky: "bg-sky-500/15 text-sky-300",
+    zinc: "bg-ice text-ink",
+    green: "bg-emerald-50 text-emerald-700",
+    amber: "bg-amber-50 text-amber-700",
+    fuchsia: "bg-sky-soft text-navy",
+    red: "bg-rose-50 text-rose-700",
+    sky: "bg-sky-soft text-[#0a66c2]",
   };
-  return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${tones[tone]}`}>{children}</span>;
+  return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${tones[tone]}`}>{children}</span>;
 }
 
 export function GrokMark({ className = "h-5 w-5" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
-      <path d="M5 19 19 5M9 5h10v10M5 9v10h10" />
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M12 3v3M12 18v3M3 12h3M18 12h3M6.3 6.3l2.1 2.1M15.6 15.6l2.1 2.1M6.3 17.7l2.1-2.1M15.6 8.4l2.1-2.1" />
     </svg>
+  );
+}
+
+export function PhotosIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="3" />
+      <circle cx="9" cy="10" r="1.6" />
+      <path d="m4 17 5-4.5 4 3.5 2.5-2 4.5 3.5" />
+    </svg>
+  );
+}
+
+export function TrophyIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M8 4h8v5a4 4 0 0 1-8 0V4ZM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4v3h-4z" />
+    </svg>
+  );
+}
+
+export function SparkleIcon({ className = "h-5 w-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden>
+      <path d="M12 3c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7Z" />
+      <path d="M19 15.5c.3 1.6 1 2.3 2.5 2.5-1.5.3-2.2 1-2.5 2.5-.3-1.5-1-2.2-2.5-2.5 1.5-.2 2.2-.9 2.5-2.5Z" />
+    </svg>
+  );
+}
+
+export function Segmented<T extends string>({ value, options, onChange }: { value: T; options: { value: T; label: string }[]; onChange: (v: T) => void }) {
+  return (
+    <div className="flex rounded-full bg-ice p-1">
+      {options.map((o) => (
+        <button
+          key={o.value}
+          onClick={() => onChange(o.value)}
+          className={`flex-1 rounded-full px-4 py-2 text-sm font-semibold transition ${value === o.value ? "bg-white text-navy shadow-sm" : "text-muted hover:text-navy"}`}
+        >
+          {o.label}
+        </button>
+      ))}
+    </div>
   );
 }
 

@@ -14,6 +14,7 @@ const COLORS = ["#f97316", "#06b6d4", "#8b5cf6", "#10b981", "#f43f5e", "#facc15"
 
 export interface JoinInput {
   eventId: string;
+  email?: string;
   name?: string;
   xHandle?: string;
   linkedin?: string;
@@ -22,21 +23,31 @@ export interface JoinInput {
   consentTag?: boolean;
 }
 
+const titleCase = (s: string) => s.replace(/[-_.]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()).trim();
+
+/** Upserts an attendee by email or X handle. Name and handle fall back to the email / LinkedIn slug. */
 export function joinEvent(db: DB, body: JoinInput): Attendee | null {
-  const xHandle = String(body.xHandle ?? "").replace(/^@/, "").trim();
+  const email = String(body.email ?? "").trim().toLowerCase();
+  const linkedin = String(body.linkedin ?? "").replace(/^.*linkedin\.com\/in\//, "").replace(/\/$/, "").trim();
+  const local = email.split("@")[0];
+  const xHandle = (String(body.xHandle ?? "").replace(/^@/, "").trim() || local || linkedin).replace(/[^\w]/g, "").slice(0, 15);
   if (!xHandle || !body.eventId) return null;
-  let a = db.attendees.find((x) => x.eventId === body.eventId && x.xHandle.toLowerCase() === xHandle.toLowerCase());
+  let a = db.attendees.find(
+    (x) => x.eventId === body.eventId && ((email && x.email === email) || x.xHandle.toLowerCase() === xHandle.toLowerCase()),
+  );
   const fields = {
-    name: String(body.name || xHandle),
-    linkedin: String(body.linkedin ?? "").replace(/^.*linkedin\.com\/in\//, "").replace(/\/$/, ""),
-    lookFor: String(body.lookFor ?? ""),
+    email: email || a?.email,
+    name: String(body.name || a?.name || titleCase(linkedin || local || xHandle)),
+    xHandle,
+    linkedin,
+    lookFor: String(body.lookFor || a?.lookFor || ""),
     consentPhoto: !!body.consentPhoto,
     consentTag: !!body.consentPhoto && !!body.consentTag,
   };
   if (a) Object.assign(a, fields);
   else {
     a = {
-      id: uid("a"), eventId: body.eventId, xHandle, color: COLORS[db.attendees.length % COLORS.length],
+      id: uid("a"), eventId: body.eventId, color: COLORS[db.attendees.length % COLORS.length],
       followersX: 500 + Math.floor(Math.random() * 4000), followersLinkedIn: 500 + Math.floor(Math.random() * 3000),
       role: "attendee", joinedAt: new Date().toISOString(), ...fields,
     };
