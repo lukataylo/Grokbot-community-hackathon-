@@ -6,11 +6,11 @@ export function PhotoCard({ photo, src, people, highlight }: { photo: Photo; src
   const uploader = by(photo.uploaderId);
   return (
     <figure className="card overflow-hidden">
-      <div className="relative aspect-[4/3] bg-black">
+      <div className="relative aspect-[4/3] bg-slate-200">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} alt={photo.caption} className={`h-full w-full object-cover ${photo.hidden ? "blur-xl" : ""}`} />
         {photo.hidden && (
-          <div className="absolute inset-0 grid place-items-center bg-black/40 text-center text-sm font-semibold">
+          <div className="absolute inset-0 grid place-items-center bg-navy/40 px-6 text-center text-sm font-semibold text-white">
             <span>🔒 Hidden: someone in this photo opted out of being photographed</span>
           </div>
         )}
@@ -18,28 +18,28 @@ export function PhotoCard({ photo, src, people, highlight }: { photo: Photo; src
           {photo.status === "pending" ? <Badge tone="amber">Waiting for Grok</Badge> : <Badge tone="fuchsia">Grok tagged</Badge>}
         </div>
       </div>
-      <figcaption className="space-y-2 p-3">
+      <figcaption className="space-y-2 p-4">
         <div className="flex items-center justify-between gap-2">
           <p className="truncate font-medium">{photo.caption}</p>
-          <span className="shrink-0 text-xs text-zinc-500">{relTime(photo.takenAt)}</span>
+          <span className="shrink-0 text-xs text-muted">{relTime(photo.takenAt)}</span>
         </div>
-        <p className="text-xs text-zinc-500">by @{uploader?.xHandle}</p>
+        <p className="text-xs text-muted">by {uploader?.name}{photo.grokNote ? ` · Grok: ${photo.grokNote}` : ""}</p>
         {photo.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {photo.tags.map((t) => {
               const a = by(t.attendeeId);
               if (!a) return null;
               return (
-                <span key={t.attendeeId} title={t.reason} className={`inline-flex items-center gap-1 rounded-full py-0.5 pl-0.5 pr-2 text-xs ${highlight === a.id ? "bg-fuchsia-500/30 ring-1 ring-fuchsia-400" : "bg-white/10"}`}>
+                <span key={t.attendeeId} title={t.reason} className={`inline-flex items-center gap-1 rounded-full py-0.5 pl-0.5 pr-2 text-xs ${highlight === a.id ? "bg-glow-soft ring-1 ring-glow" : "bg-mist"}`}>
                   <Avatar a={a} size={18} />@{a.xHandle}
-                  <span className="text-zinc-500">{Math.round(t.confidence * 100)}%</span>
+                  <span className="text-muted">{Math.round(t.confidence * 100)}%</span>
                 </span>
               );
             })}
           </div>
         )}
         {photo.withheld.length > 0 && (
-          <p className="text-xs text-amber-300/80">
+          <p className="text-xs text-amber-700">
             🛡 Consent: {photo.withheld.filter((w) => w.reason === "no-tag").length > 0 && `${photo.withheld.filter((w) => w.reason === "no-tag").length} recognised but not tagged`}
             {photo.withheld.filter((w) => w.reason === "no-tag").length > 0 && photo.withheld.some((w) => w.reason === "no-photo") && " · "}
             {photo.withheld.some((w) => w.reason === "no-photo") && `${photo.withheld.filter((w) => w.reason === "no-photo").length} ${photo.hidden ? "opted out, photo hidden" : "auto-blurred"}`}

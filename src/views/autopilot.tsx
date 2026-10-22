@@ -8,7 +8,7 @@ import { FORMATS, renderVisual } from "@/lib/visual";
 import { Loading, Nav } from "@/components/nav";
 import { ActionButton } from "@/components/actions";
 import { HoursSaved } from "@/components/hours";
-import { Badge, GrokMark } from "@/components/ui";
+import { Badge, SparkleIcon } from "@/components/ui";
 import type { Brand, EventKit, KitKey, KitStatus, VisualFormat } from "@/lib/types";
 
 const EXAMPLE = {
@@ -66,11 +66,11 @@ export function AutopilotView({ eventId }: { eventId: string }) {
       <main className="mx-auto max-w-6xl space-y-6 px-4 py-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <p className="text-sm text-fuchsia-300">Event Autopilot</p>
-            <h1 className="text-3xl font-bold">One idea in. Run sheet, visuals, posts and newsletter out.</h1>
-            <p className="mt-1 text-zinc-400">Grokbot drafts everything. Nothing goes out until you approve it.</p>
+            <p className="text-sm text-glow-deep">Event Autopilot</p>
+            <h1 className="text-3xl font-extrabold tracking-tight">One idea in. Run sheet, visuals, posts and newsletter out.</h1>
+            <p className="mt-1 text-muted">Grok drafts everything. Nothing goes out until you approve it.</p>
           </div>
-          <Link href="/organiser/digest" className="btn-ghost">Weekly digest →</Link>
+          
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
@@ -80,10 +80,10 @@ export function AutopilotView({ eventId }: { eventId: string }) {
 
         {kit && (
           <>
-            <div className="sticky top-[57px] z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-black/80 p-3 backdrop-blur">
+            <div className="sticky top-[66px] z-10 flex flex-wrap items-center gap-3 rounded-2xl border border-line bg-white/90 p-3 backdrop-blur">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold">{kit.facts.name}</p>
-                <p className="truncate text-xs text-zinc-400">
+                <p className="truncate text-xs text-muted">
                   {dayLabel(kit.facts.startsAt)} · {timeLabel(kit.facts.startsAt)}–{timeLabel(kit.facts.endsAt)} · {kit.facts.venue} · copy by {kit.source === "grok" ? "Grok" : "templates (mock)"}
                   {kit.luma && (kit.luma.ok ? " · facts from Luma" : " · Luma unreachable, used your idea")}
                 </p>
@@ -94,7 +94,7 @@ export function AutopilotView({ eventId }: { eventId: string }) {
                 ))}
               </div>
               <ActionButton run={() => api.publishKit(eventId, false)} label="Publish approved" className="btn-ghost" busyLabel="Publishing…" />
-              <ActionButton run={() => api.publishKit(eventId, true)} label={<><GrokMark className="h-4 w-4" /> Approve all & publish</>} busyLabel="Publishing…" />
+              <ActionButton run={() => api.publishKit(eventId, true)} label={<><SparkleIcon className="h-4 w-4" /> Approve all & publish</>} busyLabel="Publishing…" />
             </div>
 
             <div className="flex flex-wrap gap-2 text-xs">
@@ -145,7 +145,7 @@ function Section({ title, sub, children }: { title: string; sub: string; childre
     <section className="space-y-3">
       <div>
         <h2 className="text-xl font-bold">{title}</h2>
-        <p className="text-sm text-zinc-400">{sub}</p>
+        <p className="text-sm text-muted">{sub}</p>
       </div>
       {children}
     </section>
@@ -168,7 +168,7 @@ function GenerateForm({ eventId, kit }: { eventId: string; kit?: EventKit }) {
         <label className="block text-sm font-medium">
           Luma event (optional)
           <input className="input mt-1" value={f.luma} onChange={(e) => setF({ ...f, luma: e.target.value })} placeholder="evt-… or lu.ma/your-event" />
-          <span className="mt-1 block text-xs font-normal text-zinc-500">Pulls the real name, time, venue, hosts and description.</span>
+          <span className="mt-1 block text-xs font-normal text-muted">Pulls the real name, time, venue, hosts and description.</span>
         </label>
         <label className="block text-sm font-medium">
           Dump your notes, quotes and receipts
@@ -182,13 +182,13 @@ function GenerateForm({ eventId, kit }: { eventId: string; kit?: EventKit }) {
             const r = await api.generateKit({ eventId, ...f, brand: kit?.brand ?? DEFAULT_BRAND });
             setMsg(r.error ?? `Drafted ${KIT_KEYS.length} pieces with ${r.source === "grok" ? "Grok" : "templates"}. Review and approve below.`);
           }}
-          label={<><GrokMark className="h-4 w-4" /> {kit ? "Regenerate everything" : "Generate the kit"}</>}
-          busyLabel="Grokbot is drafting…"
+          label={<><SparkleIcon className="h-4 w-4" /> {kit ? "Regenerate everything" : "Generate the kit"}</>}
+          busyLabel="Grok is drafting…"
         />
         <button type="button" className="btn-ghost" onClick={() => setF({ ...EXAMPLE, luma: "" })}>
           Try an example
         </button>
-        {msg && <span className="text-sm text-zinc-400">{msg}</span>}
+        {msg && <span className="text-sm text-muted">{msg}</span>}
       </div>
     </form>
   );
@@ -199,8 +199,8 @@ function BrandForm({ eventId, brand }: { eventId: string; brand: Brand }) {
   const [b, setB] = useState(brand);
   useEffect(() => setB(JSON.parse(saved)), [saved]);
   const color = (k: "primary" | "accent" | "background", label: string) => (
-    <label className="flex items-center gap-2 text-xs text-zinc-400">
-      <input type="color" value={b[k]} onChange={(e) => setB({ ...b, [k]: e.target.value })} className="h-7 w-9 cursor-pointer rounded border border-white/15 bg-transparent" />
+    <label className="flex items-center gap-2 text-xs text-muted">
+      <input type="color" value={b[k]} onChange={(e) => setB({ ...b, [k]: e.target.value })} className="h-7 w-9 cursor-pointer rounded border border-line bg-transparent" />
       {label}
     </label>
   );
@@ -226,7 +226,7 @@ function NotionButton({ eventId, connected }: { eventId: string; connected: bool
   return (
     <span className="inline-flex items-center gap-2">
       <ActionButton
-        className="rounded-full bg-white/10 px-2 py-0.5 text-xs font-medium text-zinc-200 hover:bg-white/20"
+        className="rounded-full bg-mist px-2 py-0.5 text-xs font-medium text-navy hover:bg-glow-soft"
         run={async () => {
           const r = await api.exportNotion(eventId);
           if (r.ok && r.url) {
@@ -241,7 +241,7 @@ function NotionButton({ eventId, connected }: { eventId: string; connected: bool
         label={connected ? "Export to Notion" : "Notion · copy as Markdown"}
         busyLabel="Exporting"
       />
-      {msg && <span className="text-zinc-400">{msg}</span>}
+      {msg && <span className="text-muted">{msg}</span>}
     </span>
   );
 }
@@ -257,12 +257,12 @@ function KitCard({ kit, k, eventId }: { kit: EventKit; k: KitKey; eventId: strin
   const text = (draft as { text?: string }).text;
   const share = shareUrl[k];
   return (
-    <div className={`card space-y-3 p-4 ${item.status === "approved" ? "ring-1 ring-emerald-400/40" : item.status === "sent" ? "opacity-90 ring-1 ring-sky-400/30" : ""}`}>
+    <div className={`card space-y-3 p-4 ${item.status === "approved" ? "ring-1 ring-2 ring-emerald-300" : item.status === "sent" ? "opacity-90 ring-1 ring-sky-200" : ""}`}>
       <div className="flex flex-wrap items-center gap-2">
         <h3 className="font-semibold">{KIT_LABEL[k]}</h3>
         <Badge tone={STATUS_TONE[item.status]}>{item.status}</Badge>
         {item.edited && <Badge tone="zinc">edited</Badge>}
-        {item.sentVia && <span className="text-xs text-zinc-500">→ {item.sentVia}</span>}
+        {item.sentVia && <span className="text-xs text-muted">→ {item.sentVia}</span>}
         <div className="ml-auto flex flex-wrap gap-1.5">
           {dirty && <ActionButton run={() => api.kitItem(eventId, k, "edit", draft)} label="Save edit" className="btn-primary px-3 py-1 text-xs" busyLabel="Saving" />}
           {item.status !== "sent" && <ActionButton run={() => api.kitItem(eventId, k, "regenerate")} label="↻ Regenerate" className="btn-ghost px-3 py-1 text-xs" busyLabel="Rewriting" />}
@@ -306,7 +306,7 @@ function KitCard({ kit, k, eventId }: { kit: EventKit; k: KitKey; eventId: strin
   );
 }
 
-const th = "px-2 py-1.5 text-left text-xs font-medium uppercase tracking-wider text-zinc-500";
+const th = "px-2 py-1.5 text-left text-xs font-medium uppercase tracking-wider text-muted";
 const td = "px-2 py-1.5 align-top";
 
 function ItemBody({ kit, k, draft, setDraft }: { kit: EventKit; k: KitKey; draft: unknown; setDraft: (d: unknown) => void }) {
@@ -315,7 +315,7 @@ function ItemBody({ kit, k, draft, setDraft }: { kit: EventKit; k: KitKey; draft
     return (
       <div>
         <textarea className="input h-40 text-sm leading-relaxed" value={d.text} onChange={(e) => setDraft({ text: e.target.value })} />
-        {k === "post:x" && <p className={`mt-1 text-right text-xs ${d.text.length > 280 ? "text-rose-400" : "text-zinc-500"}`}>{d.text.length}/280</p>}
+        {k === "post:x" && <p className={`mt-1 text-right text-xs ${d.text.length > 280 ? "text-rose-600" : "text-muted"}`}>{d.text.length}/280</p>}
       </div>
     );
   }
@@ -328,7 +328,7 @@ function ItemBody({ kit, k, draft, setDraft }: { kit: EventKit; k: KitKey; draft
         <textarea className="input h-24 sm:col-span-2" value={d.description} onChange={(e) => setDraft({ ...d, description: e.target.value })} />
         <ol className="flex flex-wrap gap-2 text-xs sm:col-span-2">
           {d.agenda.map((a, i) => (
-            <li key={i} className="rounded-full bg-white/5 px-2 py-1 text-zinc-300">{i + 1}. {a}</li>
+            <li key={i} className="rounded-full bg-mist px-2 py-1 text-navy/80">{i + 1}. {a}</li>
           ))}
         </ol>
       </div>
@@ -341,11 +341,11 @@ function ItemBody({ kit, k, draft, setDraft }: { kit: EventKit; k: KitKey; draft
           <thead><tr><th className={th}>Time</th><th className={th}>Item</th><th className={th}>Owner</th><th className={th}>Notes</th></tr></thead>
           <tbody>
             {kit.items.runSheet.data.map((r, i) => (
-              <tr key={i} className="border-t border-white/5">
-                <td className={`${td} font-mono text-fuchsia-300`}>{timeLabel(r.time)}</td>
+              <tr key={i} className="border-t border-line">
+                <td className={`${td} font-mono text-glow-deep`}>{timeLabel(r.time)}</td>
                 <td className={`${td} font-medium`}>{r.item}</td>
                 <td className={td}>{r.owner}</td>
-                <td className={`${td} text-zinc-400`}>{r.notes}</td>
+                <td className={`${td} text-muted`}>{r.notes}</td>
               </tr>
             ))}
           </tbody>
@@ -360,14 +360,14 @@ function ItemBody({ kit, k, draft, setDraft }: { kit: EventKit; k: KitKey; draft
         <thead><tr><th className={th}>Item</th><th className={th}>Supplier</th><th className={`${th} text-right`}>Cost</th><th className={th}>Source</th></tr></thead>
         <tbody>
           {rows.map((b, i) => (
-            <tr key={i} className="border-t border-white/5">
+            <tr key={i} className="border-t border-line">
               <td className={td}>{b.item}</td>
-              <td className={`${td} text-zinc-400`}>{b.supplier}</td>
+              <td className={`${td} text-muted`}>{b.supplier}</td>
               <td className={`${td} text-right font-mono`}>£{b.cost.toFixed(2)}</td>
               <td className={td}><Badge tone={b.source === "receipt" ? "green" : b.source === "quote" ? "sky" : "zinc"}>{b.source}</Badge></td>
             </tr>
           ))}
-          <tr className="border-t border-white/20 font-semibold">
+          <tr className="border-t border-navy/20 font-semibold">
             <td className={td} colSpan={2}>Total · £{(total / Math.max(1, kit.facts.headcount)).toFixed(2)} per head</td>
             <td className={`${td} text-right font-mono`}>£{total.toFixed(2)}</td>
             <td />
@@ -385,15 +385,15 @@ function ItemBody({ kit, k, draft, setDraft }: { kit: EventKit; k: KitKey; draft
           <thead><tr><th className={th}>Role</th><th className={th}>Shift</th><th className={th}>Person</th></tr></thead>
           <tbody>
             {rows.map((r, i) => (
-              <tr key={i} className="border-t border-white/5">
+              <tr key={i} className="border-t border-line">
                 <td className={td}>{r.role}</td>
-                <td className={`${td} font-mono text-xs text-zinc-400`}>{timeLabel(r.start)}–{timeLabel(r.end)}</td>
-                <td className={td}>{r.person ?? <span className="text-amber-300">needs a volunteer</span>}</td>
+                <td className={`${td} font-mono text-xs text-muted`}>{timeLabel(r.start)}–{timeLabel(r.end)}</td>
+                <td className={td}>{r.person ?? <span className="text-amber-700">needs a volunteer</span>}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        {open > 0 && <p className="mt-2 text-xs text-amber-300">{open} open slot{open > 1 ? "s" : ""}. The WhatsApp and Discord posts already ask for volunteers.</p>}
+        {open > 0 && <p className="mt-2 text-xs text-amber-700">{open} open slot{open > 1 ? "s" : ""}. The WhatsApp and Discord posts already ask for volunteers.</p>}
       </div>
     );
   }
@@ -420,11 +420,11 @@ function ItemBody({ kit, k, draft, setDraft }: { kit: EventKit; k: KitKey; draft
       <img
         src={`data:image/svg+xml;utf8,${encodeURIComponent(renderVisual(preview, format))}`}
         alt={`${format} visual`}
-        className="mx-auto rounded-xl border border-white/10"
+        className="mx-auto rounded-xl border border-line"
         style={{ aspectRatio: `${w} / ${h}`, maxHeight: format === "story" ? 420 : 300, width: "auto", maxWidth: "100%" }}
       />
       <input className="input" value={d.headline} onChange={(e) => setDraft({ headline: e.target.value })} placeholder="Headline" />
-      {STATIC && <p className="text-xs text-zinc-500">Rendered in your browser from the brand template.</p>}
+      {STATIC && <p className="text-xs text-muted">Rendered in your browser from the brand template.</p>}
     </div>
   );
 }

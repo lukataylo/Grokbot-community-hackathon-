@@ -93,7 +93,7 @@ export function renderVisual(kit: Pick<EventKit, "facts" | "brand" | "items">, f
 </defs>
 <rect width="${w}" height="${h}" fill="${b.background}"/>
 <circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#blob)" opacity=".9"/>
-<circle cx="${cx - r * 0.55}" cy="${cy + r * 0.6}" r="${r * 0.45}" fill="${b.accent}" opacity=".55"/>
+<circle cx="${cx - r * 0.55}" cy="${cy + r * 0.6}" r="${r * 0.45}" fill="${b.accent}" opacity=".35"/>
 <rect x="${cx - r * 0.2}" y="${cy - r * 0.9}" width="${r * 0.5}" height="${r * 0.5}" rx="${r * 0.08}" fill="none" stroke="${b.primary}" stroke-width="${Math.max(3, r * 0.02)}" transform="rotate(${seed % 30} ${cx} ${cy})"/>
 ${format === "newsletter-header" ? "" : dots}
 <rect x="${pad}" y="${pad}" width="${logoSize * 1.2}" height="${logoSize * 1.2}" rx="${logoSize * 0.3}" fill="${b.primary}"/>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { api } from "@/lib/client";
 import { dayLabel, nowNext, timeLabel } from "@/lib/kit";
 import type { Attendee, EventKit } from "@/lib/types";
+import { ArrowRight, AtIcon, CheckIcon, EyeIcon, LinkIcon, MailIcon, UserIcon } from "./ui";
 
 export function ActionButton({ run, label, busyLabel, className = "btn-grok" }: { run: () => Promise<unknown>; label: React.ReactNode; busyLabel?: string; className?: string }) {
   const [busy, setBusy] = useState(false);
@@ -30,92 +31,19 @@ export function ActionButton({ run, label, busyLabel, className = "btn-grok" }: 
   );
 }
 
-export function SignInAs({ attendees, currentId, redirect }: { attendees: Pick<Attendee, "id" | "name" | "xHandle">[]; currentId?: string; redirect?: string }) {
-  const router = useRouter();
-  return (
-    <select
-      className="rounded-lg border border-white/15 bg-black/50 px-2 py-1 text-xs text-zinc-300"
-      value={currentId ?? ""}
-      onChange={async (e) => {
-        await api.login(e.target.value || null);
-        if (redirect) router.push(redirect);
-      }}
-    >
-      <option value="">Demo: sign in as…</option>
-      {attendees.map((a) => (
-        <option key={a.id} value={a.id}>
-          @{a.xHandle} ({a.name})
-        </option>
-      ))}
-    </select>
-  );
-}
-
-export function UploadForm() {
-  const [busy, setBusy] = useState(false);
-  const [drag, setDrag] = useState(false);
-  const input = useRef<HTMLInputElement>(null);
-  const [caption, setCaption] = useState("");
-
-  async function upload(files: FileList | null) {
-    if (!files?.length) return;
-    setBusy(true);
-    await api.upload(Array.from(files), caption || "Event moment");
-    setBusy(false);
-    setCaption("");
-  }
-
-  return (
-    <div
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDrag(true);
-      }}
-      onDragLeave={() => setDrag(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setDrag(false);
-        upload(e.dataTransfer.files);
-      }}
-      className={`card flex flex-col gap-3 border-dashed p-5 sm:flex-row sm:items-center ${drag ? "border-fuchsia-400 bg-fuchsia-500/10" : ""}`}
-    >
-      <div className="flex-1">
-        <p className="font-semibold">Upload your event photos</p>
-        <p className="text-sm text-zinc-400">Grok finds the people who opted in, tags them and delivers the photo to them. Anyone who opted out is never tagged.</p>
-      </div>
-      <input className="input sm:w-56" placeholder="Caption (optional)" value={caption} onChange={(e) => setCaption(e.target.value)} />
-      <input ref={input} type="file" accept="image/*" multiple hidden onChange={(e) => upload(e.target.files)} />
-      <button className="btn-grok" disabled={busy} onClick={() => input.current?.click()}>
-        {busy ? "Grok is tagging…" : "Upload photos"}
-      </button>
-    </div>
-  );
-}
-
 export function JoinForm({ eventId, initial }: { eventId: string; initial?: Partial<Attendee> }) {
   const router = useRouter();
-  const [step, setStep] = useState<"login" | "profile">(initial?.xHandle ? "profile" : "login");
   const [busy, setBusy] = useState(false);
   const [f, setF] = useState({
     name: initial?.name ?? "",
+    email: initial?.email ?? "",
     xHandle: initial?.xHandle ?? "",
     linkedin: initial?.linkedin ?? "",
     lookFor: initial?.lookFor ?? "",
-    consentPhoto: initial?.consentPhoto ?? true,
-    consentTag: initial?.consentTag ?? true,
+    consentPhoto: initial?.consentPhoto ?? false,
+    consentTag: initial?.consentTag ?? false,
   });
   const set = (k: keyof typeof f, v: string | boolean) => setF((p) => ({ ...p, [k]: v }));
-
-  if (step === "login")
-    return (
-      <div className="space-y-3">
-        <button className="btn w-full bg-black py-3 text-white ring-1 ring-white/20 hover:bg-zinc-900" onClick={() => setStep("profile")}>
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23 22h-6.8l-5.3-6.9L4.8 22H1.7l8.1-9.3L1 2h7l4.8 6.3L18.9 2Z" /></svg>
-          Continue with X
-        </button>
-        <p className="text-center text-xs text-zinc-500">We only read your public handle. Nothing is posted without your approval.</p>
-      </div>
-    );
 
   return (
     <form
@@ -125,48 +53,60 @@ export function JoinForm({ eventId, initial }: { eventId: string; initial?: Part
         setBusy(true);
         const a = await api.join({ eventId, ...f });
         setBusy(false);
-        if (a) router.push(`/e/${eventId}/me`);
+        if (a) router.push(`/e/${eventId}`);
       }}
     >
+      <Field label="Your name" icon={<UserIcon className="h-5 w-5" />}>
+        <input className="input pl-12" required value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Ada Lovelace" autoComplete="name" />
+      </Field>
+      <Field label="Email" icon={<MailIcon className="h-5 w-5" />}>
+        <input className="input pl-12" type="email" required value={f.email} onChange={(e) => set("email", e.target.value)} placeholder="you@example.com" autoComplete="email" />
+      </Field>
       <div className="grid grid-cols-2 gap-3">
-        <label className="col-span-2 text-sm">
-          Name
-          <input className="input mt-1" required value={f.name} onChange={(e) => set("name", e.target.value)} placeholder="Ada Lovelace" />
-        </label>
-        <label className="text-sm">
-          X handle
-          <input className="input mt-1" required value={f.xHandle} onChange={(e) => set("xHandle", e.target.value)} placeholder="@ada" />
-        </label>
-        <label className="text-sm">
-          LinkedIn
-          <input className="input mt-1" value={f.linkedin} onChange={(e) => set("linkedin", e.target.value)} placeholder="linkedin.com/in/ada" />
-        </label>
-        <label className="col-span-2 text-sm">
-          How will Grok spot you tonight?
-          <input className="input mt-1" value={f.lookFor} onChange={(e) => set("lookFor", e.target.value)} placeholder="e.g. orange hoodie, glasses" />
-          <span className="mt-1 block text-xs text-zinc-500">A description instead of face biometrics. Delete it any time.</span>
-        </label>
+        <Field label="X handle" icon={<AtIcon className="h-5 w-5" />}>
+          <input className="input pl-12" required value={f.xHandle} onChange={(e) => set("xHandle", e.target.value)} placeholder="ada" />
+        </Field>
+        <Field label="LinkedIn" icon={<LinkIcon className="h-5 w-5" />}>
+          <input className="input pl-12" value={f.linkedin} onChange={(e) => set("linkedin", e.target.value)} placeholder="in/yourname" />
+        </Field>
       </div>
-      <div className="space-y-2 rounded-xl border border-white/10 bg-black/30 p-3">
-        <Toggle label="I'm happy to appear in event photos" sub="If off, photos you appear in are hidden from the shared gallery" on={f.consentPhoto} set={(v) => set("consentPhoto", v)} />
-        <Toggle label="Tag me and send me my photos" sub="Grok tags you and adds you to the sharing plan" on={f.consentPhoto && f.consentTag} disabled={!f.consentPhoto} set={(v) => set("consentTag", v)} />
+      <Field label="How will Grok spot you tonight?" icon={<EyeIcon className="h-5 w-5" />} hint="A description instead of face biometrics. Only used to find you in photos.">
+        <input className="input pl-12" value={f.lookFor} onChange={(e) => set("lookFor", e.target.value)} placeholder="e.g. orange hoodie, glasses" />
+      </Field>
+      <div className="space-y-3 pt-1">
+        <Check label="I'm happy to be photographed" sub="If not, photos you're in are blurred or hidden." on={f.consentPhoto} set={(v) => setF((p) => ({ ...p, consentPhoto: v, consentTag: v && p.consentTag }))} />
+        <Check label="People can tag me in posts" sub="Grok tags you and sends you your photos." on={f.consentPhoto && f.consentTag} disabled={!f.consentPhoto} set={(v) => set("consentTag", v)} />
       </div>
-      <button className="btn-grok w-full py-3" disabled={busy}>
-        {busy ? "Joining…" : "Join the event"}
+      <button className="btn-primary w-full py-4 text-base" disabled={busy}>
+        {busy ? "Joining…" : initial?.xHandle ? "Save preferences" : "Join event"} <ArrowRight className="h-5 w-5" />
       </button>
+      <p className="text-center text-xs text-muted">Change your preferences anytime.</p>
     </form>
   );
 }
 
-function Toggle({ label, sub, on, set, disabled }: { label: string; sub: string; on: boolean; set: (v: boolean) => void; disabled?: boolean }) {
+function Field({ label, icon, hint, children }: { label: string; icon: React.ReactNode; hint?: string; children: React.ReactNode }) {
   return (
-    <button type="button" disabled={disabled} onClick={() => set(!on)} className="flex w-full items-center gap-3 text-left disabled:opacity-40">
-      <span className={`relative h-6 w-11 shrink-0 rounded-full transition ${on ? "bg-fuchsia-500" : "bg-zinc-700"}`}>
-        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white transition ${on ? "left-5" : "left-0.5"}`} />
+    <label className="block">
+      <span className="mb-1.5 block text-sm font-semibold">{label}</span>
+      <span className="relative block">
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted">{icon}</span>
+        {children}
+      </span>
+      {hint && <span className="mt-1 block text-xs text-muted">{hint}</span>}
+    </label>
+  );
+}
+
+function Check({ label, sub, on, set, disabled }: { label: string; sub: string; on: boolean; set: (v: boolean) => void; disabled?: boolean }) {
+  return (
+    <button type="button" disabled={disabled} onClick={() => set(!on)} className="flex w-full items-start gap-3 text-left disabled:opacity-40">
+      <span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-lg border-2 transition ${on ? "border-navy bg-navy text-white" : "border-slate-300 bg-white"}`}>
+        {on && <CheckIcon className="h-4 w-4" />}
       </span>
       <span>
         <span className="block text-sm font-medium">{label}</span>
-        <span className="block text-xs text-zinc-500">{sub}</span>
+        <span className="block text-xs text-muted">{sub}</span>
       </span>
     </button>
   );
@@ -174,7 +114,7 @@ function Toggle({ label, sub, on, set, disabled }: { label: string; sub: string;
 
 export function BotConsole({ eventId }: { eventId: string }) {
   const [log, setLog] = useState<{ who: "you" | "bot"; text: string }[]>([
-    { who: "bot", text: "Hi, I'm Grokbot. Try /stats, /tag, /plan, /nudge, /winners, /announce <msg>, or just ask me something." },
+    { who: "bot", text: "Hi, I'm Grok, your co-organiser. Try /stats, /tag, /plan, /nudge, /winners, /announce <msg>, or just ask me something." },
   ]);
   const [cmd, setCmd] = useState("");
   const [busy, setBusy] = useState(false);
@@ -196,10 +136,10 @@ export function BotConsole({ eventId }: { eventId: string }) {
   return (
     <div className="card flex h-full flex-col p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="font-semibold">Grokbot console</h3>
+        <h3 className="font-semibold">Grok console</h3>
         <div className="flex gap-1">
           {["/stats", "/nudge", "/winners"].map((c) => (
-            <button key={c} className="rounded-md bg-white/5 px-2 py-0.5 font-mono text-xs text-zinc-300 hover:bg-white/10" onClick={() => send(c)}>
+            <button key={c} className="rounded-md bg-mist px-2 py-0.5 font-mono text-xs text-navy/80 hover:bg-glow-soft" onClick={() => send(c)}>
               {c}
             </button>
           ))}
@@ -208,10 +148,10 @@ export function BotConsole({ eventId }: { eventId: string }) {
       <div className="flex-1 space-y-2 overflow-y-auto pr-1 text-sm" style={{ maxHeight: 280 }}>
         {log.map((m, i) => (
           <div key={i} className={m.who === "you" ? "text-right" : ""}>
-            <span className={`inline-block whitespace-pre-wrap rounded-xl px-3 py-2 ${m.who === "you" ? "bg-white text-black" : "bg-fuchsia-500/15 text-fuchsia-100"}`}>{m.text}</span>
+            <span className={`inline-block whitespace-pre-wrap rounded-xl px-3 py-2 ${m.who === "you" ? "bg-navy text-white" : "bg-glow-soft text-navy"}`}>{m.text}</span>
           </div>
         ))}
-        {busy && <div className="text-xs text-zinc-500">Grokbot is thinking…</div>}
+        {busy && <div className="text-xs text-muted">Grok is thinking…</div>}
         <div ref={end} />
       </div>
       <form
@@ -244,20 +184,20 @@ export function NightOf({ eventId, kit }: { eventId: string; kit?: EventKit }) {
         <h3 className="mb-2 font-semibold">Run sheet{kit ? ` · ${kit.facts.name}` : ""}</h3>
         {kit ? (
           <div className="space-y-2 text-sm">
-            <div className="rounded-xl bg-fuchsia-500/10 p-3">
-              <p className="text-xs uppercase tracking-wider text-fuchsia-300">Now</p>
+            <div className="rounded-xl bg-glow-soft p-3">
+              <p className="text-xs uppercase tracking-wider text-glow-deep">Now</p>
               <p className="font-semibold">{now ? `${timeLabel(now.time)} · ${now.item}` : "Not started yet"}</p>
-              {now && <p className="text-xs text-zinc-400">{now.owner}{now.notes ? ` · ${now.notes}` : ""}</p>}
+              {now && <p className="text-xs text-muted">{now.owner}{now.notes ? ` · ${now.notes}` : ""}</p>}
             </div>
-            <div className="rounded-xl bg-white/5 p-3">
-              <p className="text-xs uppercase tracking-wider text-zinc-500">Next</p>
+            <div className="rounded-xl bg-mist p-3">
+              <p className="text-xs uppercase tracking-wider text-muted">Next</p>
               <p className="font-semibold">{next ? `${now ? "" : `${dayLabel(next.time)}, `}${timeLabel(next.time)} · ${next.item}` : "That's a wrap"}</p>
-              {next && <p className="text-xs text-zinc-400">{next.owner}</p>}
+              {next && <p className="text-xs text-muted">{next.owner}</p>}
             </div>
           </div>
         ) : (
-          <p className="text-sm text-zinc-400">
-            No run sheet yet. <Link href={`/organiser/${eventId}/autopilot`} className="text-fuchsia-300 hover:underline">Generate one with Autopilot</Link>.
+          <p className="text-sm text-muted">
+            No run sheet yet. <Link href={`/organiser/${eventId}/autopilot`} className="text-glow-deep hover:underline">Generate one with Autopilot</Link>.
           </p>
         )}
       </div>
@@ -281,8 +221,8 @@ export function NightOf({ eventId, kit }: { eventId: string; kit?: EventKit }) {
           )}
         </div>
         {sent && (
-          <p className="rounded-lg bg-black/40 px-3 py-2 text-sm text-zinc-200">
-            {sent.text} <span className="text-xs text-zinc-500">· {sent.via}</span>
+          <p className="rounded-lg bg-mist px-3 py-2 text-sm text-navy">
+            {sent.text} <span className="text-xs text-muted">· {sent.via}</span>
           </p>
         )}
       </form>

@@ -7,24 +7,24 @@ import { dayLabel, timeLabel } from "@/lib/kit";
 import { MANUAL_MINUTES } from "@/lib/hours";
 import { Loading, Nav } from "@/components/nav";
 import { ActionButton } from "@/components/actions";
-import { Badge, GrokMark } from "@/components/ui";
+import { Badge, SparkleIcon } from "@/components/ui";
 
 export function DigestView({ eventId }: { eventId: string }) {
   const state = useAppData(0);
   const [calendar, setCalendar] = useState(DEFAULT_CALENDAR);
   const [community, setCommunity] = useState("");
-  if (!state) return <><Nav eventId={eventId} active="autopilot" state={state} /><Loading /></>;
+  if (!state) return <><Nav eventId={eventId} active="digest" state={state} /><Loading /></>;
   const d = state.db.digest;
   const name = community || state.db.kits?.[eventId]?.brand.community || "Grok Bot London";
   const tone = (s: string) => (s === "draft" ? "amber" : s === "approved" ? "green" : "sky") as "amber" | "green" | "sky";
   return (
     <>
-      <Nav eventId={eventId} active="autopilot" state={state} />
+      <Nav eventId={eventId} active="digest" state={state} />
       <main className="mx-auto max-w-5xl space-y-6 px-4 py-8">
         <div>
-          <p className="text-sm text-fuchsia-300">Weekly digest</p>
+          <p className="text-sm text-glow-deep">Weekly digest</p>
           <h1 className="text-3xl font-bold">This week&apos;s events, drafted into a newsletter and a group message.</h1>
-          <p className="mt-1 text-zinc-400">Pulls your Luma calendar feed, keeps the next 7 days and writes both. Saves about {MANUAL_MINUTES.digest / 60}h every week.</p>
+          <p className="mt-1 text-muted">Pulls your Luma calendar feed, keeps the next 7 days and writes both. Saves about {MANUAL_MINUTES.digest / 60}h every week.</p>
         </div>
         <div className="card flex flex-wrap items-end gap-3 p-4">
           <label className="flex-1 text-sm font-medium">
@@ -35,11 +35,11 @@ export function DigestView({ eventId }: { eventId: string }) {
             Community
             <input className="input mt-1" value={community} onChange={(e) => setCommunity(e.target.value)} placeholder={name} />
           </label>
-          <ActionButton run={() => api.digest(calendar, name)} label={<><GrokMark className="h-4 w-4" /> Draft this week</>} busyLabel="Reading the calendar…" />
+          <ActionButton run={() => api.digest(calendar, name)} label={<><SparkleIcon className="h-4 w-4" /> Draft this week</>} busyLabel="Reading the calendar…" />
         </div>
         {d && (
           <>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-muted">
               {d.events.length} events in the next 7 days ·{" "}
               {d.feed === "luma" ? <Badge tone="green">live Luma feed</Badge> : <Badge tone="amber">sample feed: Luma could not be reached from here</Badge>}
             </p>
@@ -69,11 +69,11 @@ export function DigestView({ eventId }: { eventId: string }) {
                     )}
                   </div>
                 </div>
-                <pre className="whitespace-pre-wrap rounded-xl bg-black/40 p-3 text-sm text-zinc-200">{d.whatsapp.data.text}</pre>
-                <ul className="space-y-1 text-xs text-zinc-400">
+                <p className="whitespace-pre-wrap rounded-2xl bg-mist p-4 text-sm leading-relaxed text-navy">{d.whatsapp.data.text}</p>
+                <ul className="space-y-1 text-xs text-muted">
                   {d.events.map((e, i) => (
                     <li key={i}>
-                      <span className="font-mono text-fuchsia-300">{dayLabel(e.start).split(",")[0]} {timeLabel(e.start)}</span> {e.title}
+                      <span className="font-mono text-glow-deep">{dayLabel(e.start).split(",")[0]} {timeLabel(e.start)}</span> {e.title}
                     </li>
                   ))}
                 </ul>

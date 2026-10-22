@@ -1,32 +1,55 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-jakarta);
   --font-mono: var(--font-geist-mono);
 }
 
+/* afterglow brand: sky blue, navy ink, soft mist background, white cards. */
+@theme {
+  --color-navy: #0c1f4d;
+  --color-navy-soft: #1b336e;
+  --color-glow: #45b8fb;
+  --color-glow-deep: #1d9ef0;
+  --color-glow-soft: #dff1fe;
+  --color-mist: #eef5fc;
+  --color-line: #dde7f2;
+  --color-muted: #5d6b89;
+}
+
 body {
-  background: radial-gradient(1200px 600px at 10% -10%, #1e1b4b 0%, transparent 60%),
-    radial-gradient(900px 500px at 110% 0%, #3b0764 0%, transparent 55%), #05060a;
-  color: #e5e7eb;
+  background: radial-gradient(900px 500px at 0% -10%, #dff1fe 0%, transparent 60%), radial-gradient(800px 500px at 110% 0%, #e6f0ff 0%, transparent 55%), #eef5fc;
+  color: var(--color-navy);
   min-height: 100vh;
 }
 
 @utility card {
-  @apply rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur;
+  @apply rounded-3xl border border-line bg-white shadow-[0_10px_30px_-18px_rgba(12,31,77,0.35)];
 }
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:opacity-50;
 }
 @utility btn-primary {
-  @apply btn bg-white text-black hover:bg-zinc-200;
-}
-@utility btn-ghost {
-  @apply btn border border-white/15 bg-white/5 text-white hover:bg-white/10;
+  @apply btn bg-navy text-white hover:bg-navy-soft;
 }
 @utility btn-grok {
-  @apply btn bg-gradient-to-r from-fuchsia-500 to-indigo-500 text-white hover:brightness-110;
+  @apply btn bg-glow text-navy shadow-[0_8px_20px_-10px_rgba(29,158,240,0.9)] hover:bg-[#5cc2fc];
+}
+@utility btn-ghost {
+  @apply btn border border-line bg-white text-navy hover:bg-mist;
 }
 @utility input {
-  @apply w-full rounded-xl border border-white/15 bg-black/40 px-3 py-2 text-sm text-white placeholder:text-zinc-500 outline-none focus:border-fuchsia-400;
+  @apply w-full rounded-2xl border border-line bg-mist/70 px-4 py-3 text-sm text-navy outline-none transition placeholder:text-slate-400 focus:border-glow focus:bg-white focus:ring-4 focus:ring-glow/20;
+}
+@utility eyebrow {
+  @apply text-xs font-semibold uppercase tracking-[0.14em] text-muted;
+}
+@utility seg {
+  @apply flex rounded-full border border-line bg-mist p-1;
+}
+@utility seg-item {
+  @apply flex-1 rounded-full px-4 py-2 text-center text-sm font-medium text-muted transition;
+}
+@utility seg-on {
+  @apply bg-white font-semibold text-navy shadow-[0_4px_12px_-6px_rgba(12,31,77,0.35)];
 }

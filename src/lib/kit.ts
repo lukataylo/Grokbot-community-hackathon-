@@ -30,7 +30,7 @@ export const KIT_LABEL: Record<KitKey, string> = {
   "visual:newsletter-header": "Visual · newsletter header 1200×400",
 };
 
-export const DEFAULT_BRAND: Brand = { community: "Grok Bot London", primary: "#d946ef", accent: "#6366f1", background: "#0b0b14", font: "sans" };
+export const DEFAULT_BRAND: Brand = { community: "Grok Bot London", primary: "#45b8fb", accent: "#8fb8ff", background: "#0c1f4d", font: "sans" };
 
 export interface KitInput {
   eventId: string;

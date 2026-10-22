@@ -223,3 +223,19 @@ export async function writeDigest(events: DigestEvent[], community: string): Pro
     return {};
   }
 }
+
+/** Rewrite a personal recap in the attendee's voice, keeping only the given mentions. */
+export async function writeRecap(draft: { x: string; linkedin: string }, context: string): Promise<{ x: string; linkedin: string }> {
+  if (grokMode() !== "grok") return draft;
+  try {
+    const out = await chat([
+      { role: "system", content: "You polish a hackathon attendee's personal recap posts. Keep every @handle, name and hashtag exactly, add no new people or facts. X under 260 chars, LinkedIn 3-5 short lines. Reply with JSON {\"x\":\"\",\"linkedin\":\"\"}." },
+      { role: "user", content: `Context: ${context}\nDrafts: ${JSON.stringify(draft)}` },
+    ]);
+    const j = parseJSON<{ x?: string; linkedin?: string }>(out);
+    return { x: str(j?.x, 280) ?? draft.x, linkedin: str(j?.linkedin, 2800) ?? draft.linkedin };
+  } catch (e) {
+    console.error(e);
+    return draft;
+  }
+}

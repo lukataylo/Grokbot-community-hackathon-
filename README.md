@@ -1,4 +1,4 @@
-# Grokbot Event Autopilot
+# afterglow · Event Autopilot
 
 Built at the Grok Bot Community Engineering Hackathon, London (22 Oct 2026).
 
@@ -27,12 +27,16 @@ Demo data is seeded into `data/db.json` on first run. Use **Reset demo** on the 
 | --- | --- |
 | `/organiser/grokbot-london/autopilot` | **Event Autopilot**: idea → kit, per-piece approve / edit / regenerate, Approve all & publish, brand, Notion export |
 | `/organiser/digest` | Weekly digest from a Luma calendar `.ics` feed |
-| `/join/grokbot-london` | QR landing page: X sign-in, handles, appearance hint, consent |
-| `/e/grokbot-london` | Shared gallery and upload, with Grok tags and consent redactions |
-| `/e/grokbot-london/me` | Your photos and your share tasks |
-| `/e/grokbot-london/plan` | Grokbot sharing plan in timed waves |
-| `/e/grokbot-london/leaderboard` | Points, reach and prizes (live) |
+| `/join/grokbot-london` | Attendee app · **Join**: QR landing with name, email, X, LinkedIn, how Grok can spot you, and consent |
+| `/e/grokbot-london` | Attendee app · **Photos**: all photos / photos of me, upload, Grok tags and consent redactions |
+| `/e/grokbot-london/leaderboard` | Attendee app · **Leaderboard**: tonight / all time, community merch, points guide |
+| `/e/grokbot-london/me` | Attendee app · **Grok**: your rank, a recap post drafted from your photos, your share tasks |
+| `/e/grokbot-london/plan` | Organiser · sharing plan in timed waves, approve before attendees see it |
 | `/organiser/grokbot-london` | Organiser dashboard: hours saved, Now / Next, push a change, QR, stats, Grokbot console, live activity |
+
+## Design
+
+The attendee side is a mobile app (Photos, Leaderboard and Grok tabs) with the afterglow camera mascot. On a laptop it shows as a phone frame. The organiser side (Dashboard, Autopilot, Weekly digest, Share plan) is a desktop workspace using the same palette: sky `#45b8fb`, navy `#0c1f4d` and mist `#eef5fc`, with Plus Jakarta Sans. Theme tokens live in `src/app/globals.css`.
 
 ## Architecture
 

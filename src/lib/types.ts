@@ -4,6 +4,8 @@ export type TaskType = "post" | "comment" | "repost";
 export interface EventInfo {
   id: string;
   name: string;
+  /** Short name for headers, e.g. "Grok Bot Hackathon". */
+  shortName?: string;
   venue: string;
   startsAt: string;
   endsAt: string;
@@ -17,6 +19,7 @@ export interface Attendee {
   eventId: string;
   name: string;
   xHandle: string;
+  email?: string;
   linkedin: string;
   /** Self-described appearance Grok uses to match people in photos. */
   lookFor: string;

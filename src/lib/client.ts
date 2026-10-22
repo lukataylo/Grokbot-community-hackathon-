@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
-import { addPhoto, applyTags, botCommand, botContext, buildPlan, completeTask, joinEvent, logActivity, logBot, mockBotAnswer, mockIdentify, savePlan, uid, type JoinInput } from "./engine";
+import { addPhoto, applyTags, mockRecap, botCommand, botContext, buildPlan, completeTask, joinEvent, logActivity, logBot, mockBotAnswer, mockIdentify, savePlan, uid, type JoinInput } from "./engine";
 import { approveAll, approvePlan, getKit, kitMarkdown, markPublished, mockAnnouncement, mockItem, mockKit, saveKit, setBrand, updateItem } from "./kit";
 import { mockDigest, parseIcs, sampleIcs, thisWeek, updateDigest } from "./digest";
 import { buildSeed } from "./seed";
@@ -247,6 +247,12 @@ export const api = {
     if (!STATIC) await post("/api/digest/item", { part, ...patch });
     else local((db) => updateDigest(db, part, patch));
     await refresh();
+  },
+  async recap(eventId: string): Promise<{ x: string; linkedin: string } | null> {
+    if (!STATIC) return (await post("/api/recap", { eventId })).recap ?? null;
+    const db = loadLocal();
+    const meId = localStorage.getItem(SESSION_KEY);
+    return meId ? mockRecap(db, eventId, meId) : null;
   },
   async reset() {
     if (!STATIC) await post("/api/reset");

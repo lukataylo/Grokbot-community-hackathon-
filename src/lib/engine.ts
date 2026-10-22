@@ -16,6 +16,7 @@ export interface JoinInput {
   eventId: string;
   name?: string;
   xHandle?: string;
+  email?: string;
   linkedin?: string;
   lookFor?: string;
   consentPhoto?: boolean;
@@ -28,6 +29,7 @@ export function joinEvent(db: DB, body: JoinInput): Attendee | null {
   let a = db.attendees.find((x) => x.eventId === body.eventId && x.xHandle.toLowerCase() === xHandle.toLowerCase());
   const fields = {
     name: String(body.name || xHandle),
+    email: String(body.email ?? "").trim(),
     linkedin: String(body.linkedin ?? "").replace(/^.*linkedin\.com\/in\//, "").replace(/\/$/, ""),
     lookFor: String(body.lookFor ?? ""),
     consentPhoto: !!body.consentPhoto,
@@ -226,4 +228,19 @@ export function mockBotAnswer(context: string) {
 
 export function logBot(db: DB, eventId: string, command: string, reply: string) {
   logActivity(db, { eventId, kind: "bot", text: `Grokbot ${command.startsWith("/") ? command.split(/\s+/)[0] : "answered"}: ${reply.split("\n")[0].slice(0, 120)}` });
+}
+
+/**
+ * A personal recap post from the photos someone is tagged in. Only people who are tagged
+ * (and so consented to tagging) are mentioned.
+ */
+export function mockRecap(db: DB, eventId: string, meId: string) {
+  const event = db.events.find((e) => e.id === eventId)!;
+  const me = db.attendees.find((a) => a.id === meId)!;
+  const photos = db.photos.filter((p) => p.eventId === eventId && !p.hidden && p.tags.some((t) => t.attendeeId === meId));
+  const friends = [...new Set(photos.flatMap((p) => p.tags.map((t) => t.attendeeId)))].filter((id) => id !== meId).map((id) => db.attendees.find((a) => a.id === id)!).filter(Boolean);
+  const moments = photos.slice(0, 2).map((p) => p.caption);
+  const x = `Tonight at ${event.shortName ?? event.name}: ${moments.length ? moments.join(" → ") + " → " : ""}a lot of shipping.${friends.length ? ` Thanks ${friends.slice(0, 3).map((f) => "@" + f.xHandle).join(" ")}!` : ""} ${event.hashtag}`.slice(0, 280);
+  const linkedin = `Just wrapped ${event.name} in ${event.venue}.\n\n${moments.length ? `Highlights: ${moments.join(", ")}. ` : ""}Great people, real builds and a room full of energy.${friends.length ? `\n\nThanks to ${friends.slice(0, 4).map((f) => f.name).join(", ")} for building alongside me.` : ""}\n\n${event.hashtag}`;
+  return { x, linkedin, photoIds: photos.map((p) => p.id), mentions: friends.map((f) => f.id), by: me.id };
 }
