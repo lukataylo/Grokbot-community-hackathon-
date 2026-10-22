@@ -1,14 +1,14 @@
+"use client";
+
 import Link from "next/link";
-import { readDB } from "@/lib/store";
-import { currentAttendee } from "@/lib/session";
-import { grokMode } from "@/lib/grok";
+import type { AppState } from "@/lib/client";
 import { Avatar, Badge, GrokMark } from "./ui";
 import { SignInAs } from "./actions";
 
-export async function Nav({ eventId, active }: { eventId: string; active: string }) {
-  const db = readDB();
-  const event = db.events.find((e) => e.id === eventId);
-  const me = await currentAttendee();
+export function Nav({ eventId, active, state }: { eventId: string; active: string; state: AppState | null }) {
+  const event = state?.db.events.find((e) => e.id === eventId);
+  const people = state?.db.attendees.filter((a) => a.eventId === eventId) ?? [];
+  const me = people.find((a) => a.id === state?.meId);
   const links = [
     ["gallery", "Gallery", `/e/${eventId}`],
     ["me", "My photos", `/e/${eventId}/me`],
@@ -16,6 +16,7 @@ export async function Nav({ eventId, active }: { eventId: string; active: string
     ["leaderboard", "Leaderboard", `/e/${eventId}/leaderboard`],
     ["organiser", "Organiser", `/organiser/${eventId}`],
   ];
+  const live = state?.mode === "grok";
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-black/60 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-4 px-4 py-3">
@@ -33,10 +34,14 @@ export async function Nav({ eventId, active }: { eventId: string; active: string
             </Link>
           ))}
         </nav>
-        <Badge tone={grokMode() === "grok" ? "green" : "amber"}>{grokMode() === "grok" ? "Grok live" : "Grok mock"}</Badge>
-        <SignInAs attendees={db.attendees.filter((a) => a.eventId === eventId)} currentId={me?.id} />
+        {state && <Badge tone={live ? "green" : "amber"}>{live ? "Grok live" : "Grok mock"}</Badge>}
+        <SignInAs attendees={people} currentId={me?.id} />
         {me && <Avatar a={me} size={30} />}
       </div>
     </header>
   );
+}
+
+export function Loading() {
+  return <div className="grid min-h-[50vh] place-items-center text-sm text-zinc-500">Loading event…</div>;
 }

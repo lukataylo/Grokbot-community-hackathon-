@@ -1,8 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { randomUUID } from "node:crypto";
-import type { Activity, DB } from "./types";
+import type { DB } from "./types";
 import { buildSeed } from "./seed";
+
+export { logActivity, uid } from "./engine";
 
 /**
  * Local JSON store. Swap for the Supabase adapter (see supabase/schema.sql)
@@ -35,10 +36,3 @@ export function mutate<T>(fn: (db: DB) => T): T {
 export function resetDB() {
   writeDB(buildSeed());
 }
-
-export function logActivity(db: DB, a: Omit<Activity, "id" | "at">) {
-  db.activity.unshift({ id: randomUUID(), at: new Date().toISOString(), ...a });
-  db.activity = db.activity.slice(0, 200);
-}
-
-export const uid = (p: string) => `${p}_${randomUUID().slice(0, 8)}`;

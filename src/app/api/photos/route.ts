@@ -3,7 +3,8 @@ import path from "node:path";
 import { NextResponse } from "next/server";
 import { currentAttendee } from "@/lib/session";
 import { tagPhotos } from "@/lib/services";
-import { logActivity, mutate, uid } from "@/lib/store";
+import { addPhoto } from "@/lib/engine";
+import { mutate, uid } from "@/lib/store";
 
 export async function POST(req: Request) {
   const me = await currentAttendee();
@@ -19,14 +20,7 @@ export async function POST(req: Request) {
     const ext = (path.extname(file.name) || ".jpg").toLowerCase();
     fs.writeFileSync(path.join(dir, id + ext), Buffer.from(await file.arrayBuffer()));
     ids.push(id);
-    mutate((db) => {
-      db.photos.unshift({
-        id, eventId: me.eventId, url: `/uploads/${id}${ext}`, uploaderId: me.id, caption,
-        takenAt: new Date(file.lastModified || Date.now()).toISOString(), uploadedAt: new Date().toISOString(),
-        status: "pending", tags: [], withheld: [], hidden: false,
-      });
-      logActivity(db, { eventId: me.eventId, kind: "upload", text: `@${me.xHandle} uploaded "${caption}"`, attendeeId: me.id });
-    });
+    mutate((db) => addPhoto(db, me, { id, url: `/uploads/${id}${ext}`, caption, takenAt: file.lastModified }));
   }
   await tagPhotos(me.eventId, ids);
   return NextResponse.json({ ids });

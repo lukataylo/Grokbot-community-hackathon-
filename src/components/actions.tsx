@@ -2,15 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { api } from "@/lib/client";
 import type { Attendee } from "@/lib/types";
 
-async function post(url: string, body?: unknown) {
-  const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body ?? {}) });
-  return res.json();
-}
-
-export function ActionButton({ url, body, label, busyLabel, className = "btn-grok" }: { url: string; body?: unknown; label: React.ReactNode; busyLabel?: string; className?: string }) {
-  const router = useRouter();
+export function ActionButton({ run, label, busyLabel, className = "btn-grok" }: { run: () => Promise<unknown>; label: React.ReactNode; busyLabel?: string; className?: string }) {
   const [busy, setBusy] = useState(false);
   return (
     <button
@@ -18,9 +13,8 @@ export function ActionButton({ url, body, label, busyLabel, className = "btn-gro
       disabled={busy}
       onClick={async () => {
         setBusy(true);
-        await post(url, body);
+        await run();
         setBusy(false);
-        router.refresh();
       }}
     >
       {busy ? (
@@ -34,15 +28,6 @@ export function ActionButton({ url, body, label, busyLabel, className = "btn-gro
   );
 }
 
-export function AutoRefresh({ ms = 3000 }: { ms?: number }) {
-  const router = useRouter();
-  useEffect(() => {
-    const t = setInterval(() => router.refresh(), ms);
-    return () => clearInterval(t);
-  }, [ms, router]);
-  return null;
-}
-
 export function SignInAs({ attendees, currentId, redirect }: { attendees: Pick<Attendee, "id" | "name" | "xHandle">[]; currentId?: string; redirect?: string }) {
   const router = useRouter();
   return (
@@ -50,9 +35,8 @@ export function SignInAs({ attendees, currentId, redirect }: { attendees: Pick<A
       className="rounded-lg border border-white/15 bg-black/50 px-2 py-1 text-xs text-zinc-300"
       value={currentId ?? ""}
       onChange={async (e) => {
-        await post("/api/login", { attendeeId: e.target.value || null });
+        await api.login(e.target.value || null);
         if (redirect) router.push(redirect);
-        router.refresh();
       }}
     >
       <option value="">Demo: sign in as…</option>
@@ -66,7 +50,6 @@ export function SignInAs({ attendees, currentId, redirect }: { attendees: Pick<A
 }
 
 export function UploadForm() {
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [drag, setDrag] = useState(false);
   const input = useRef<HTMLInputElement>(null);
@@ -75,13 +58,9 @@ export function UploadForm() {
   async function upload(files: FileList | null) {
     if (!files?.length) return;
     setBusy(true);
-    const fd = new FormData();
-    for (const f of Array.from(files)) fd.append("file", f);
-    fd.append("caption", caption || "Event moment");
-    await fetch("/api/photos", { method: "POST", body: fd });
+    await api.upload(Array.from(files), caption || "Event moment");
     setBusy(false);
     setCaption("");
-    router.refresh();
   }
 
   return (
@@ -142,9 +121,9 @@ export function JoinForm({ eventId, initial }: { eventId: string; initial?: Part
       onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);
-        const r = await post("/api/join", { eventId, ...f });
+        const a = await api.join({ eventId, ...f });
         setBusy(false);
-        if (r.attendee) router.push(`/e/${eventId}/me`);
+        if (a) router.push(`/e/${eventId}/me`);
       }}
     >
       <div className="grid grid-cols-2 gap-3">
@@ -192,7 +171,6 @@ function Toggle({ label, sub, on, set, disabled }: { label: string; sub: string;
 }
 
 export function BotConsole({ eventId }: { eventId: string }) {
-  const router = useRouter();
   const [log, setLog] = useState<{ who: "you" | "bot"; text: string }[]>([
     { who: "bot", text: "Hi, I'm Grokbot. Try /stats, /tag, /plan, /nudge, /winners, /announce <msg>, or just ask me something." },
   ]);
@@ -208,10 +186,9 @@ export function BotConsole({ eventId }: { eventId: string }) {
     setLog((l) => [...l, { who: "you", text: c }]);
     setCmd("");
     setBusy(true);
-    const r = await post("/api/bot", { eventId, command: c });
-    setLog((l) => [...l, { who: "bot", text: r.reply }]);
+    const reply = await api.bot(eventId, c);
+    setLog((l) => [...l, { who: "bot", text: reply }]);
     setBusy(false);
-    router.refresh();
   }
 
   return (

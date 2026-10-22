@@ -1,4 +1,5 @@
 import type { Attendee, Photo, PhotoTag } from "./types";
+import { mockBotAnswer, mockIdentify } from "./engine";
 
 const XAI_URL = "https://api.x.ai/v1/chat/completions";
 const MODEL = process.env.XAI_MODEL ?? "grok-4";
@@ -28,8 +29,6 @@ function parseJSON<T>(text: string): T | null {
     return null;
   }
 }
-
-const hash = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
 /**
  * Match people in a photo against the attendee roster using each person's
@@ -63,17 +62,8 @@ export async function identifyPeople(
       console.error("Grok vision failed, falling back to mock", e);
     }
   }
-  const svg = imageDataUrl?.startsWith("data:image/svg") ? Buffer.from(imageDataUrl.split(",")[1], "base64").toString("utf8") : "";
-  const bySvgColour = svg ? roster.filter((a) => svg.includes(`fill="${a.color}"`)).map((a) => a.id) : [];
-  const ids =
-    photo.groundTruth ??
-    (bySvgColour.length ? bySvgColour : null) ??
-    [photo.uploaderId, ...roster.filter((a) => a.id !== photo.uploaderId).sort((a, b) => hash(photo.id + a.id) - hash(photo.id + b.id)).slice(0, 2).map((a) => a.id)];
-  const matches = ids
-    .map((id) => roster.find((a) => a.id === id))
-    .filter((a): a is Attendee => !!a)
-    .map((a) => ({ attendeeId: a.id, confidence: 0.82 + (hash(photo.id + a.id) % 17) / 100, reason: `Matched "${a.lookFor}"` }));
-  return { matches, note: `${matches.length} people detected · ${photo.caption}` };
+  const svg = imageDataUrl?.startsWith("data:image/svg") ? Buffer.from(imageDataUrl.split(",")[1], "base64").toString("utf8") : undefined;
+  return mockIdentify(photo, roster, svg);
 }
 
 /** Rewrite suggested post copy in each person's voice. Falls back to the template copy. */
@@ -102,5 +92,5 @@ export async function botAnswer(question: string, context: string): Promise<stri
       console.error(e);
     }
   }
-  return `Grokbot (mock): Based on live data — ${context.split("\n").slice(0, 3).join(" · ")}. Suggestion: nudge people with open tasks and push the next anchor post now while engagement is high.`;
+  return mockBotAnswer(context);
 }

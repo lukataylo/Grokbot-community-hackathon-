@@ -1,5 +1,6 @@
 import type { Attendee, Photo, ShareTask } from "@/lib/types";
 import { POINTS } from "@/lib/points";
+import { api } from "@/lib/client";
 import { ActionButton } from "./actions";
 import { Avatar, Badge, PlatformIcon, fmtTime, relTime } from "./ui";
 
@@ -10,7 +11,7 @@ function intentUrl(t: ShareTask) {
   return t.platform === "x" ? `https://x.com/intent/post?text=${text}` : `https://www.linkedin.com/feed/?shareActive=true&text=${text}`;
 }
 
-export function TaskCard({ task, people, photo, target, compact }: { task: ShareTask; people: Attendee[]; photo?: Photo; target?: ShareTask; compact?: boolean }) {
+export function TaskCard({ task, people, photo, photoUrl, target, compact }: { task: ShareTask; people: Attendee[]; photo?: Photo; photoUrl?: string; target?: ShareTask; compact?: boolean }) {
   const a = people.find((p) => p.id === task.attendeeId)!;
   const targetWho = target && people.find((p) => p.id === target.attendeeId);
   const due = new Date(task.scheduledAt).getTime() <= Date.now() + 60000;
@@ -19,7 +20,7 @@ export function TaskCard({ task, people, photo, target, compact }: { task: Share
     <div className={`card flex gap-3 p-3 ${done ? "opacity-60" : due ? "ring-1 ring-fuchsia-400/60" : ""}`}>
       {photo && !compact && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={photo.url} alt="" className="h-20 w-24 shrink-0 rounded-lg object-cover" />
+        <img src={photoUrl} alt="" className="h-20 w-24 shrink-0 rounded-lg object-cover" />
       )}
       <div className="min-w-0 flex-1 space-y-1.5">
         <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -44,7 +45,7 @@ export function TaskCard({ task, people, photo, target, compact }: { task: Share
             <a href={intentUrl(task)} target="_blank" rel="noreferrer" className="btn-ghost px-3 py-1 text-xs">
               Open {task.platform === "x" ? "X" : "LinkedIn"}
             </a>
-            <ActionButton url={`/api/tasks/${task.id}`} label="Mark done" className="btn-primary px-3 py-1 text-xs" busyLabel="Saving" />
+            <ActionButton run={() => api.completeTask(task.id)} label="Mark done" className="btn-primary px-3 py-1 text-xs" busyLabel="Saving" />
           </div>
         )}
       </div>

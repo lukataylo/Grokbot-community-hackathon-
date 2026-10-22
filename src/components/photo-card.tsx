@@ -1,14 +1,14 @@
 import type { Attendee, Photo } from "@/lib/types";
 import { Avatar, Badge, relTime } from "./ui";
 
-export function PhotoCard({ photo, people, highlight }: { photo: Photo; people: Attendee[]; highlight?: string }) {
+export function PhotoCard({ photo, src, people, highlight }: { photo: Photo; src: string; people: Attendee[]; highlight?: string }) {
   const by = (id: string) => people.find((a) => a.id === id);
   const uploader = by(photo.uploaderId);
   return (
     <figure className="card overflow-hidden">
       <div className="relative aspect-[4/3] bg-black">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photo.url} alt={photo.caption} className={`h-full w-full object-cover ${photo.hidden ? "blur-xl" : ""}`} />
+        <img src={src} alt={photo.caption} className={`h-full w-full object-cover ${photo.hidden ? "blur-xl" : ""}`} />
         {photo.hidden && (
           <div className="absolute inset-0 grid place-items-center bg-black/40 text-center text-sm font-semibold">
             <span>🔒 Hidden: someone in this photo opted out of being photographed</span>
