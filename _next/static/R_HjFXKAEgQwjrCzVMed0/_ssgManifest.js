@@ -1,0 +1,1 @@
+self.__SSG_MANIFEST=new Set(["\u002Fe\u002F[eventId]","\u002Fe\u002F[eventId]\u002Fleaderboard","\u002Fe\u002F[eventId]\u002Fme","\u002Fe\u002F[eventId]\u002Fplan","\u002Fjoin\u002F[eventId]","\u002Forganiser\u002F[eventId]"]);self.__SSG_MANIFEST_CB&&self.__SSG_MANIFEST_CB()
