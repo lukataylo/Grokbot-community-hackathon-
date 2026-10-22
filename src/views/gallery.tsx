@@ -6,10 +6,12 @@ import { api, photoSrc, useAppData } from "@/lib/client";
 import { Loading } from "@/components/nav";
 import { AppShell } from "@/components/app-shell";
 import { PhotoCard } from "@/components/photo-card";
+import { TimelineList } from "@/components/timeline";
+import { timeline } from "@/lib/engine";
 import { ChevronRight, Mascot, PlusIcon } from "@/components/ui";
 import type { Photo } from "@/lib/types";
 
-export function GalleryView({ eventId, initialTab = "all" }: { eventId: string; initialTab?: "all" | "me" }) {
+export function GalleryView({ eventId, initialTab = "all" }: { eventId: string; initialTab?: "all" | "timeline" | "me" }) {
   const state = useAppData(5000);
   const [tab, setTab] = useState(initialTab);
   const [open, setOpen] = useState<Photo | null>(null);
@@ -23,6 +25,8 @@ export function GalleryView({ eventId, initialTab = "all" }: { eventId: string; 
   const mine = all.filter((p) => me && p.tags.some((t) => t.attendeeId === me.id));
   const photos = tab === "me" ? mine : all;
   const contributors = new Set(all.map((p) => p.uploaderId)).size;
+  // People Grok recognised but left untagged or blurred because they said no.
+  const privateCount = new Set(all.flatMap((p) => p.withheld.map((w) => w.attendeeId))).size;
   const current = open && db.photos.find((p) => p.id === open.id);
 
   async function upload(files: FileList | null) {
@@ -36,10 +40,13 @@ export function GalleryView({ eventId, initialTab = "all" }: { eventId: string; 
     <AppShell eventId={eventId} state={state} title="Event photos">
       <div className="seg mb-4">
         <button className={`seg-item ${tab === "all" ? "seg-on" : ""}`} onClick={() => setTab("all")}>All photos</button>
-        <button className={`seg-item ${tab === "me" ? "seg-on" : ""}`} onClick={() => setTab("me")}>Photos of me{me ? ` · ${mine.length}` : ""}</button>
+        <button className={`seg-item ${tab === "timeline" ? "seg-on" : ""}`} onClick={() => setTab("timeline")}>Timeline</button>
+        <button className={`seg-item ${tab === "me" ? "seg-on" : ""}`} onClick={() => setTab("me")}>Of me{me ? ` · ${mine.length}` : ""}</button>
       </div>
 
-      {photos.length ? (
+      {tab === "timeline" ? (
+        <TimelineList moments={timeline(db, eventId)} db={db} people={people} onOpen={setOpen} highlight={me?.id} />
+      ) : photos.length ? (
         <div className="grid grid-cols-2 gap-2.5">
           {photos.map((p) => (
             <button key={p.id} onClick={() => setOpen(p)} className="group relative aspect-square overflow-hidden rounded-2xl bg-slate-200 text-left">
@@ -62,9 +69,12 @@ export function GalleryView({ eventId, initialTab = "all" }: { eventId: string; 
         </div>
       )}
 
-      <p className="mt-3 px-1 text-sm text-muted">
-        {all.length} photos · {contributors} contributors
-      </p>
+      <div className="mt-3 flex items-center justify-between gap-2 px-1 text-sm text-muted">
+        <span>
+          {all.length} photos · {contributors} contributors
+        </span>
+        {privateCount > 0 && <span className="rounded-full bg-white px-2.5 py-1 text-xs ring-1 ring-line">🛡 {privateCount} kept private</span>}
+      </div>
 
       {me && (
         <>

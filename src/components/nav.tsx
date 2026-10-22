@@ -9,8 +9,7 @@ export function Nav({ eventId, active, state }: { eventId: string; active: strin
   const event = state?.db.events.find((e) => e.id === eventId);
   const links = [
     ["organiser", "Dashboard", `/organiser/${eventId}`],
-    ["autopilot", "Autopilot", `/organiser/${eventId}/autopilot`],
-    ["digest", "Weekly digest", `/organiser/digest`],
+    ["timeline", "Timeline", `/organiser/${eventId}/timeline`],
     ["plan", "Share plan", `/e/${eventId}/plan`],
   ];
   const live = state?.mode === "grok";

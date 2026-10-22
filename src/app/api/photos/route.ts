@@ -14,13 +14,14 @@ export async function POST(req: Request) {
   const caption = String(form.get("caption") || "Event moment");
   const dir = path.join(process.cwd(), "data", "uploads");
   fs.mkdirSync(dir, { recursive: true });
+  const takenAt = form.getAll("takenAt").map(Number);
   const ids: string[] = [];
-  for (const file of files) {
+  for (const [i, file] of files.entries()) {
     const id = uid("p");
     const ext = (path.extname(file.name) || ".jpg").toLowerCase();
     fs.writeFileSync(path.join(dir, id + ext), Buffer.from(await file.arrayBuffer()));
     ids.push(id);
-    mutate((db) => addPhoto(db, me, { id, url: `/uploads/${id}${ext}`, caption, takenAt: file.lastModified }));
+    mutate((db) => addPhoto(db, me, { id, url: `/uploads/${id}${ext}`, caption, takenAt: takenAt[i] || file.lastModified }));
   }
   await tagPhotos(me.eventId, ids);
   return NextResponse.json({ ids });

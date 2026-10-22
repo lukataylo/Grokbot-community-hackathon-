@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "afterglow · Event Autopilot",
-  description: "One idea in: run sheet, budget, rota, on-brand visuals, posts and a newsletter out, approved by the lead in one click.",
+  title: "afterglow",
+  description: "Every photo from tonight, found, consented and shared together. Scan a QR, Grok finds you in the photos, and the community posts as one.",
 };
 
 export default function RootLayout({

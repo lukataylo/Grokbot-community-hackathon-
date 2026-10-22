@@ -119,7 +119,10 @@ export const api = {
   async upload(files: File[], caption: string) {
     if (!STATIC) {
       const fd = new FormData();
-      for (const f of files) fd.append("file", f);
+      for (const f of files) {
+        fd.append("file", f);
+        fd.append("takenAt", String(f.lastModified || Date.now()));
+      }
       fd.append("caption", caption);
       await fetch(`${BASE}/api/photos`, { method: "POST", body: fd });
     } else {
@@ -130,7 +133,7 @@ export const api = {
         if (!me) return;
         const ids = urls.map((url) => {
           const id = uid("p");
-          addPhoto(db, me, { id, url, caption });
+          addPhoto(db, me, { id, url, caption, takenAt: files[urls.indexOf(url)]?.lastModified });
           return id;
         });
         tagLocal(db, me.eventId, ids);
@@ -148,9 +151,9 @@ export const api = {
     else local((db) => savePlan(db, eventId, buildPlan(db, eventId), "mock"));
     await refresh();
   },
-  async completeTask(id: string) {
-    if (!STATIC) await post(`/api/tasks/${id}`);
-    else local((db) => completeTask(db, id));
+  async completeTask(id: string, postUrl?: string) {
+    if (!STATIC) await post(`/api/tasks/${id}`, { postUrl });
+    else local((db) => completeTask(db, id, postUrl));
     await refresh();
   },
   async bot(eventId: string, command: string): Promise<string> {

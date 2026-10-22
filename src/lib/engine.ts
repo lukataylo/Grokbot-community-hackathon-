@@ -1,5 +1,6 @@
 import type { Activity, Attendee, DB, Photo, PhotoTag, Platform, ShareTask } from "./types";
 import { leaderboard } from "./points";
+import { parseSceneUrl } from "./scene";
 
 /** Pure, isomorphic event logic shared by the API routes and the static (browser-only) demo. */
 
@@ -60,7 +61,7 @@ export function addPhoto(db: DB, me: Attendee, p: { id: string; url: string; cap
 const hash = (s: string) => [...s].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
 
 /** Deterministic stand-in for Grok vision. Scene SVGs are matched by each attendee's outfit colour. */
-export function mockIdentify(photo: Photo, roster: Attendee[], svg?: string): { matches: PhotoTag[]; note: string } {
+export function mockIdentify(photo: Photo, roster: Attendee[], svg?: string): { matches: PhotoTag[]; note: string; place: string } {
   const bySvgColour = svg ? roster.filter((a) => svg.includes(`fill="${a.color}"`)).map((a) => a.id) : [];
   const ids =
     photo.groundTruth ??
@@ -70,11 +71,18 @@ export function mockIdentify(photo: Photo, roster: Attendee[], svg?: string): { 
     .map((id) => roster.find((a) => a.id === id))
     .filter((a): a is Attendee => !!a)
     .map((a) => ({ attendeeId: a.id, confidence: 0.82 + (hash(photo.id + a.id) % 17) / 100, reason: `Matched "${a.lookFor}"` }));
-  return { matches, note: `${matches.length} people detected · ${photo.caption}` };
+  return { matches, note: `${matches.length} people detected · ${photo.caption}`, place: placeFor(photo) };
+}
+
+const SCENE_PLACES: Record<string, string> = { stage: "Main stage", desk: "Hack floor", crowd: "Kitchen & bar", board: "Whiteboard wall" };
+
+/** Seeded scenes know where they were taken; real uploads default to the venue until Grok says otherwise. */
+export function placeFor(photo: Photo) {
+  return photo.url.startsWith("/scene/") ? (SCENE_PLACES[parseSceneUrl(photo.url).bg] ?? "The venue") : "The venue";
 }
 
 /** Apply model matches, enforcing consent in code so policy never depends on model output. */
-export function applyTags(db: DB, eventId: string, photoId: string, r: { matches: PhotoTag[]; note: string }) {
+export function applyTags(db: DB, eventId: string, photoId: string, r: { matches: PhotoTag[]; note: string; place?: string; caption?: string }) {
   const at = (id: string) => db.attendees.find((a) => a.id === id)!;
   const p = db.photos.find((x) => x.id === photoId)!;
   p.tags = [];
@@ -90,6 +98,8 @@ export function applyTags(db: DB, eventId: string, photoId: string, r: { matches
   p.hidden = !p.url.startsWith("/scene/") && p.withheld.some((w) => w.reason === "no-photo");
   p.status = "tagged";
   p.grokNote = r.note;
+  p.place = r.place ?? p.place ?? placeFor(p);
+  if (r.caption && p.caption === "Event moment") p.caption = r.caption;
   logActivity(db, {
     eventId,
     kind: "tag",
@@ -139,6 +149,20 @@ export function buildPlan(db: DB, eventId: string): { tasks: ShareTask[]; strate
       .filter((a) => !inPhoto.some((x) => x.id === a.id) && (load.get(a.id) ?? 0) < 3)
       .sort((a, b) => (platform === "x" ? b.followersX - a.followersX : b.followersLinkedIn - a.followersLinkedIn))
       .slice(0, 2);
+    // Early upvotes from everyone else who opted in: the first 30 minutes decide a post's reach.
+    people
+      .filter((a) => a.id !== poster.id && !others.slice(0, 3).some((o) => o.id === a.id) && !amplifiers.some((x) => x.id === a.id) && (load.get(a.id) ?? 0) < 4)
+      .sort((a, b) => (load.get(a.id) ?? 0) - (load.get(b.id) ?? 0))
+      .slice(0, 4)
+      .forEach((fan, j) => {
+        tasks.push({
+          id: uid("t"), eventId, attendeeId: fan.id, type: "like", platform, scheduledAt: t(offset + 2 + j * 2), photoId: photo.id, targetTaskId: anchor.id,
+          copy: "",
+          why: "Upvote it in the first few minutes. Early likes tell the algorithm the post is worth showing.",
+          status: "todo",
+        });
+        bump(fan.id);
+      });
     amplifiers.forEach((amp, j) => {
       tasks.push({
         id: uid("t"), eventId, attendeeId: amp.id, type: "repost", platform, scheduledAt: t(offset + 30 + j * 15), photoId: photo.id, targetTaskId: anchor.id,
@@ -154,30 +178,70 @@ export function buildPlan(db: DB, eventId: string): { tasks: ShareTask[]; strate
   if (organiser) {
     tasks.push({
       id: uid("t"), eventId, attendeeId: organiser.id, type: "post", platform: "linkedin", scheduledAt: t(100),
-      copy: `What a night at ${event.name}! ${people.length} builders, ${db.photos.filter((p) => p.eventId === eventId).length} photos, all shared with consent by Grokbot. Thank you to everyone who came ${event.hashtag}`,
+      copy: `What a night at ${event.name}! ${people.length} builders, ${db.photos.filter((p) => p.eventId === eventId).length} photos, all shared with consent by afterglow. Thank you to everyone who came ${event.hashtag}`,
       why: "Recap post after the waves land. It tags the top contributors and links back to every anchor post.",
       status: "todo",
     });
   }
-  const strategy = `${photos.slice(0, 4).length} anchor posts staggered 20 min apart, each followed by early comments from people in the photo and delayed reposts from high-reach attendees outside it. ${tasks.length} tasks across ${new Set(tasks.map((x) => x.attendeeId)).size} people, with nobody given more than 4.`;
+  const strategy = `${photos.slice(0, 4).length} anchor posts staggered 20 min apart. Each gets early upvotes and comments from the people in the photo, then delayed reposts from high-reach attendees outside it. ${tasks.length} tasks across ${new Set(tasks.map((x) => x.attendeeId)).size} people, nobody given more than 4.`;
   return { tasks, strategy };
 }
 
 export function savePlan(db: DB, eventId: string, plan: { tasks: ShareTask[]; strategy: string }, source: "grok" | "mock") {
   db.tasks = db.tasks.filter((x) => x.eventId !== eventId || x.status === "done").concat(plan.tasks);
   db.plans[eventId] = { generatedAt: new Date().toISOString(), source, strategy: plan.strategy };
-  logActivity(db, { eventId, kind: "plan", text: `Grokbot generated a sharing plan: ${plan.tasks.length} tasks` });
+  logActivity(db, { eventId, kind: "plan", text: `Grok planned the sharing: ${plan.tasks.length} tasks across ${new Set(plan.tasks.map((t) => t.attendeeId)).size} people` });
   return plan.tasks.length;
 }
 
-export function completeTask(db: DB, id: string) {
+const DID = { post: "posted", comment: "commented", repost: "reposted", like: "upvoted" } as const;
+
+/** A reply, upvote or repost only makes sense once the post it points at is live. */
+export function isLocked(db: DB, t: ShareTask) {
+  if (!t.targetTaskId) return false;
+  return db.tasks.find((x) => x.id === t.targetTaskId)?.status !== "done";
+}
+
+export function completeTask(db: DB, id: string, postUrl?: string) {
   const t = db.tasks.find((x) => x.id === id);
-  if (!t || t.status === "done") return false;
+  if (!t || t.status === "done" || isLocked(db, t)) return false;
   t.status = "done";
   t.doneAt = new Date().toISOString();
+  if (postUrl && /^https?:\/\//.test(postUrl)) t.postUrl = postUrl.trim();
   const a = db.attendees.find((x) => x.id === t.attendeeId);
-  logActivity(db, { eventId: t.eventId, kind: "task", text: `@${a?.xHandle} completed a ${t.type} on ${t.platform === "x" ? "X" : "LinkedIn"}`, attendeeId: t.attendeeId });
+  const target = t.targetTaskId ? db.attendees.find((x) => x.id === db.tasks.find((y) => y.id === t.targetTaskId)?.attendeeId) : undefined;
+  const waiting = t.type === "post" ? db.tasks.filter((x) => x.targetTaskId === t.id).length : 0;
+  logActivity(db, {
+    eventId: t.eventId,
+    kind: "task",
+    text: `@${a?.xHandle} ${DID[t.type]}${target ? ` on @${target.xHandle}'s post` : ""} (${t.platform === "x" ? "X" : "LinkedIn"})${waiting ? `. ${waiting} people unlocked to engage` : ""}`,
+    attendeeId: t.attendeeId,
+  });
   return true;
+}
+
+export interface Moment {
+  start: string;
+  end: string;
+  place: string;
+  photos: Photo[];
+  people: string[];
+}
+
+/** Group visible photos into moments: same place, no gap longer than 25 minutes. */
+export function timeline(db: DB, eventId: string): Moment[] {
+  const photos = db.photos.filter((p) => p.eventId === eventId && !p.hidden).sort((a, b) => a.takenAt.localeCompare(b.takenAt));
+  const out: Moment[] = [];
+  for (const p of photos) {
+    const place = p.place ?? placeFor(p);
+    const last = out[out.length - 1];
+    if (last && last.place === place && new Date(p.takenAt).getTime() - new Date(last.end).getTime() < 25 * 60000) {
+      last.photos.push(p);
+      last.end = p.takenAt;
+    } else out.push({ start: p.takenAt, end: p.takenAt, place, photos: [p], people: [] });
+  }
+  for (const m of out) m.people = [...new Set(m.photos.flatMap((p) => p.tags.map((t) => t.attendeeId)))];
+  return out;
 }
 
 export const BOT_HELP = "Commands: /stats · /tag · /plan · /nudge · /winners · /announce <message> · or ask anything";
@@ -223,11 +287,11 @@ export function botContext(db: DB, eventId: string) {
 }
 
 export function mockBotAnswer(context: string) {
-  return `Grokbot (mock): Based on live data — ${context.split("\n").slice(0, 3).join(" · ")}. Suggestion: nudge people with open tasks and push the next anchor post now while engagement is high.`;
+  return `Grok (mock): Based on live data — ${context.split("\n").slice(0, 3).join(" · ")}. Suggestion: nudge people with open tasks and push the next anchor post now while engagement is high.`;
 }
 
 export function logBot(db: DB, eventId: string, command: string, reply: string) {
-  logActivity(db, { eventId, kind: "bot", text: `Grokbot ${command.startsWith("/") ? command.split(/\s+/)[0] : "answered"}: ${reply.split("\n")[0].slice(0, 120)}` });
+  logActivity(db, { eventId, kind: "bot", text: `Grok ${command.startsWith("/") ? command.split(/\s+/)[0] : "answered"}: ${reply.split("\n")[0].slice(0, 120)}` });
 }
 
 /**

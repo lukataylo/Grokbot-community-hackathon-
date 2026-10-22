@@ -68,7 +68,7 @@ export function LeaderboardView({ eventId }: { eventId: string }) {
       <div className="card mt-4 px-4 py-3">
         <div className="flex items-center gap-3 text-sm">
           <ChartIcon className="h-5 w-5" />
-          <span className="flex-1">Photos, posts &amp; helpful replies</span>
+          <span className="flex-1">Photos, posts, replies &amp; upvotes</span>
           <button className="inline-flex items-center gap-1 font-semibold text-glow-deep" onClick={() => setGuide(!guide)}>
             Points guide <ExternalIcon className="h-4 w-4" />
           </button>
@@ -80,7 +80,8 @@ export function LeaderboardView({ eventId }: { eventId: string }) {
               ["Tagged in a photo", POINTS.tagged],
               ["Post", POINTS.post],
               ["Repost", POINTS.repost],
-              ["Helpful comment", POINTS.comment],
+              ["Helpful reply", POINTS.comment],
+              ["Early upvote", POINTS.like],
             ].map(([l, p]) => (
               <li key={l} className="flex justify-between rounded-xl bg-mist px-3 py-2">
                 <span>{l}</span>
