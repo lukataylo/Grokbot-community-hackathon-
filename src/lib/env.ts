@@ -9,6 +9,8 @@ export const env = {
     bucket: process.env.S3_BUCKET || process.env.BUCKET_NAME || "",
     key: process.env.S3_ACCESS_KEY_ID || process.env.BUCKET_ACCESS_KEY_ID || "",
     secret: process.env.S3_SECRET_ACCESS_KEY || process.env.BUCKET_SECRET_ACCESS_KEY || "",
+    // Railway buckets use virtual-host URLs; MinIO and some others need path style.
+    pathStyle: (process.env.S3_URL_STYLE || "virtual-host") === "path",
   },
   localStore: process.env.LOCAL_STORE_DIR || ".data/store",
   stripeSecret: process.env.STRIPE_SECRET_KEY || "",

@@ -6,7 +6,7 @@ import { env } from "./env";
 // Bucket when configured (Railway/R2/S3), local disk otherwise (dev and tests).
 const useS3 = !!(env.s3.endpoint && env.s3.bucket && env.s3.key);
 const client = useS3
-  ? new S3Client({ endpoint: env.s3.endpoint, region: env.s3.region, credentials: { accessKeyId: env.s3.key, secretAccessKey: env.s3.secret }, forcePathStyle: true })
+  ? new S3Client({ endpoint: env.s3.endpoint, region: env.s3.region, credentials: { accessKeyId: env.s3.key, secretAccessKey: env.s3.secret }, forcePathStyle: env.s3.pathStyle })
   : null;
 
 export async function put(key: string, body: Buffer, type = "image/jpeg") {
