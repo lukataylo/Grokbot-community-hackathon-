@@ -1,103 +1,75 @@
-import type { Attendee, Platform } from "@/lib/types";
+"use client";
+import { useCallback, useEffect, useState } from "react";
 
-export function Avatar({ a, size = 36 }: { a: Pick<Attendee, "name" | "color">; size?: number }) {
-  const initials = a.name.split(" ").map((w) => w[0]).slice(0, 2).join("");
+const BURST = "M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0";
+export function Burst({ size = 22, ink = "currentColor", you = true, width = 12 }: { size?: number; ink?: string; you?: boolean | "ink"; width?: number }) {
   return (
-    <span
-      className="inline-flex shrink-0 items-center justify-center rounded-full font-bold text-white ring-2 ring-white shadow-sm"
-      style={{ width: size, height: size, background: a.color, fontSize: size * 0.38 }}
-    >
-      {initials}
-    </span>
+    <svg viewBox="0 0 200 200" width={size} height={size} aria-hidden="true">
+      <path d={BURST} stroke={ink} strokeWidth={width} strokeLinecap="round" fill="none" />
+      {you && <path d="M100 100L187.8 127.5" stroke={you === "ink" ? ink : "#FFB000"} strokeWidth={you === "ink" ? width : width * 1.4} strokeLinecap="round" fill="none" />}
+    </svg>
   );
 }
+export function Logo({ href = "/" }: { href?: string }) {
+  return <a className="mark" href={href} aria-label="lumzel home"><Burst size={22} you="ink" />lumzel</a>;
+}
 
-export function XIcon({ className = "h-4 w-4" }: { className?: string }) {
+const paths: Record<string, string> = {
+  person: "M12 12.5a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20c1-3.8 4-5.6 7.5-5.6s6.5 1.8 7.5 5.6",
+  plus: "M12 5v14M5 12h14",
+  camera: "M4 8h3l2-2.5h6L17 8h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
+  share: "M12 3v12M7.5 7.5L12 3l4.5 4.5M5 11v9h14v-9",
+  check: "M5 12.5L10 17L19 7",
+  close: "M6 6l12 12M18 6L6 18",
+  copy: "M8 8h11v11H8zM5 15V5h10",
+  down: "M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14",
+  ext: "M8 16L16 8M9 8h7v7",
+  clock: "M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM12 7.5V12l3 2",
+  heart: "M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z",
+  photo: "M4 5h16v14H4zM8.5 13.5l2.5-3 4 5M15 10.5a1.5 1.5 0 1 0 0-3",
+  bell: "M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15zM10 20.5h4",
+  home: "M4 4h16v16H4zM12 8v8M8 12h8",
+  lock: "M5 11h14v9H5zM8 11V8a4 4 0 0 1 8 0v3",
+  back: "M15 5l-7 7 7 7",
+};
+export function Icon({ name, size = 22, color = "currentColor", width = 1.7, label }: { name: keyof typeof paths | string; size?: number; color?: string; width?: number; label?: string }) {
+  const isClose = name === "close";
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
-      <path d="M18.9 2H22l-7.6 8.7L23 22h-6.8l-5.3-6.9L4.8 22H1.7l8.1-9.3L1 2h7l4.8 6.3L18.9 2Zm-1.2 18h1.7L6.4 3.9H4.6L17.7 20Z" />
+    <svg viewBox="0 0 24 24" width={size} height={size} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
+      {name === "cover" ? (<><rect x="7.5" y="4" width="9" height="9.5" rx="2" fill={color} /><path d="M4.5 20c1-3.8 4-5.6 7.5-5.6s6.5 1.8 7.5 5.6" stroke={color} strokeWidth={width} fill="none" /></>)
+        : <path d={paths[name] ?? ""} stroke={color} strokeWidth={isClose || name === "check" ? width + 0.4 : width} fill="none" strokeLinecap="round" strokeLinejoin="round" />}
     </svg>
   );
 }
 
-export function LinkedInIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
-      <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9h4v12H3V9Zm7 0h3.8v1.7h.1c.5-1 1.8-2 3.8-2 4 0 4.8 2.6 4.8 6V21h-4v-5.6c0-1.3 0-3-1.9-3s-2.1 1.4-2.1 2.9V21h-4V9Z" />
-    </svg>
-  );
+export async function api<T = unknown>(url: string, init?: RequestInit & { json?: unknown }): Promise<T> {
+  const r = await fetch(url, {
+    ...init,
+    headers: init?.json !== undefined ? { "Content-Type": "application/json", ...(init?.headers || {}) } : init?.headers,
+    body: init?.json !== undefined ? JSON.stringify(init.json) : init?.body,
+  });
+  const data = r.status === 204 ? {} : await r.json().catch(() => ({}));
+  if (!r.ok) throw Object.assign(new Error((data as { error?: string }).error || "Something went wrong"), { status: r.status });
+  return data as T;
 }
 
-export function PlatformIcon({ p, className }: { p: Platform; className?: string }) {
-  return p === "x" ? <XIcon className={className} /> : <LinkedInIcon className={className} />;
+export function useToast() {
+  const [msg, setMsg] = useState<string | null>(null);
+  useEffect(() => { if (!msg) return; const t = setTimeout(() => setMsg(null), 2600); return () => clearTimeout(t); }, [msg]);
+  const node = msg ? <div className="toast" role="status"><Icon name="check" size={14} color="#FFB000" />{msg}</div> : null;
+  return { toast: useCallback((m: string) => setMsg(m), []), node };
 }
 
-export function Badge({ children, tone = "zinc" }: { children: React.ReactNode; tone?: "zinc" | "green" | "amber" | "fuchsia" | "red" | "sky" }) {
-  const tones = {
-    zinc: "bg-slate-100 text-slate-600",
-    green: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200",
-    amber: "bg-amber-50 text-amber-700 ring-1 ring-amber-200",
-    fuchsia: "bg-glow-soft text-navy ring-1 ring-glow/40",
-    red: "bg-rose-50 text-rose-700 ring-1 ring-rose-200",
-    sky: "bg-sky-50 text-sky-700 ring-1 ring-sky-200",
-  };
-  return <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${tones[tone]}`}>{children}</span>;
+/** Downscale on the phone before upload: faster on venue Wi-Fi, and HEIC arrives as JPEG. */
+export async function shrink(file: File, max = 2560): Promise<Blob> {
+  try {
+    const bmp = await createImageBitmap(file, { imageOrientation: "from-image" } as ImageBitmapOptions);
+    const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas");
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    c.getContext("2d")!.drawImage(bmp, 0, 0, c.width, c.height);
+    return await new Promise((res) => c.toBlob((b) => res(b ?? file), "image/jpeg", 0.88));
+  } catch { return file; }
 }
 
-export function GrokMark({ className = "h-5 w-5" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
-      <path d="M5 19 19 5M9 5h10v10M5 9v10h10" />
-    </svg>
-  );
-}
-
-export function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" });
-}
-
-export function relTime(iso: string) {
-  const d = (new Date(iso).getTime() - Date.now()) / 60000;
-  if (Math.abs(d) < 1) return "now";
-  const m = Math.round(Math.abs(d));
-  const s = m >= 60 ? `${Math.floor(m / 60)}h ${m % 60}m` : `${m}m`;
-  return d > 0 ? `in ${s}` : `${s} ago`;
-}
-
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-
-export function Wordmark({ className = "text-2xl", light }: { className?: string; light?: boolean }) {
-  return <span className={`font-extrabold tracking-[-0.04em] ${light ? "text-white" : "text-navy"} ${className}`}>afterglow</span>;
-}
-
-/** The afterglow camera mascot. */
-export function Mascot({ pose = "hero", className = "" }: { pose?: "hero" | "wave" | "walk"; className?: string }) {
-  const file = { hero: "mascot", wave: "mascot-wave", walk: "mascot-walk" }[pose];
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={`${BASE_PATH}/${file}.webp`} alt="" aria-hidden className={`select-none drop-shadow-[0_18px_24px_rgba(12,31,77,0.25)] ${className}`} />;
-}
-
-const icon = (d: React.ReactNode) =>
-  function Icon({ className = "h-5 w-5" }: { className?: string }) {
-    return (
-      <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-        {d}
-      </svg>
-    );
-  };
-
-export const PhotoIcon = icon(<><rect x="3" y="4" width="18" height="16" rx="3" /><circle cx="9" cy="10" r="2" /><path d="m21 16-5-5-9 9" /></>);
-export const TrophyIcon = icon(<><path d="M8 4h8v5a4 4 0 0 1-8 0V4Z" /><path d="M16 6h3a3 3 0 0 1-3 4M8 6H5a3 3 0 0 0 3 4M12 13v4M8 20h8M10 17h4" /></>);
-export const SparkleIcon = icon(<><path d="M12 3c.6 3.8 2.2 5.4 6 6-3.8.6-5.4 2.2-6 6-.6-3.8-2.2-5.4-6-6 3.8-.6 5.4-2.2 6-6Z" /><path d="M19 15c.3 1.6 1 2.3 2.5 2.5-1.5.3-2.2 1-2.5 2.5-.3-1.5-1-2.2-2.5-2.5 1.5-.2 2.2-.9 2.5-2.5Z" /></>);
-export const ScanIcon = icon(<><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" /><rect x="8" y="8" width="8" height="8" rx="1.5" /></>);
-export const MailIcon = icon(<><rect x="3" y="5" width="18" height="14" rx="2.5" /><path d="m4 7 8 6 8-6" /></>);
-export const LinkIcon = icon(<><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" /><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></>);
-export const AtIcon = icon(<><circle cx="12" cy="12" r="4" /><path d="M16 12v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-3.5 7.1" /></>);
-export const EyeIcon = icon(<><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></>);
-export const UserIcon = icon(<><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>);
-export const ArrowRight = icon(<path d="M5 12h14M13 6l6 6-6 6" />);
-export const ChevronRight = icon(<path d="m9 6 6 6-6 6" />);
-export const PlusIcon = icon(<path d="M12 5v14M5 12h14" />);
-export const ChartIcon = icon(<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />);
-export const ExternalIcon = icon(<path d="M7 17 17 7M9 7h8v8" />);
-export const CheckIcon = icon(<path d="m5 12 5 5 9-10" />);
+export const img = (id: string, v: number | string, w = 480) => `/img/${id}?w=${w}&v=${v}`;

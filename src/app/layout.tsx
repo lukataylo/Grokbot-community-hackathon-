@@ -1,34 +1,22 @@
-import type { Metadata } from "next";
-import { Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Familjen_Grotesk } from "next/font/google";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
-  variable: "--font-jakarta",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const font = Familjen_Grotesk({ subsets: ["latin"], weight: ["400", "500"], variable: "--font", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "afterglow",
-  description: "Every photo from tonight, found, consented and shared together. Scan a QR, Grok finds you in the photos, and the community posts as one.",
+  metadataBase: new URL(process.env.PUBLIC_URL || "http://localhost:3000"),
+  title: { default: "lumzel", template: "%s · lumzel" },
+  description: "Every photo from your event, consent-checked and shared by morning.",
+  icons: { icon: "/icons/favicon-32.png", apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: "lumzel", statusBarStyle: "default" },
 };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", themeColor: "#FFFFFF" };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body
-        className={`${jakarta.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+    <html lang="en-GB" className={font.variable}>
+      <body>{children}</body>
     </html>
   );
 }

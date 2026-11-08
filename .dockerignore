@@ -1,0 +1,9 @@
+node_modules
+.next
+.data
+.env*
+e2e
+test-results
+playwright-report
+scripts/tmp
+.git

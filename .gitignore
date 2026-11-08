@@ -42,3 +42,7 @@ next-env.d.ts
 /data
 !.env.example
 /out
+.data/
+test-results/
+playwright-report/
+scripts/tmp/
