@@ -20,7 +20,7 @@ export function migrate(): Promise<void> {
     g.__lzMigrated = (async () => {
       const file = path.join(process.cwd(), "db", "schema.sql");
       await sql.unsafe(fs.readFileSync(file, "utf8"));
-    })();
+    })().catch((e) => { g.__lzMigrated = undefined; throw e; }); // retry on the next request
   }
   return g.__lzMigrated;
 }

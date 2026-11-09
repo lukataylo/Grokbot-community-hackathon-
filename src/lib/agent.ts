@@ -127,9 +127,9 @@ export async function writeCaptions(i: AgentInput): Promise<{ captions: Caption[
     for (let n = 1; n <= 2; n++) {
       attempts = n;
       try {
-        const out = await chat(env.textModel, messages, { json: true, temperature: n === 1 ? 0.8 : 0.5, maxTokens: 6000, timeoutMs: 45000, reasoning: (process.env.AGENT_REASONING as "low" | "off" | undefined) ?? "low" });
+        const out = await chat(env.textModel, messages, { json: true, temperature: n === 1 ? 0.8 : 0.5, maxTokens: 6000, timeoutMs: 45000, reasoning: "low" });
         const j = parseJson<{ options: Array<{ style: Style; text: string }> }>(out);
-        if (process.env.AGENT_DEBUG) console.log("[agent raw]", JSON.stringify(out).slice(0, 600));
+        if (env.agentDebug) console.log("[agent raw]", JSON.stringify(out).slice(0, 600));
         problems = [];
         for (const s of styles) {
           const t = tidy(j?.options?.find((o) => o.style === s)?.text ?? "");
@@ -138,7 +138,7 @@ export async function writeCaptions(i: AgentInput): Promise<{ captions: Caption[
         }
         if (styles.every((s) => best[s])) break;
         messages.push({ role: "assistant", content: out }, { role: "user", content: `Fix these problems and return all three options again as JSON:\n- ${problems.join("\n- ")}` });
-      } catch (e) { problems.push((e as Error).message); if (process.env.AGENT_DEBUG) console.log("[agent error]", (e as Error).message); }
+      } catch (e) { problems.push((e as Error).message); if (env.agentDebug) console.log("[agent error]", (e as Error).message); }
     }
   }
   const captions = styles.map((s) => {
@@ -151,10 +151,11 @@ export async function writeCaptions(i: AgentInput): Promise<{ captions: Caption[
 
 /** "last night", "yesterday", "on Thursday", or "at <event>" depending on how long ago the event was. */
 export function whenPhrase(startsAt: Date, now = new Date(), tz = "Europe/London"): string {
-  const hours = (now.getTime() - startsAt.getTime()) / 3.6e6;
-  const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: tz }).format(startsAt));
-  if (hours < 0) return "tonight";
-  if (hours < 30) return hour >= 17 ? (hours < 10 ? "tonight" : "last night") : (hours < 10 ? "today" : "yesterday");
-  if (hours < 24 * 6) return "on " + new Intl.DateTimeFormat("en-GB", { weekday: "long", timeZone: tz }).format(startsAt);
+  const day = (d: Date) => new Intl.DateTimeFormat("en-CA", { timeZone: tz }).format(d); // YYYY-MM-DD in the event's zone
+  const days = Math.round((Date.parse(day(now)) - Date.parse(day(startsAt))) / 864e5);
+  const evening = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: tz }).format(startsAt)) >= 17;
+  if (days <= 0) return evening ? "tonight" : "today";
+  if (days === 1) return evening ? "last night" : "yesterday";
+  if (days < 6) return "on " + new Intl.DateTimeFormat("en-GB", { weekday: "long", timeZone: tz }).format(startsAt);
   return "recently";
 }

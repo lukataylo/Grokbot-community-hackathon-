@@ -11,10 +11,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1164.0",
-    "@aws-sdk/s3-request-presigner": "^3.1164.0",
     "@tensorflow/tfjs-node": "^4.22.0",
     "@vladmandic/human": "^3.3.6",
-    "drizzle-orm": "^0.45.4",
     "jose": "^6.2.16",
     "nanoid": "^5.1.16",
     "next": "15.5.28",
@@ -34,7 +32,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/web-push": "^3.6.4",
-    "drizzle-kit": "^0.31.11",
     "tsx": "^4.23.15",
     "typescript": "^5"
   }

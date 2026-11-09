@@ -5,26 +5,42 @@ import { sendEmail } from "./email";
 
 /** Delivery: every guest gets "your photos are ready" by push, else by email. */
 export async function deliverEvent(eventId: string) {
-  const [ev] = await sql`select * from events where id = ${eventId}`;
-  if (!ev || ev.delivered_at) return;
-  // Anything still waiting on the host is approved now, as promised in setup.
-  await sql`update photos set reviewed_at = now(), status = 'ready' where event_id = ${eventId} and status = 'review'`;
+  // Claim the event first, so the scheduler and "Send now" can't both deliver it.
+  const [ev] = await sql`update events set delivered_at = now() where id = ${eventId} and delivered_at is null returning *`;
+  if (!ev) return;
+  // Photos the second check flagged and nobody approved are never published.
+  await sql`update photos set status = 'hidden' where event_id = ${eventId} and status = 'review' and reviewed_at is null`;
+  await notifyGuests(ev);
+}
+
+/** A crash or deploy mid-delivery: finish telling the guests who joined before delivery. */
+export async function resumeDeliveries() {
+  const events = await sql`select e.* from events e where e.delivered_at > now() - interval '1 day'
+    and exists(select 1 from guests g where g.event_id = e.id and g.delivered_at is null and g.created_at < e.delivered_at)`;
+  for (const ev of events) await notifyGuests(ev);
+}
+
+async function notifyGuests(ev: Record<string, any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
+  const eventId = ev.id as string;
   const guests = await sql`
     select g.id, g.name, g.email, g.resume_code, count(pp.photo_id)::int as n
     from guests g left join photo_people pp on pp.guest_id = g.id
-    where g.event_id = ${eventId} and g.delivered_at is null group by g.id`;
+    where g.event_id = ${eventId} and g.delivered_at is null and g.created_at < ${ev.delivered_at} group by g.id`;
   const [{ total }] = await sql`select count(*)::int as total from photos where event_id = ${eventId} and status = 'ready'`;
   for (const g of guests) {
     const url = `${env.baseUrl}/${ev.slug}`;
     const body = g.n > 0 ? `You're in ${g.n} photo${g.n === 1 ? "" : "s"}. They're ready.` : `All ${total} photos from the night are ready.`;
-    const pushed = await pushGuest(g.id, { title: ev.name, body, url, tag: `deliver-${eventId}` });
-    if (!pushed && g.email) {
-      await sendEmail(g.email, `${ev.name}: your photos are ready`,
-        `Hi ${g.name.split(" ")[0]},\n\n${body}\n\nSee them: ${env.baseUrl}/r/${g.resume_code}\n\nAnyone who asked not to be shown is covered in every photo.`);
-    }
-    await sql`update guests set delivered_at = now() where id = ${g.id}`;
+    // Claim the guest before sending, so two concurrent runs never notify the same person twice.
+    const [mine] = await sql`update guests set delivered_at = now() where id = ${g.id} and delivered_at is null returning id`;
+    if (!mine) continue;
+    try {
+      const pushed = await pushGuest(g.id, { title: ev.name, body, url, tag: `deliver-${eventId}` });
+      if (!pushed && g.email) {
+        await sendEmail(g.email, `${ev.name}: your photos are ready`,
+          `Hi ${g.name.split(" ")[0]},\n\n${body}\n\nSee them: ${env.baseUrl}/r/${g.resume_code}\n\nAnyone who asked not to be shown is covered in every photo.`);
+      }
+    } catch (e) { console.error("[deliver] guest", g.id, e); } // one bad address must not stop the rest
   }
-  await sql`update events set delivered_at = now() where id = ${eventId}`;
 }
 
 /** Someone posted: tell the guests who are in that photo, straight away. */

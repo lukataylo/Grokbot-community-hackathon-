@@ -1,4 +1,6 @@
 -- Lumzel schema. Idempotent: applied at boot.
+-- `create table if not exists` never changes an existing table: every later change also needs
+-- an idempotent `alter table` in the section at the end of this file.
 create extension if not exists pgcrypto;
 
 create table if not exists hosts (
@@ -25,7 +27,6 @@ create table if not exists events (
   starts_at timestamptz not null,
   ends_at timestamptz not null,
   timezone text not null default 'Europe/London',
-  expected_guests int not null default 100,
   deliver_at timestamptz not null,
   linkedin_handle text not null default '',
   x_handle text not null default '',
@@ -33,7 +34,6 @@ create table if not exists events (
   caption_template text not null default '',
   description text not null default '',
   highlights text not null default '',
-  review_mode text not null default 'host_then_auto',
   uploads text not null default 'everyone',
   retention_days int not null default 30,
   sharing_unlocked boolean not null default false,
@@ -58,7 +58,7 @@ create table if not exists guests (
   embedding real[],
   resume_code text not null unique,
   push jsonb,
-  prefs jsonb not null default '{"post":true,"roundup":true,"likes":true,"host":false}',
+  prefs jsonb not null default '{"post":true,"roundup":true,"likes":true}',
   delivered_at timestamptz,
   created_at timestamptz not null default now()
 );
@@ -79,6 +79,10 @@ create table if not exists photos (
   needs_review boolean not null default false,
   reviewed_at timestamptz,
   render_rev int not null default 0,
+  stale_at timestamptz,
+  hold boolean not null default false,
+  check_attempts int not null default 0,
+  checked_at timestamptz,
   error text,
   created_at timestamptz not null default now()
 );
@@ -128,3 +132,22 @@ create table if not exists caption_cache (
   scene text not null,
   created_at timestamptz not null default now()
 );
+
+-- Register-your-interest sign-ups from the landing page (private beta outreach).
+create table if not exists interest (
+  email text primary key,
+  name text not null default '',
+  events text not null default '',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- Changes to existing databases (keep idempotent).
+alter table photos add column if not exists stale_at timestamptz;
+alter table photos add column if not exists hold boolean not null default false;
+alter table photos add column if not exists check_attempts int not null default 0;
+alter table photos add column if not exists checked_at timestamptz;
+-- expected_guests and review_mode are no longer used; drop them in a later release, once no
+-- running or rollback-able deploy still writes them.
+alter table guests alter column prefs set default '{"post":true,"roundup":true,"likes":true}';
+create index if not exists photos_stale on photos(stale_at) where stale_at is not null;

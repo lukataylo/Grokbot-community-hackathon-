@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { isUuid } from "@/lib/api";
 import QRCode from "qrcode";
 import { sql, migrate } from "@/lib/db";
 import { currentHost } from "@/lib/auth";
@@ -15,7 +16,7 @@ export default async function EventPage({ params, searchParams }: Props) {
   if (!h) redirect("/host");
   const { id } = await params;
   const q = await searchParams;
-  if (!/^[0-9a-f-]{36}$/.test(id)) notFound();
+  if (!isUuid(id)) notFound();
   // Back from Checkout: confirm with Stripe directly so sharing switches on even before the webhook lands.
   if (q.paid && stripe) { try { await markPaid(await stripe.checkout.sessions.retrieve(q.paid)); } catch { /* the webhook will do it */ } }
   const [ev] = await sql`select * from events where id = ${id} and host_id = ${h.id}`;
@@ -26,5 +27,5 @@ export default async function EventPage({ params, searchParams }: Props) {
     event: { delivered_at: ev.delivered_at?.toISOString() ?? null, deliver_at: ev.deliver_at.toISOString(), sharing_unlocked: ev.sharing_unlocked } };
   const notice = q.paid && ev.sharing_unlocked ? "Sharing is on for this event" : q.created ? "Event created" : q.cancelled ? "Payment cancelled" : undefined;
   return <Dashboard qr={qr} link={link} initial={initial} notice={notice}
-    ev={{ id: ev.id, slug: ev.slug, name: ev.name, startsAt: ev.starts_at.toISOString(), endsAt: ev.ends_at.toISOString(), deliverAt: ev.deliver_at.toISOString(), timezone: ev.timezone, description: ev.description, highlights: ev.highlights, sharing: ev.sharing_unlocked, delivered: !!ev.delivered_at, reviewMode: ev.review_mode }} />;
+    ev={{ id: ev.id, slug: ev.slug, name: ev.name, startsAt: ev.starts_at.toISOString(), endsAt: ev.ends_at.toISOString(), deliverAt: ev.deliver_at.toISOString(), timezone: ev.timezone, description: ev.description, highlights: ev.highlights, sharing: ev.sharing_unlocked, delivered: !!ev.delivered_at }} />;
 }

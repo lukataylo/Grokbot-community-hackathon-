@@ -6,7 +6,7 @@ import { resumeCode } from "@/lib/ids";
 
 type Ctx = { params: Promise<{ slug: string }> };
 export const POST = route(async (req: Request, { params }: Ctx) => {
-  limit("join:" + ip(req), 20, 60_000);
+  limit("join:" + ip(req), 120, 60_000); // a whole venue can share one IP
   const ev = await eventBySlug((await params).slug);
   if (ev.delivered_at && Date.now() - new Date(ev.delivered_at).getTime() > 7 * 86400_000) throw new HttpError(410, "This event has closed");
   const existing = await currentGuest(ev.id);

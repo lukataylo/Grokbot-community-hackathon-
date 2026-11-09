@@ -97,13 +97,19 @@ export async function detectRegions(input: Buffer): Promise<{ regions: Region[];
   return { regions: kept.map((r) => ({ ...r, x: Math.max(0, r.x), y: Math.max(0, r.y) })), width, height };
 }
 
-/** The embedding of the largest face in a selfie, or null. The image itself is never stored. */
-export async function selfieEmbedding(input: Buffer): Promise<number[] | null> {
+/**
+ * The embedding of the one face in a selfie, null if none, "several" if more than one clear face
+ * (a group photo would let a guest claim, and un-tile, someone else). The image itself is never stored.
+ */
+export async function selfieEmbedding(input: Buffer): Promise<number[] | null | "several"> {
   const h = await getHuman();
   const buf = await sharp(input).rotate().resize({ width: 1024, height: 1024, fit: "inside" }).jpeg().toBuffer();
   const r = await run(h, buf);
-  const f = r.face.filter((x) => x.embedding?.length).sort((a, b) => b.box[2] * b.box[3] - a.box[2] * a.box[3])[0];
-  return f?.embedding ? Array.from(f.embedding) : null;
+  const faces = r.face.filter((x) => x.embedding?.length && x.score > 0.5).sort((a, b) => b.box[2] * b.box[3] - a.box[2] * a.box[3]);
+  if (!faces.length) return null;
+  // A second face at least a third the size of the main one is a second person, not someone far behind.
+  if (faces[1] && faces[1].box[2] * faces[1].box[3] > (faces[0].box[2] * faces[0].box[3]) / 3) return "several";
+  return Array.from(faces[0].embedding!);
 }
 
 export const MATCH_THRESHOLD = 0.6; // conservative: a weak match means tiled, never shown

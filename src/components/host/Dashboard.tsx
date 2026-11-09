@@ -3,18 +3,21 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { api, Icon, Logo, img, shrink, useToast } from "../ui";
 
 type Stats = {
-  counts: { guests: number; cover: number; taggable: number; notify: number; photos: number; processing: number; tiled: number; delivered: number; posts: number; clicks: number; previews: number; cheers: number };
-  review: Array<{ id: string; tiled_count: number; model_count: number | null; render_rev: number }>;
+  counts: { guests: number; notify: number; photos: number; processing: number; tiled: number; delivered: number; posts: number; clicks: number; previews: number; cheers: number };
+  review: Array<{ id: string; render_rev: number }>;
   recent: Array<{ id: string; render_rev: number }>;
-  leaders: Array<{ name: string; clicks: number; posts: number; cheers: number }>;
+  leaders: Array<{ name: string; clicks: number; cheers: number }>;
   event: { delivered_at: string | null; deliver_at: string; sharing_unlocked: boolean };
 };
-type Ev = { id: string; slug: string; name: string; startsAt: string; endsAt: string; deliverAt: string; timezone: string; description: string; highlights: string; sharing: boolean; delivered: boolean; reviewMode: string };
+type Ev = { id: string; slug: string; name: string; startsAt: string; endsAt: string; deliverAt: string; timezone: string; description: string; highlights: string; sharing: boolean; delivered: boolean };
 
 export default function Dashboard({ ev, qr, link, initial, notice }: { ev: Ev; qr: string; link: string; initial: Stats; notice?: string }) {
   const [s, setS] = useState<Stats>(initial);
   const [highlights, setHighlights] = useState(ev.highlights);
   const [description, setDescription] = useState(ev.description);
+  const local = (d: string, o: Intl.DateTimeFormatOptions, loc = "en-GB") => new Intl.DateTimeFormat(loc, { timeZone: ev.timezone, ...o }).format(new Date(d));
+  const hm = { hour: "2-digit", minute: "2-digit", hourCycle: "h23" } as const;
+  const [when, setWhen] = useState({ date: local(ev.startsAt, {}, "en-CA"), start: local(ev.startsAt, hm), end: local(ev.endsAt, hm), deliver: local(ev.deliverAt, hm) });
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState("");
   const { toast, node } = useToast();
@@ -83,14 +86,13 @@ export default function Dashboard({ ev, qr, link, initial, notice }: { ev: Ev; q
           {c.processing > 0 && <p className="small"><span className="spin" style={{ width: 12, height: 12, verticalAlign: -1 }} /> Checking faces on {c.processing} photo{c.processing === 1 ? "" : "s"}</p>}
 
           {s.review.length > 0 && <section className="stack" aria-label="Review">
-            <h2>{s.review.length} photo{s.review.length === 1 ? "" : "s"} to check before {t(s.event.deliver_at, { hour: "2-digit", minute: "2-digit" })}.</h2>
-            <p className="small">Our second check thinks a face might have been missed. {ev.reviewMode === "auto" ? "Lumzel will tile everyone in these if nobody checks." : "If you don't check, we'll tile everyone in them at delivery."}</p>
+            <h2>{s.review.length} photo{s.review.length === 1 ? "" : "s"} {delivered ? "held back at delivery. Check them to publish." : `to check before ${t(s.event.deliver_at, { hour: "2-digit", minute: "2-digit" })}.`}</h2>
+            <p className="small">Our second check thinks a face might have been missed. Publish only if every face you can see is someone happy to be shown.{delivered ? "" : " Anything not checked by delivery stays unpublished until you check it."}</p>
             {s.review.slice(0, 3).map((r) => (
               <div key={r.id} className="card">
                 <img src={`/img/${r.id}?w=960&v=${r.render_rev}`} alt="Photo flagged for review" style={{ borderRadius: 12 }} />
                 <div className="row wrap" style={{ gap: 8 }}>
                   <button className="btn sm" disabled={!!busy} onClick={() => act("r" + r.id, () => api(`/api/events/${ev.id}/review`, { method: "POST", json: { photoId: r.id, action: "approve" } }), "Published")}>Looks right</button>
-                  <button className="btn alt sm" disabled={!!busy} onClick={() => act("r" + r.id, () => api(`/api/events/${ev.id}/review`, { method: "POST", json: { photoId: r.id, action: "tile_all" } }), "Everyone tiled")}>Tile everyone</button>
                   <button className="btn alt sm" disabled={!!busy} onClick={() => act("r" + r.id, () => api(`/api/events/${ev.id}/review`, { method: "POST", json: { photoId: r.id, action: "hide" } }), "Hidden")}>Don&apos;t publish</button>
                 </div>
               </div>
@@ -111,7 +113,7 @@ export default function Dashboard({ ev, qr, link, initial, notice }: { ev: Ev; q
               <p className="small">Delivered to {c.delivered} guests. You didn&apos;t send a single one.</p>
             </> : <>
               <h3>Photos go out {t(s.event.deliver_at, { weekday: "long", hour: "2-digit", minute: "2-digit" })}</h3>
-              <p className="small">By notification, or email for guests without notifications. Anything still flagged is tiled.</p>
+              <p className="small">By notification, or email for guests without notifications. Photos still flagged for review stay unpublished.</p>
               <button className="btn alt sm" disabled={!!busy} onClick={() => confirm("Send everyone their photos now? Guests can't add more after this.") && act("deliver", () => api(`/api/events/${ev.id}/deliver`, { method: "POST" }), "Delivered")}>Send now instead</button>
             </>}
           </section>
@@ -121,7 +123,7 @@ export default function Dashboard({ ev, qr, link, initial, notice }: { ev: Ev; q
               <h2>Switch on social sharing</h2>
               <p className="small">Turn your guests into your marketing. For this event:</p>
               <div className="stack" style={{ gap: 8 }}>
-                {["A post written for each guest, from your description, in their voice", "Smart links that show the photo and count every click", "Guests cheer each other's posts, so they travel further", "A live leaderboard and a reach report for your sponsors"].map((x) => <div key={x} className="step" style={{ fontSize: 15 }}><Icon name="check" size={18} width={2.2} />{x}</div>)}
+                {["A post written for each guest, from your description, in their voice", "Smart links that show the photo and count every click", "Guests cheer each other's posts, so they travel further", "A live leaderboard of who shared and who clicked"].map((x) => <div key={x} className="step" style={{ fontSize: 15 }}><Icon name="check" size={18} width={2.2} />{x}</div>)}
               </div>
               <button className="btn" disabled={!!busy} onClick={() => act("pay", async () => { const r = await api<{ url: string }>(`/api/events/${ev.id}/checkout`, { method: "POST" }); location.href = r.url; })}>{busy === "pay" ? <span className="spin" /> : "Unlock for £50"}</button>
               <p className="hint center">One payment for this event. Have a discount code? Add it at checkout.</p>
@@ -142,6 +144,15 @@ export default function Dashboard({ ev, qr, link, initial, notice }: { ev: Ev; q
               {!s.leaders.length && <p className="small">{delivered ? "Posts appear here as guests share." : "Guests can post once photos are delivered."}</p>}
             </section>
           )}
+
+          {!delivered && <section className="card" aria-label="When">
+            <h3>When</h3>
+            <label className="field">Date<input type="date" value={when.date} onChange={(e) => setWhen({ ...when, date: e.target.value })} /></label>
+            <div className="two"><label className="field">Doors<input type="time" value={when.start} onChange={(e) => setWhen({ ...when, start: e.target.value })} /></label>
+              <label className="field">Ends<input type="time" value={when.end} onChange={(e) => setWhen({ ...when, end: e.target.value })} /></label></div>
+            <label className="field">Photos go out the next morning at<input type="time" value={when.deliver} onChange={(e) => setWhen({ ...when, deliver: e.target.value })} /></label>
+            <button className="btn alt sm" disabled={!!busy} onClick={() => act("when", async () => { await api(`/api/events/${ev.id}`, { method: "PATCH", json: when }); location.reload(); }, "Saved")}>Save times</button>
+          </section>}
 
           <section className="card" aria-label="About the event">
             <h3>What guests&apos; posts are written from</h3>

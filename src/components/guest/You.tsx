@@ -38,7 +38,7 @@ export function You({ slug, feed, reload, editChoice, setupNotify, retakeSelfie,
         <label className="field">Email, for your photos if notifications are off<input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></label>
         <button className="btn alt">Save email</button>
       </form>
-      <div className="panel"><h3>On another phone or laptop?</h3><p className="small">Open lumzel.com/r/{me.resume} to see your photos there.</p></div>
+      <div className="panel"><h3>On another phone or laptop?</h3><p className="small">Open {location.host}/r/{me.resume} to see your photos there.</p></div>
       <button className="link" style={{ color: "var(--err)" }} onClick={forget}>Remove me from this event</button>
     </>
   );

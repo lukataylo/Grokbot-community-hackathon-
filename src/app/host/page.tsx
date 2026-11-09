@@ -16,7 +16,7 @@ export default async function HostHome({ searchParams }: { searchParams: Promise
     from events e where host_id = ${h.id} order by starts_at desc`;
   return (
     <main className="shell">
-      <div className="top"><Logo href="/host" /><span>{h.email}</span></div>
+      <div className="top"><Logo href="/host" /><form method="post" action="/api/host/logout"><button className="link" title={h.email}>Sign out</button></form></div>
       <div className="row between" style={{ marginTop: 12 }}><h1>Your events</h1></div>
       {events.length === 0 && <p>No events yet. Set one up in a couple of minutes; it&apos;s free.</p>}
       <div className="list">

@@ -21,6 +21,7 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { color-scheme: light; }
 body { background: var(--bg); color: var(--ink); font-family: var(--display); font-size: 18px; line-height: 1.45; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 .wrap { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
@@ -60,6 +61,16 @@ section { position: relative; }
 .close { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 40px; padding-block: 120px; }
 .close .cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
 .close .pill { height: 54px; padding: 0 28px; font-size: 17px; }
+.interest { width: min(460px, 100%); display: flex; flex-direction: column; gap: 14px; text-align: left; }
+.interest .beta { margin: 0 0 4px; color: var(--muted); text-align: center; font-size: 17px; }
+.interest label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--muted); }
+.interest input { font: inherit; font-size: 17px; color: var(--ink); background: var(--bg); height: 52px; padding: 0 18px; border-radius: 14px; border: 1px solid var(--quiet); outline: none; width: 100%; }
+.interest input:focus-visible { border-color: var(--ink); box-shadow: 0 0 0 3px rgba(255,176,0,0.35); }
+.interest .pill { height: 54px; justify-content: center; font-size: 17px; border: 0; cursor: pointer; font-family: inherit; }
+.interest .pill[disabled] { opacity: 0.6; cursor: default; }
+.interest .msg { margin: 0; min-height: 1.2em; font-size: 15px; color: #B42318; }
+.interest .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.done { margin: 0; font-size: clamp(24px, 3vw, 34px); letter-spacing: -0.03em; line-height: 1.2; }
 footer { display: flex; justify-content: space-between; padding-block: 28px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--quiet); }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
@@ -70,7 +81,7 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
   <a class="brand" href="#top" aria-label="Lumzel home">
     <svg viewBox="0 0 200 200" width="24" height="24" aria-hidden="true"><path d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0M100 100L187.8 127.5" stroke="#0A0A0A" stroke-width="10" fill="none"/></svg>lumzel
   </a>
-  <a class="pill" href="/host">Host your next event</a>
+  <a class="pill" href="#interest">Register interest</a>
 </nav>
 
 <main id="top">
@@ -130,10 +141,17 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
   <section class="close wrap" id="host">
     <h1 class="split">Your event, everywhere, by 9am.</h1>
     <h1 class="split muted">Free to run. £50 to share.</h1>
-    <div class="cta">
-      <a class="pill" href="/host">Host your next event</a>
-      <a class="pill ghost" href="#gather">See how it works</a>
-    </div>
+    <form class="interest" id="interest" novalidate>
+      <p class="beta">Private beta. Tell us about your events and we'll be in touch.</p>
+      <label>Email<input type="email" name="email" id="i-email" autocomplete="email" required placeholder="you@company.com"></label>
+      <label>Name or organisation<input type="text" name="name" id="i-name" autocomplete="organization" maxlength="120" placeholder="Hack Night London"></label>
+      <label>What do you host?<input type="text" name="events" id="i-events" maxlength="500" placeholder="Monthly meetups, about 120 people"></label>
+      <label class="hp" aria-hidden="true">Website<input type="text" name="website" id="i-website" tabindex="-1" autocomplete="off"></label>
+      <p class="msg" id="i-msg" role="status" aria-live="polite"></p>
+      <button class="pill" type="submit" id="i-go">Register interest</button>
+    </form>
+    <p class="done" id="i-done" role="status" tabindex="-1" hidden>Thanks. You're on the list.<br><span class="muted">We'll email you when there's a spot.</span></p>
+    <a class="pill ghost" href="#gather">See how it works</a>
   </section>
 </main>
 
@@ -170,7 +188,7 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
 
   // Smooth scroll.
   if (window.Lenis) {
-    var lenis = new Lenis({ lerp: 0.09 });
+    var lenis = new Lenis({ lerp: 0.09, anchors: true });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
     gsap.ticker.lagSmoothing(0);
@@ -228,6 +246,24 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
 
   // Close: the opening line, inverted.
   gsap.from('.close .split .line > span', { yPercent: 110, duration: 1, ease: 'expo.out', stagger: 0.04, scrollTrigger: { trigger: '.close', start: 'top 70%' } });
+})();
+</script>
+<script>
+// Register interest. Independent of the animation script, so it works with reduced motion or no GSAP.
+(function () {
+  var f = document.getElementById('interest'), msg = document.getElementById('i-msg'), go = document.getElementById('i-go');
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = document.getElementById('i-email');
+    if (!email.value || !email.checkValidity()) { msg.textContent = 'Enter a valid email.'; email.focus(); return; }
+    msg.textContent = ''; go.disabled = true; go.textContent = 'Sending…';
+    fetch('/api/interest', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      email: email.value, name: document.getElementById('i-name').value, events: document.getElementById('i-events').value,
+      website: document.getElementById('i-website').value }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong. Try again in a minute.'); }); })
+      .then(function () { f.hidden = true; var d = document.getElementById('i-done'); d.hidden = false; d.focus(); })
+      .catch(function (x) { msg.textContent = x.message === 'Please check the form.' ? 'Enter a valid email.' : x.message; go.disabled = false; go.textContent = 'Register interest'; email.focus(); });
+  });
 })();
 </script>
 </body>

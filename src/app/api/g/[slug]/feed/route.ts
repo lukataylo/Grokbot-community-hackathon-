@@ -7,17 +7,17 @@ export const GET = route(async (_req: Request, { params }: Ctx) => {
   const ev = await eventBySlug((await params).slug);
   const g = await currentGuest(ev.id);
   const delivered = !!ev.delivered_at;
-  const photos = await sql`select p.id, p.render_rev as v, p.width, p.height, p.guest_id = ${g?.id ?? null} as mine,
+  const photos = await sql`select p.id, p.render_rev as v, p.guest_id = ${g?.id ?? null} as mine,
       exists(select 1 from photo_people pp where pp.photo_id = p.id and pp.guest_id = ${g?.id ?? null}) as with_me
-    from photos p where p.event_id = ${ev.id} and p.status = 'ready' order by p.created_at desc limit 600`;
+    from photos p where p.event_id = ${ev.id} and p.status = 'ready' and not p.hold order by p.created_at desc limit 600`;
   const [{ pending }] = await sql`select count(*)::int as pending from photos where event_id = ${ev.id} and status in ('processing','review') and guest_id = ${g?.id ?? null}`;
   const [{ guests }] = await sql`select count(*)::int as guests from guests where event_id = ${ev.id}`;
   return json({
     event: { name: ev.name, hostedBy: ev.hosted_by, startsAt: ev.starts_at, endsAt: ev.ends_at, deliverAt: ev.deliver_at, delivered, sharing: ev.sharing_unlocked, uploads: ev.uploads, timezone: ev.timezone },
     me: g ? { name: g.name, choice: g.choice, taggable: g.taggable, email: g.email, hasFace: !!g.embedding, push: !!g.push, prefs: g.prefs, resume: g.resume_code } : null,
     guests, pending,
-    // Before delivery guests only see their own uploads; everyone sees everything at 07:30.
-    photos: delivered ? photos : photos.filter((p) => p.mine),
-    total: photos.length,
+    // Only guests see photos: their own uploads before delivery, everything after.
+    photos: !g ? [] : delivered ? photos : photos.filter((p) => p.mine),
+    total: g ? photos.length : 0,
   });
 });

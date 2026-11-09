@@ -12,7 +12,7 @@ async function load(code: string) {
   await migrate();
   const [s] = await sql`select s.code, s.photo_id, p.render_rev, g.name as guest, e.name as event, e.hosted_by, e.slug, e.linkedin_handle
     from shares s join guests g on g.id = s.guest_id join events e on e.id = s.event_id join photos p on p.id = s.photo_id
-    where s.code = ${code} and p.status = 'ready'`;
+    where s.code = ${code} and p.status = 'ready' and not p.hold`;
   return s ?? null;
 }
 

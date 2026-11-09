@@ -27,6 +27,7 @@ test("host sets up, guests join, photos are tiled and delivered, posts are share
   const { link } = await login.json();
   expect(link).toContain("/api/host/verify");
   await page.goto(link);
+  await page.getByRole("button", { name: "Continue" }).click(); // the link itself never signs in (mail scanners)
   await expect(page).toHaveURL(/\/host\/new/);
   await page.getByLabel("Name").fill(`E2E Night ${stamp}`);
   await page.getByLabel("Hosted by").fill("Expedite");
@@ -157,4 +158,22 @@ test("host sets up, guests join, photos are tiled and delivered, posts are share
   await expect(page.getByText("Sam Okafor")).toBeVisible({ timeout: 20_000 });
 
   await g1ctx.close(); await g2ctx.close();
+});
+
+test("landing: register interest, and event creation is private beta", async ({ page, request }, info) => {
+  const email = `e2e+lead-${info.project.name}${Date.now().toString(36)}@lumzel.test`;
+  await page.goto("/");
+  await page.getByRole("link", { name: "Register interest" }).click();
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Name or organisation").fill("Hack Night London");
+  await page.getByLabel("What do you host?").fill("Monthly meetups, about 120 people");
+  await page.getByRole("button", { name: "Register interest" }).click();
+  await expect(page.getByText("Thanks. You're on the list.")).toBeVisible();
+  await noSideScroll(page, "landing");
+  expect(await hook(request, "interest", { email })).toMatchObject({ email, name: "Hack Night London" });
+
+  // Someone not on the beta list gets no sign-in link and can't create events.
+  const r = await request.post("/api/host/login", { headers: H, data: { email: `outsider${Date.now()}@example.com` } });
+  expect(r.status()).toBe(403);
+  expect((await r.json()).error).toMatch(/private beta/);
 });

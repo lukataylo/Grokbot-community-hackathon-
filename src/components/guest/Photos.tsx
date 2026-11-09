@@ -31,7 +31,7 @@ export function Photos({ slug, feed, reload, open, toast }: { slug: string; feed
   const canUpload = !ev.delivered && ev.uploads !== "hosts";
   return (
     <>
-      <div className="top"><h2 style={{ color: "var(--ink)" }}>{ev.name}</h2>{ev.delivered ? <span>{feed.total} photos</span> : <span className="live"><i />Live</span>}</div>
+      <div className="top"><h2 style={{ color: "var(--ink)" }}>{ev.name}</h2>{ev.delivered ? <span>{feed.total} photo{feed.total === 1 ? "" : "s"}</span> : <span className="live"><i />Live</span>}</div>
       {ev.delivered ? (
         <div className="stack" style={{ gap: 6 }}>
           <h1>{mine.length ? `You're in ${mine.length} photo${mine.length === 1 ? "" : "s"}.` : "Your photos are here."}</h1>

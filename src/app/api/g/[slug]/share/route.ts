@@ -15,7 +15,7 @@ export const POST = route(async (req: Request, { params }: Ctx) => {
   if (!ev.sharing_unlocked) throw new HttpError(402, "Sharing isn't switched on for this event");
   limit("share:" + g.id, 12, 60_000);
   const b = Body.parse(await req.json());
-  const [p] = await sql`select id, public_key from photos where id = ${b.photoId} and event_id = ${ev.id} and status = 'ready'`;
+  const [p] = await sql`select id, public_key from photos where id = ${b.photoId} and event_id = ${ev.id} and status = 'ready' and not hold`;
   if (!p) throw new HttpError(404, "Photo not found");
 
   // One smart link per guest, photo and platform: clicks roll up to that guest's ray.

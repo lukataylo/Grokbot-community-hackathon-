@@ -37,10 +37,12 @@ export function Choose({ slug, feed, onDone, step = true }: { slug: string; feed
   const [choice, setChoice] = useState<"show" | "cover">(me.choice ?? "show");
   const [tag, setTag] = useState(me.choice ? me.taggable : true);
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
   async function save() {
-    setBusy(true);
-    await api(`/api/g/${slug}/me`, { method: "PATCH", json: { choice, taggable: choice === "show" && tag } }).catch(() => {});
-    onDone();
+    setBusy(true); setErr("");
+    // Never move on if this failed: a guest who chose Cover must not believe they're covered when they aren't.
+    try { await api(`/api/g/${slug}/me`, { method: "PATCH", json: { choice, taggable: choice === "show" && tag } }); onDone(); }
+    catch (x) { setErr((x as Error).message || "Couldn't save. Check your connection and try again."); setBusy(false); }
   }
   return (
     <div className="shell">
@@ -61,6 +63,7 @@ export function Choose({ slug, feed, onDone, step = true }: { slug: string; feed
         <input type="checkbox" className="switch" checked={choice === "show" && tag} disabled={choice === "cover"} onChange={(e) => setTag(e.target.checked)} aria-label="Let guests tag me" />
       </label>
       <div className="grow" />
+      {err && <div className="err" role="alert">{err}</div>}
       <button className="btn" onClick={save} disabled={busy}>{busy ? <span className="spin" /> : "Continue"}</button>
       <p className="small center">Change it any time. Anyone we can't match to a yes is tiled automatically.</p>
     </div>

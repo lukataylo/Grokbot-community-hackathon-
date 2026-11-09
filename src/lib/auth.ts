@@ -41,4 +41,4 @@ export type Guest = {
   id: string; event_id: string; name: string; email: string | null; choice: "show" | "cover" | null;
   taggable: boolean; embedding: number[] | null; resume_code: string; push: unknown; prefs: Prefs; delivered_at: Date | null;
 };
-export type Prefs = { post: boolean; roundup: boolean; likes: boolean; host: boolean };
+export type Prefs = { post: boolean; roundup: boolean; likes: boolean };

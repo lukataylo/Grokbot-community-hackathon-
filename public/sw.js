@@ -20,4 +20,3 @@ self.addEventListener("notificationclick", (event) => {
   })());
 });
 
-self.addEventListener("fetch", () => { /* network only: always fresh, never cached */ });

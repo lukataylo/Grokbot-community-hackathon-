@@ -10,8 +10,9 @@ export async function acceptPhotos(eventId: string, guestId: string | null, byHo
   if (!files.length) throw new HttpError(400, "No photos received");
   if (files.length > MAX_FILES) throw new HttpError(400, `Up to ${MAX_FILES} photos at a time`);
   const ids: string[] = [];
+  let tooBig = 0;
   for (const f of files) {
-    if (f.size > MAX_BYTES) continue;
+    if (f.size > MAX_BYTES) { tooBig++; continue; }
     let ing;
     try { ing = await ingest(Buffer.from(await f.arrayBuffer())); } catch { continue; } // not an image we can read
     const [p] = await sql`insert into photos (event_id, guest_id, by_host, original_key, width, height)
@@ -22,6 +23,6 @@ export async function acceptPhotos(eventId: string, guestId: string | null, byHo
     processPhoto(p.id);
     ids.push(p.id);
   }
-  if (!ids.length) throw new HttpError(400, "We couldn't read those files. Try JPEG or HEIC photos.");
+  if (!ids.length) throw new HttpError(400, tooBig ? "Photos must be under 25 MB." : "We couldn't read those files. Try JPEG or PNG photos.");
   return ids;
 }

@@ -24,8 +24,8 @@ export default function SignIn({ expired }: { expired?: boolean }) {
         {dev && <a className="btn alt" href={dev}>Open sign-in link (dev)</a>}
         <button type="button" className="link" onClick={() => setSent(false)}>Use a different email</button>
       </> : <>
-        <h1 style={{ fontSize: "clamp(40px, 11vw, 52px)" }}>Host with Lumzel.</h1>
-        <p>Every photo from your event, consent-checked and shared by morning. Free to run. £50 to switch on social sharing.</p>
+        <h1 style={{ fontSize: "clamp(40px, 11vw, 52px)" }}>Host sign-in.</h1>
+        <p>Lumzel is in private beta. If you&apos;ve been invited, sign in with that email. Otherwise, <a href="/#interest">register your interest</a>.</p>
         <div className="grow" />
         <label className="field">Work email<input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" /></label>
         {err && <div className="err" role="alert">{err}</div>}

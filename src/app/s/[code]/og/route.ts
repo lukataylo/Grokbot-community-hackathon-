@@ -2,15 +2,19 @@ import sharp from "sharp";
 import { sql, migrate } from "@/lib/db";
 import * as store from "@/lib/storage";
 import { burstSvg } from "@/lib/brand";
+import { limit, ip } from "@/lib/api";
 
 type Ctx = { params: Promise<{ code: string }> };
 /** 1200×630 link preview: the tiled photo, full bleed, with the mark. Crawlers fetch this, so it counts previews. */
-export async function GET(_req: Request, { params }: Ctx) {
+export async function GET(req: Request, { params }: Ctx) {
   await migrate();
   const { code } = await params;
-  const [s] = await sql`update shares set previews = previews + 1 where code = ${code} returning photo_id`;
+  const [s] = await sql`select photo_id from shares where code = ${code}`;
   if (!s) return new Response("not found", { status: 404 });
-  const [p] = await sql`select public_key from photos where id = ${s.photo_id} and status = 'ready'`;
+  let count = true;
+  try { limit(`preview:${code}:${ip(req)}`, 1, 30 * 60_000); } catch { count = false; }
+  if (count) await sql`update shares set previews = previews + 1 where code = ${code}`;
+  const [p] = await sql`select public_key from photos where id = ${s.photo_id} and status = 'ready' and not hold`;
   const buf = p && (await store.get(p.public_key));
   if (!buf) return new Response("not found", { status: 404 });
   const mark = await sharp(Buffer.from(burstSvg(84))).png().toBuffer();

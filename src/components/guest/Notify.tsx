@@ -38,8 +38,8 @@ export function Notify({ slug, feed, vapid, onDone, standaloneStart }: { slug: s
   async function turnOn() {
     setBusy(true); setErr("");
     try {
+      const perm = await Notification.requestPermission(); // first thing after the tap: iOS drops the gesture across an await
       await api(`/api/g/${slug}/me`, { method: "PATCH", json: { prefs } });
-      const perm = await Notification.requestPermission(); // must follow this tap, or iOS ignores it
       if (perm !== "granted") { setStep("denied"); setBusy(false); return; }
       await subscribePush(slug, vapid);
       setStep("done");

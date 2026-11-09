@@ -1,4 +1,5 @@
 import { notFound, redirect } from "next/navigation";
+import { isUuid } from "@/lib/api";
 import QRCode from "qrcode";
 import { sql, migrate } from "@/lib/db";
 import { currentHost } from "@/lib/auth";
@@ -9,7 +10,9 @@ export const dynamic = "force-dynamic";
 export default async function Screen({ params }: { params: Promise<{ id: string }> }) {
   await migrate();
   const h = await currentHost(); if (!h) redirect("/host");
-  const [ev] = await sql`select * from events where id = ${(await params).id} and host_id = ${h.id}`; if (!ev) notFound();
+  const { id } = await params;
+  if (!isUuid(id)) notFound();
+  const [ev] = await sql`select * from events where id = ${id} and host_id = ${h.id}`; if (!ev) notFound();
   const link = `${env.baseUrl}/${ev.slug}`;
   const qr = await QRCode.toString(link, { type: "svg", margin: 0, errorCorrectionLevel: "M" });
   return (

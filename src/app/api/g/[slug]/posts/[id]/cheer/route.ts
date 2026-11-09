@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { sql } from "@/lib/db";
-import { route, json, requireGuest, HttpError } from "@/lib/api";
+import { route, json, requireGuest, HttpError, isUuid } from "@/lib/api";
 import { pushGuest } from "@/lib/push";
 import { env } from "@/lib/env";
 
@@ -9,6 +9,8 @@ type Ctx = { params: Promise<{ slug: string; id: string }> };
 export const POST = route(async (req: Request, { params }: Ctx) => {
   const { slug, id } = await params;
   const { ev, g } = await requireGuest(slug);
+  if (!ev.sharing_unlocked) throw new HttpError(402, "Sharing isn't switched on for this event");
+  if (!isUuid(id)) throw new HttpError(404, "Post not found");
   const { liked } = z.object({ liked: z.boolean() }).parse(await req.json());
   const [p] = await sql`select id, guest_id from posts where id = ${id} and event_id = ${ev.id}`;
   if (!p) throw new HttpError(404, "Post not found");
