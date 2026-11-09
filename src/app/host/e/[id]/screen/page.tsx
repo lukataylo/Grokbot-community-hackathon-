@@ -22,7 +22,7 @@ export default async function Screen({ params }: { params: Promise<{ id: string 
       <div style={{ display: "flex", flexDirection: "column", gap: "2.4vw" }}>
         <span className="mark" style={{ fontSize: "2vw" }}><Burst size={36} you="ink" />lumzel</span>
         <h1 style={{ fontSize: "6.4vw", lineHeight: 0.95 }}>Scan for tonight&apos;s photos.</h1>
-        <p style={{ fontSize: "2vw" }}>Choose to be shown or covered. Get every photo you&apos;re in tomorrow morning.</p>
+        <p style={{ fontSize: "2vw" }}>Choose to be shown or covered. See every photo you&apos;re in, live.</p>
         <p style={{ fontSize: "2.4vw", color: "#0A0A0A" }}>{link.replace(/^https?:\/\//, "")}</p>
       </div>
       {art

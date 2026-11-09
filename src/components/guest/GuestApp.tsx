@@ -47,7 +47,7 @@ export default function GuestApp({ slug, initial, vapid }: { slug: string; initi
   if (needNotify || over === "notify")
     return <Notify slug={slug} feed={feed} vapid={vapid} standaloneStart={standalone} onDone={() => { local.set(k("notifyDone"), "1"); setOver(null); reload(); }} />;
 
-  const showPosts = feed.event.sharing && feed.event.delivered;
+  const showPosts = feed.event.sharing;
   return (
     <div className="shell">
       {node}
@@ -55,7 +55,7 @@ export default function GuestApp({ slug, initial, vapid }: { slug: string; initi
       {tab === "posts" && showPosts && <Posts slug={slug} feed={feed} focus={focus} />}
       {tab === "you" && <You slug={slug} feed={feed} reload={reload} toast={toast} editChoice={() => setOver("choose")} retakeSelfie={() => setOver("selfie")} setupNotify={() => setOver("notify")} />}
       <nav className="tabs" aria-label="Sections">
-        <button aria-current={tab === "photos" ? "page" : undefined} onClick={() => setTab("photos")}><Icon name="photo" />{feed.event.delivered ? "Photos" : "Tonight"}</button>
+        <button aria-current={tab === "photos" ? "page" : undefined} onClick={() => setTab("photos")}><Icon name="photo" />Photos</button>
         {showPosts && <button aria-current={tab === "posts" ? "page" : undefined} onClick={() => setTab("posts")}><Icon name="heart" />Posts</button>}
         <button aria-current={tab === "you" ? "page" : undefined} onClick={() => setTab("you")}><Icon name="person" />You</button>
       </nav>

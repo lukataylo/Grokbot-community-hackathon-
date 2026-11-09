@@ -27,7 +27,7 @@ export function Join({ slug, feed, onDone }: { slug: string; feed: Feed; onDone:
       </label>
       {err && <div className="err" role="alert">{err}</div>}
       <button className="btn" disabled={busy || !name.trim()}>{busy ? <span className="spin" /> : "Join"}</button>
-      <p className="small center">No app. No account. Your photos arrive at {new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: ev.timezone }).format(new Date(ev.deliverAt))} tomorrow.</p>
+      <p className="small center">No app. No account. Photos show up here as they&apos;re taken.</p>
     </form>
   );
 }

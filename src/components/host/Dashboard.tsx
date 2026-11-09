@@ -34,7 +34,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
 
   const now = Date.now();
   const delivered = !!s.event.delivered_at;
-  const status = delivered ? "Delivered" : now < new Date(ev.startsAt).getTime() ? "Upcoming" : now < new Date(ev.endsAt).getTime() ? "Live" : "Waiting for " + t(s.event.deliver_at, { hour: "2-digit", minute: "2-digit" });
+  const status = delivered ? "Notified" : now < new Date(ev.startsAt).getTime() ? "Upcoming" : now < new Date(ev.endsAt).getTime() ? "Live" : "Waiting for " + t(s.event.deliver_at, { hour: "2-digit", minute: "2-digit" });
   const c = s.counts;
 
   async function act(key: string, fn: () => Promise<unknown>, ok?: string) {
@@ -109,18 +109,18 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
             <div className="grid" style={{ gridTemplateColumns: "repeat(4, minmax(0, 1fr))", margin: 0 }}>{s.recent.map((p) => <div key={p.id} className="t" style={{ borderRadius: 4 }}><img src={img(p.id, p.render_rev, 240)} alt="" loading="lazy" /></div>)}</div>
           </section>}
           <input ref={file} type="file" accept="image/*" multiple hidden onChange={(e) => upload(e.target.files)} />
-          {!delivered && <button className="btn alt" disabled={busy === "upload"} onClick={() => file.current?.click()}>{busy === "upload" ? <span className="spin" /> : <><Icon name="plus" size={18} />Add your own photos</>}</button>}
+          {<button className="btn alt" disabled={busy === "upload"} onClick={() => file.current?.click()}>{busy === "upload" ? <span className="spin" /> : <><Icon name="plus" size={18} />Add your own photos</>}</button>}
         </div>
 
         <div className="stack" style={{ gap: 20 }}>
           <section className="card" aria-label="Delivery">
             {delivered ? <>
-              <div className="row"><span style={{ width: 40, height: 40, borderRadius: 999, background: "var(--ink)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name="check" size={20} color="#fff" width={2.4} /></span><h2>Every guest has their photos.</h2></div>
-              <p className="small">Delivered to {c.delivered} guests. You didn&apos;t send a single one.</p>
+              <div className="row"><span style={{ width: 40, height: 40, borderRadius: 999, background: "var(--ink)", display: "flex", alignItems: "center", justifyContent: "center" }}><Icon name="check" size={20} color="#fff" width={2.4} /></span><h2>Everyone&apos;s been notified.</h2></div>
+              <p className="small">{c.delivered} guests got their photos. Photos stay live, and late uploads still show up.</p>
             </> : <>
-              <h3>Photos go out {t(s.event.deliver_at, { weekday: "long", hour: "2-digit", minute: "2-digit" })}</h3>
-              <p className="small">By notification, or email for guests without notifications. Photos still flagged for review stay unpublished.</p>
-              <button className="btn alt sm" disabled={!!busy} onClick={() => confirm("Send everyone their photos now? Guests can't add more after this.") && act("deliver", () => api(`/api/events/${ev.id}/deliver`, { method: "POST" }), "Delivered")}>Send now instead</button>
+              <h3>Morning round-up {t(s.event.deliver_at, { weekday: "long", hour: "2-digit", minute: "2-digit" })}</h3>
+              <p className="small">Photos are live for guests already. Each guest also gets one notification, or an email, with the photos they&apos;re in. Photos still flagged for review stay unpublished.</p>
+              <button className="btn alt sm" disabled={!!busy} onClick={() => confirm("Send every guest their round-up now?") && act("deliver", () => api(`/api/events/${ev.id}/deliver`, { method: "POST" }), "Sent")}>Send it now</button>
             </>}
           </section>
 
@@ -147,7 +147,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
                 <LeaderBurst leaders={s.leaders} />
                 <div className="list">{s.leaders.slice(0, 5).map((l, k) => <div key={l.name + k} className="li"><span><span className="small" style={{ marginRight: 10 }}>{k + 1}</span>{l.name}</span><span className="small">{l.clicks} clicks · {l.cheers} likes</span></div>)}</div>
               </>}
-              {!s.leaders.length && <p className="small">{delivered ? "Posts appear here as guests share." : "Guests can post once photos are delivered."}</p>}
+              {!s.leaders.length && <p className="small">Posts appear here as guests share.</p>}
             </section>
           )}
 

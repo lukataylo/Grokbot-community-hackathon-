@@ -28,25 +28,17 @@ export function Photos({ slug, feed, reload, open, toast }: { slug: string; feed
     if (input.current) input.current.value = "";
   }
 
-  const canUpload = !ev.delivered && ev.uploads !== "hosts";
+  const canUpload = ev.uploads !== "hosts";
   return (
     <>
       <div className="top"><h2 style={{ color: "var(--ink)" }}>{ev.name}</h2>{ev.delivered ? <span>{feed.total} photo{feed.total === 1 ? "" : "s"}</span> : <span className="live"><i />Live</span>}</div>
-      {ev.delivered ? (
-        <div className="stack" style={{ gap: 6 }}>
-          <h1>{mine.length ? `You're in ${mine.length} photo${mine.length === 1 ? "" : "s"}.` : "Your photos are here."}</h1>
-          <p>{mine.length ? `Plus ${feed.total - mine.length} more from the room.` : feed.me?.hasFace ? "We didn't find you in any, but here's the whole night." : "Add a selfie in You and we'll find the ones you're in."}</p>
-        </div>
-      ) : (
-        <div className="panel">
-          <h3>Everyone's photos arrive at {at} tomorrow.</h3>
-          <p className="small">Until then you'll only see your own. Faces of anyone who hasn't said yes are tiled before anyone sees them.</p>
-        </div>
-      )}
-      {ev.delivered && mine.length > 0 && <Grid photos={mine} open={open} you />}
-      {ev.delivered && mine.length > 0 && <h3 style={{ marginTop: 8 }}>The whole night</h3>}
-      <Grid photos={ev.delivered ? feed.photos.filter((p) => !p.with_me) : feed.photos} open={open} />
-      {!ev.delivered && feed.photos.length === 0 && <p className="small center" style={{ padding: "24px 0" }}>Photos you add show up here.</p>}
+      <div className="stack" style={{ gap: 6 }}>
+        <h1>{mine.length ? `You're in ${mine.length} photo${mine.length === 1 ? "" : "s"}.` : feed.total ? "The night so far." : "No photos yet."}</h1>
+        <p>{mine.length ? `Plus ${feed.total - mine.length} more from the room.` : !feed.total ? `Add yours. Faces of anyone who hasn't said yes are tiled before anyone sees them.` : feed.me?.hasFace ? "We haven't found you in any yet." : "Add a selfie in You and we'll find the ones you're in."}</p>
+      </div>
+      {mine.length > 0 && <Grid photos={mine} open={open} you />}
+      {mine.length > 0 && feed.photos.length > mine.length && <h3 style={{ marginTop: 8 }}>The whole night</h3>}
+      <Grid photos={feed.photos.filter((p) => !p.with_me)} open={open} />
       {feed.pending > 0 && <p className="small center"><span className="spin" style={{ width: 12, height: 12, verticalAlign: -1 }} /> Checking faces on {feed.pending} photo{feed.pending === 1 ? "" : "s"}…</p>}
       {err && <div className="err" role="alert">{err}</div>}
       <div className="grow" />
@@ -104,7 +96,7 @@ export function Viewer({ p, feed, onClose, onShare, toast }: { p: Photo; feed: F
       <img src={img(p.id, p.v, 1600)} alt="Photo from the event. Faces of anyone who didn't say yes are tiled." />
       <div className="bar">
         <button className="btn alt" disabled={busy} onClick={async () => { setBusy(true); const r = await savePhotos([p], "lumzel"); setBusy(false); if (r !== "cancelled") toast(r === "shared" ? "Saved" : "Downloaded"); }}><Icon name="down" size={20} />Save</button>
-        {feed.event.sharing && feed.event.delivered && <button className="btn amber" onClick={onShare}><Icon name="share" size={20} />Post</button>}
+        {feed.event.sharing && <button className="btn amber" onClick={onShare}><Icon name="share" size={20} />Post</button>}
       </div>
     </div>
   );

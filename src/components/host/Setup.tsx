@@ -77,10 +77,9 @@ export default function Setup({ hostName }: { hostName: string }) {
       </>}
 
       {i === 4 && <>
-        <h1>When photos arrive.</h1>
-        <span className="hint">The morning after</span>
+        <h1>The morning round-up.</h1>
+        <span className="hint">Photos are live all night. Each guest also gets one nudge the morning after</span>
         <div className="seg" role="group">{["07:00", "07:30", "09:00"].map((t) => <button type="button" key={t} aria-pressed={f.deliver === t} onClick={() => setF({ ...f, deliver: t })}>{t}</button>)}</div>
-        <p>Overnight gives everyone time to change their mind, and gives you time to check anything flagged.</p>
         <div className="panel"><p className="small">Guests get a notification, or an email if they didn&apos;t turn notifications on. Everyone can save their photos in full quality. Faces stay tiled in every copy.</p></div>
       </>}
 
@@ -89,7 +88,7 @@ export default function Setup({ hostName }: { hostName: string }) {
         <label className="field">Suggested caption<textarea value={f.captionTemplate ?? suggested} onChange={set("captionTemplate")} rows={4} maxLength={500} /></label>
         <p className="hint">Each guest gets three versions written for them, starting from this and your description. They edit before posting.</p>
         <div className="panel">
-          <h3>Free</h3><p className="small">QR code, consent and tiling, every photo pooled and delivered at {f.deliver}, downloads.</p>
+          <h3>Free</h3><p className="small">QR code, consent and tiling, every photo pooled live, a round-up at {f.deliver}, downloads.</p>
           <h3 style={{ marginTop: 8 }}>£50 per event, when you want it</h3><p className="small">Social sharing: posts written for each guest, smart links that count clicks, the cheer feed, the leaderboard and your reach report. Switch it on from your event page; discount codes welcome.</p>
         </div>
       </>}

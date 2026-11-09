@@ -95,8 +95,8 @@ test("host sets up, guests join, photos are tiled and delivered, posts are share
   for (const btn of await page.getByRole("button", { name: "Looks right" }).all()) await btn.click();
   await hook(request, "unlock", { eventId });
   page.once("dialog", (d) => d.accept());
-  await page.getByRole("button", { name: "Send now instead" }).click();
-  await expect(page.getByRole("heading", { name: "Every guest has their photos." })).toBeVisible({ timeout: 30_000 });
+  await page.getByRole("button", { name: "Send it now" }).click();
+  await expect(page.getByRole("heading", { name: "Everyone's been notified." })).toBeVisible({ timeout: 30_000 });
 
   // ---- Guest 1 sees their photos, opens the one they're in, writes a post and adds the link.
   await g1.reload();

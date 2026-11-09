@@ -16,8 +16,8 @@ export const GET = route(async (_req: Request, { params }: Ctx) => {
     event: { name: ev.name, hostedBy: ev.hosted_by, startsAt: ev.starts_at, endsAt: ev.ends_at, deliverAt: ev.deliver_at, delivered, sharing: ev.sharing_unlocked, uploads: ev.uploads, timezone: ev.timezone },
     me: g ? { name: g.name, choice: g.choice, taggable: g.taggable, email: g.email, hasFace: !!g.embedding, push: !!g.push, prefs: g.prefs, resume: g.resume_code } : null,
     guests, pending,
-    // Only guests see photos: their own uploads before delivery, everything after.
-    photos: !g ? [] : delivered ? photos : photos.filter((p) => p.mine),
+    // Photos are live for guests as soon as faces are tiled; the morning notification is just a nudge.
+    photos: g ? photos : [],
     total: g ? photos.length : 0,
   });
 });
