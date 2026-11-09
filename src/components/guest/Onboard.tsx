@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { api, Icon, Logo, shrink } from "../ui";
+import { api, Icon, Logo, Rays, shrink } from "../ui";
 import type { Feed } from "./types";
 
 export function Join({ slug, feed, onDone }: { slug: string; feed: Feed; onDone: () => void }) {
@@ -16,18 +16,18 @@ export function Join({ slug, feed, onDone }: { slug: string; feed: Feed; onDone:
   return (
     <form className="shell" onSubmit={go}>
       <div className="top"><Logo /></div>
-      <div className="stack" style={{ marginTop: 32, gap: 10 }}>
+      <div className="stack" style={{ marginTop: 24, gap: 12 }}>
         {ev.hostedBy && <p>{ev.hostedBy} invites you to</p>}
-        <h1 style={{ fontSize: "clamp(40px, 12vw, 52px)" }}>{ev.name}</h1>
+        <h1 style={{ fontSize: "clamp(44px, 14vw, 64px)", lineHeight: 0.92, letterSpacing: "-0.055em" }}>{ev.name}</h1>
         <div className="live"><i />{feed.guests} {feed.guests === 1 ? "guest" : "guests"} here</div>
       </div>
-      <div className="grow" />
-      <label className="field">Your name, as you'd like to be tagged
+      <div className="welcome-rays"><Rays spin /></div>
+      <label className="field">Your name
         <input autoComplete="name" required maxLength={60} value={name} onChange={(e) => setName(e.target.value)} placeholder="First and last name" />
       </label>
       {err && <div className="err" role="alert">{err}</div>}
       <button className="btn" disabled={busy || !name.trim()}>{busy ? <span className="spin" /> : "Join"}</button>
-      <p className="small center">No app. No account. Photos show up here as they&apos;re taken.</p>
+      <p className="small center">No app. No account.</p>
     </form>
   );
 }
@@ -47,8 +47,8 @@ export function Choose({ slug, feed, onDone, step = true }: { slug: string; feed
   return (
     <div className="shell">
       <div className="top"><span>{feed.event.name}</span>{step && <span>1 of 3</span>}</div>
-      <h1 style={{ marginTop: 16 }}>How should you appear tonight?</h1>
-      <div className="stack" style={{ marginTop: 8 }}>
+      <h1 style={{ marginTop: 16, fontSize: "clamp(36px, 10vw, 48px)" }}>How should you appear tonight?</h1>
+      <div className="stack" style={{ marginTop: 12, gap: 14 }}>
         <button type="button" className="opt" aria-pressed={choice === "show"} onClick={() => setChoice("show")}>
           <span className="ico"><Icon name="person" size={26} /></span><span><b>Show me</b><small>You appear in the photos</small></span>
           <span className="radio">{choice === "show" && <Icon name="check" size={14} color="#fff" width={2.6} />}</span>
@@ -59,13 +59,13 @@ export function Choose({ slug, feed, onDone, step = true }: { slug: string; feed
         </button>
       </div>
       <label className="li" style={{ borderTop: "1px solid var(--line)", marginTop: 4 }}>
-        <span>Let guests tag me in posts<small>{choice === "cover" ? "Not available when you're covered" : "Only by your name, only if you're in their photo"}</small></span>
+        <span>Let guests tag me in posts<small>{choice === "cover" ? "Not available when you're covered" : "Only in photos you're in"}</small></span>
         <input type="checkbox" className="switch" checked={choice === "show" && tag} disabled={choice === "cover"} onChange={(e) => setTag(e.target.checked)} aria-label="Let guests tag me" />
       </label>
       <div className="grow" />
       {err && <div className="err" role="alert">{err}</div>}
       <button className="btn" onClick={save} disabled={busy}>{busy ? <span className="spin" /> : "Continue"}</button>
-      <p className="small center">Change it any time. Anyone we can't match to a yes is tiled automatically.</p>
+      <p className="small center">Change it any time. Anyone who hasn&apos;t said yes is tiled.</p>
     </div>
   );
 }
@@ -88,9 +88,9 @@ export function FindMe({ slug, feed, onDone, onSkip }: { slug: string; feed: Fee
     <div className="shell">
       <div className="top"><span>{feed.event.name}</span><span>2 of 3</span></div>
       <h1 style={{ marginTop: 16 }}>One photo of you.</h1>
-      <p>{show ? "So we can find you and keep you visible. Without it, you'll be tiled like everyone else." : "So we can find the photos you're in. You stay covered either way."} We keep a face pattern, never the photo, and delete it with the event.</p>
+      <p>{show ? "So you stay visible. Without it, you're tiled." : "To find your photos. You stay covered."} We keep a face pattern, not the photo, and delete it with the event.</p>
       <div className="grow" style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: 220 }}>
-        <button type="button" onClick={() => input.current?.click()} aria-label="Take a selfie" style={{ width: 210, height: 260, borderRadius: 999, background: "var(--panel)", border: "2px dashed #CFCFCB", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
+        <button type="button" onClick={() => input.current?.click()} aria-label="Take a selfie" style={{ width: 210, height: 260, borderRadius: 999, background: "var(--panel)", border: "1.5px dashed var(--rule)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>
           {busy ? <span className="spin" /> : <Icon name="person" size={72} color="#B4B4B0" width={1.1} />}
         </button>
       </div>

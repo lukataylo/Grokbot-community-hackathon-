@@ -1,6 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
-import { api, Icon, img, shrink } from "../ui";
+import { api, Icon, Rays, img, shrink } from "../ui";
 import { fmtTime, type Feed, type Photo } from "./types";
 
 export function Photos({ slug, feed, reload, open, toast }: { slug: string; feed: Feed; reload: () => void; open: (p: Photo) => void; toast: (m: string) => void }) {
@@ -31,21 +31,25 @@ export function Photos({ slug, feed, reload, open, toast }: { slug: string; feed
   const canUpload = ev.uploads !== "hosts";
   return (
     <>
-      <div className="top"><h2 style={{ color: "var(--ink)" }}>{ev.name}</h2>{ev.delivered ? <span>{feed.total} photo{feed.total === 1 ? "" : "s"}</span> : <span className="live"><i />Live</span>}</div>
-      <div className="stack" style={{ gap: 6 }}>
-        <h1>{mine.length ? `You're in ${mine.length} photo${mine.length === 1 ? "" : "s"}.` : feed.total ? "The night so far." : "No photos yet."}</h1>
-        <p>{mine.length ? `Plus ${feed.total - mine.length} more from the room.` : !feed.total ? `Add yours. Faces of anyone who hasn't said yes are tiled before anyone sees them.` : feed.me?.hasFace ? "We haven't found you in any yet." : "Add a selfie in You and we'll find the ones you're in."}</p>
-      </div>
+      <div className="top"><h3 style={{ color: "var(--ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.name}</h3>{ev.delivered ? <span>{feed.total} photo{feed.total === 1 ? "" : "s"}</span> : <span className="live"><i />Live</span>}</div>
+      {!feed.total ? <div className="moment" style={{ paddingTop: 40 }}>
+        <Rays spin style={{ width: 200, height: 200 }} />
+        <h1>No photos yet.</h1>
+        <p>Add yours. Anyone who hasn&apos;t said yes is tiled.</p>
+      </div> : <div className="stack" style={{ gap: 8 }}>
+        <h1>{mine.length ? `You're in ${mine.length} photo${mine.length === 1 ? "" : "s"}.` : "The night so far."}</h1>
+        <p>{mine.length ? `Plus ${feed.total - mine.length} more from the room.` : feed.me?.hasFace ? "We haven't found you in any yet." : "Add a selfie in You to find yours."}</p>
+      </div>}
       {mine.length > 0 && <Grid photos={mine} open={open} you />}
-      {mine.length > 0 && feed.photos.length > mine.length && <h3 style={{ marginTop: 8 }}>The whole night</h3>}
+      {mine.length > 0 && feed.photos.length > mine.length && <div className="sec-h" style={{ marginTop: 8 }}><h3>The whole night</h3></div>}
       <Grid photos={feed.photos.filter((p) => !p.with_me)} open={open} />
-      {feed.pending > 0 && <p className="small center"><span className="spin" style={{ width: 12, height: 12, verticalAlign: -1 }} /> Checking faces on {feed.pending} photo{feed.pending === 1 ? "" : "s"}…</p>}
+      {feed.pending > 0 && <p className="small center" role="status"><span className="spin" style={{ width: 12, height: 12, verticalAlign: -1 }} /> Checking faces on {feed.pending} photo{feed.pending === 1 ? "" : "s"}…</p>}
       {err && <div className="err" role="alert">{err}</div>}
       <div className="grow" />
       {canUpload && (
         <div style={{ position: "sticky", bottom: 84, zIndex: 4 }}>
           <input ref={input} type="file" accept="image/*" multiple hidden onChange={(e) => upload(e.target.files)} />
-          <button className="btn" style={{ boxShadow: "0 16px 30px -12px rgba(0,0,0,.4)" }} onClick={() => input.current?.click()} disabled={!!up}>
+          <button className="btn" style={{ boxShadow: "6px 6px 0 var(--you)" }} onClick={() => input.current?.click()} disabled={!!up}>
             {up ? <><span className="spin" />Adding {up.done} of {up.total}</> : <><Icon name="plus" size={20} color="#fff" />Add photos</>}
           </button>
         </div>

@@ -29,11 +29,11 @@ export default function QrArt({ eventId, art, setArt }: { eventId: string; art: 
   return (
     <div className="stack" style={{ gap: 10 }} aria-label="Artistic QR">
       {art.candidates.length > 0 && <>
-        <p className="small">Pick a design for the screen and poster. Each one passed a scan test.</p>
+        <p className="hint">Pick one. Each passed a scan test.</p>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 8 }}>
           {art.candidates.map((c) => (
             <button key={c.id} className="t" aria-pressed={art.chosen === c.id} disabled={!!busy} title={c.theme} onClick={() => pick(c.id)}
-              style={{ borderRadius: 10, outline: art.chosen === c.id ? "2.5px solid var(--ink)" : "none", outlineOffset: 2 }}>
+              style={{ borderRadius: 2, outline: art.chosen === c.id ? "2.5px solid var(--ink)" : "none", outlineOffset: 2 }}>
               <img src={src(c.id)} alt={`QR design: ${c.theme}`} loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
             </button>
           ))}
@@ -43,9 +43,9 @@ export default function QrArt({ eventId, art, setArt }: { eventId: string; art: 
         {art.remaining > 0 && <button className="btn alt sm" disabled={!!busy} onClick={make}>{busy === "make" ? <span className="spin" /> : art.candidates.length ? "Make more" : "Make it artistic"}</button>}
         {art.candidates.length > 0 && <button className="btn alt sm" aria-pressed={!art.chosen} disabled={!!busy || !art.chosen} onClick={() => pick(null)}>{art.chosen ? "Use plain QR" : "Using plain QR"}</button>}
       </div>
-      {busy === "make" && <p className="small" role="status">Painting three designs and scan-testing each one. This takes 30 to 60 seconds.</p>}
-      {msg && <p className="small" role="alert" style={{ color: "var(--err)" }}>{msg}</p>}
-      {!busy && <p className="hint">{art.remaining ? `${art.remaining} ${art.remaining === 1 ? "try" : "tries"} left for this event.` : "No artistic tries left for this event."}</p>}
+      {busy === "make" && <p className="hint" role="status">Painting and scan-testing three designs. 30 to 60 seconds.</p>}
+      {msg && <p className="hint" role="alert" style={{ color: "var(--err)" }}>{msg}</p>}
+      {!busy && <p className="hint">{art.remaining ? `${art.remaining} ${art.remaining === 1 ? "try" : "tries"} left` : "No tries left"}</p>}
     </div>
   );
 }

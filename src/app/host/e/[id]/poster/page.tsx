@@ -22,7 +22,7 @@ export default async function Poster({ params }: { params: Promise<{ id: string 
       <style>{`@page { size: A4; margin: 0 } @media print { .noprint { display: none } }`}</style>
       <span className="mark" style={{ fontSize: 22 }}><Burst size={26} you="ink" />lumzel</span>
       <h1 style={{ fontSize: 64, lineHeight: 0.95 }}>Scan for tonight&apos;s photos.</h1>
-      <p style={{ fontSize: 22 }}>{ev.name}. Choose to be shown or covered. See every photo you&apos;re in, live.</p>
+      <p style={{ fontSize: 22 }}>{ev.name}. Show me or cover me. Every photo, live.</p>
       {art
         ? <img src={`/api/events/${ev.id}/qr-art/${art}`} alt={`QR code for ${link}`} style={{ width: "120mm", alignSelf: "center", marginTop: "8mm", display: "block", aspectRatio: "1" }} />
         : <div style={{ width: "120mm", alignSelf: "center", marginTop: "8mm" }} dangerouslySetInnerHTML={{ __html: qr }} />}

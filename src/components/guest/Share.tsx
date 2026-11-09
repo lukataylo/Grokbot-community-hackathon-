@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { api, Burst, Icon, img } from "../ui";
+import { api, Icon, Rays, img } from "../ui";
 import type { Feed, Photo } from "./types";
 
 type Caption = { style: "thanks" | "insight" | "short"; text: string; body: string };
@@ -72,15 +72,15 @@ export function ShareFlow({ slug, p, feed, onClose, toast }: { slug: string; p: 
         <div className="row between"><button className="link" onClick={onClose}>Close</button><span className="small">{platform === "x" ? "Post on X" : "Post on LinkedIn"}</span><span style={{ width: 40 }} /></div>
 
         {stage === "compose" && <>
-          <div style={{ borderRadius: 14, overflow: "hidden", aspectRatio: "3/2" }}><img src={img(p.id, p.v, 960)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
+          <div style={{ borderRadius: 2, overflow: "hidden", aspectRatio: "3/2" }}><img src={img(p.id, p.v, 960)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /></div>
           <div className="seg" role="group" aria-label="Platform">
             <button aria-pressed={platform === "linkedin"} onClick={() => setPlatform("linkedin")}>LinkedIn</button>
             <button aria-pressed={platform === "x"} onClick={() => setPlatform("x")}>X</button>
           </div>
-          <label className="field">Your highlight, in a few words (optional)
+          <label className="field">Your highlight (optional)
             <input value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} placeholder="e.g. our team demoed a voice agent" />
           </label>
-          <p className="hint">One line from you makes the post sound like you. We never add things you didn't say.</p>
+          <p className="hint">We never add things you didn&apos;t say.</p>
           {err && <div className="err" role="alert">{err}</div>}
           <button className="btn" onClick={write} disabled={busy}>{busy ? <><span className="spin" />Writing your post…</> : "Write my post"}</button>
         </>}
@@ -90,12 +90,12 @@ export function ShareFlow({ slug, p, feed, onClose, toast }: { slug: string; p: 
             {draft.captions.map((c) => <button key={c.style} className="chip" aria-pressed={pick === c.style} onClick={() => setPick(c.style)}>{LABEL[c.style]}</button>)}
           </div>
           <label className="field">Caption<textarea value={text} onChange={(e) => { setText(e.target.value); setCopied(false); }} rows={8} /></label>
-          {draft.tags.length > 0 && platform === "linkedin" && <p className="hint">To tag {draft.tags.join(" and ")} on LinkedIn, type @ and the first letters of their name in your post, then pick them from the list.</p>}
+          {draft.tags.length > 0 && platform === "linkedin" && <p className="hint">To tag {draft.tags.join(" and ")}, type @ and their name in LinkedIn.</p>}
           {platform === "linkedin" ? <>
             <div className="stack" style={{ gap: 12 }}>
               <div className="step"><span className={`num${copied ? " done" : ""}`}>{copied ? <Icon name="check" size={13} color="#fff" width={2.6} /> : 1}</span><span>Copy the caption</span></div>
-              <div className="step"><span className="num">2</span><span>Share the photo, pick LinkedIn<small>Then hold in the text box and tap Paste</small></span></div>
-              <div className="step"><span className="num">3</span><span>Post, then come back<small>Send us the link so tonight's guests can like it</small></span></div>
+              <div className="step"><span className="num">2</span><span>Share the photo to LinkedIn<small>Then paste the caption</small></span></div>
+              <div className="step"><span className="num">3</span><span>Post, then come back with the link</span></div>
             </div>
             <div className="two"><button className="btn alt" onClick={copy}><Icon name="copy" size={18} />{copied ? "Copied" : "Copy"}</button><button className="btn" onClick={sharePhoto}><Icon name="share" size={18} color="#fff" />Share photo</button></div>
             <button className="link" onClick={shareLink}>On a computer? Share as a link instead</button>
@@ -108,7 +108,7 @@ export function ShareFlow({ slug, p, feed, onClose, toast }: { slug: string; p: 
 
         {stage === "link" && <form className="stack" onSubmit={submit}>
           <h2>Posted? Send us the link.</h2>
-          <p>Tonight's guests can find it and like it, and your ray joins the burst.</p>
+          <p>So tonight&apos;s guests can like it.</p>
           <div className="panel"><h3>{platform === "x" ? "On X, on your post" : "In LinkedIn, on your post"}</h3>
             <div className="step"><span className="num" style={{ background: "#fff" }}>1</span><span>{platform === "x" ? "Tap Share" : "Tap ··· at the top right"}</span></div>
             <div className="step"><span className="num" style={{ background: "#fff" }}>2</span><span>{platform === "x" ? "Tap Copy link" : "Tap Copy link to post"}</span></div>
@@ -120,9 +120,9 @@ export function ShareFlow({ slug, p, feed, onClose, toast }: { slug: string; p: 
         </form>}
 
         {stage === "done" && <div className="stack" style={{ alignItems: "center", textAlign: "center", padding: "12px 0" }}>
-          <Burst size={140} ink="#0A0A0A" width={3} />
+          <Rays className="ink" style={{ width: 160, height: 160, margin: "8px 0 12px" }} />
           <h2>You're in the burst.</h2>
-          <p>People in your photo hear about it first. Everyone else sees it in the Posts tab and the next round-up.</p>
+          <p>Everyone here can now like it.</p>
           <button className="btn" onClick={onClose}>Done</button>
         </div>}
       </div>

@@ -37,13 +37,13 @@ export default async function SmartLink({ params }: Props) {
     <main className="shell" style={{ maxWidth: 720 }}>
       <Beacon code={s.code} />
       <div className="top"><a className="mark" href="/">lumzel</a></div>
-      <img src={`/img/${s.photo_id}?w=1600&v=${s.render_rev}`} alt={`A photo from ${s.event}`} style={{ width: "100%", borderRadius: 18 }} />
+      <img src={`/img/${s.photo_id}?w=1600&v=${s.render_rev}`} alt={`A photo from ${s.event}`} style={{ width: "100%", borderRadius: 2 }} />
       <h1>{s.guest} was at {s.event}.</h1>
       {s.hosted_by && <p>Hosted by {s.hosted_by}. Everyone who didn&apos;t say yes to being shown is tiled.</p>}
       <div className="grow" />
       <div className="panel" style={{ gap: 12 }}>
         <h3>Running events?</h3>
-        <p className="small">Lumzel collects every guest&apos;s photos with one QR code, covers anyone who says no, and has them shared by morning.</p>
+        <p className="small">One QR code. Every guest&apos;s photos, consent-checked, shared by morning.</p>
         <a className="btn" href={`/?ref=${s.code}`}>Host your next event</a>
       </div>
     </main>

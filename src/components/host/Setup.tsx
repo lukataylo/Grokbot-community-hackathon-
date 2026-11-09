@@ -50,10 +50,9 @@ export default function Setup({ hostName }: { hostName: string }) {
 
       {i === 1 && <>
         <h1>Tell us about it.</h1>
-        <p>Guests&apos; posts are written from this, so specifics help: the theme, talks, speakers, what people will do. We never invent anything you don&apos;t write here.</p>
+        <p>Guests&apos; posts are written from this. Be specific. We never invent anything.</p>
         <label className="field">What&apos;s happening<textarea value={f.description} onChange={set("description")} maxLength={1200} rows={7}
           placeholder={"A monthly hack night for London builders. Theme: voice agents.\nShort talk from Priya Shah on latency budgets, then four hours of building in teams, demos at 22:00."} /></label>
-        <p className="hint">After the event you can add highlights too, like who won or what was demoed.</p>
       </>}
 
       {i === 2 && <>
@@ -61,14 +60,14 @@ export default function Setup({ hostName }: { hostName: string }) {
         <label className="field">LinkedIn page to tag<input value={f.linkedin} onChange={set("linkedin")} placeholder="Your company page name" maxLength={80} /></label>
         <div className="two"><label className="field">Hashtag<input value={f.hashtag} onChange={set("hashtag")} placeholder="#HackNight03" maxLength={40} /></label>
           <label className="field">X account<input value={f.x} onChange={set("x")} placeholder="@handle" maxLength={40} /></label></div>
-        <p>Guests&apos; posts mention these, so every post points back to you.</p>
+        <p>Every guest post points back to you.</p>
       </>}
 
       {i === 3 && <>
         <h1>Who&apos;s in the photos.</h1>
         <div className="list">
-          <div className="li"><span>Guests choose Show me or Cover me<small>Always on, for every event</small></span><Icon name="lock" size={18} label="Fixed" /></div>
-          <div className="li"><span>Anyone we can&apos;t match to a yes is tiled<small>Including people who never scan the code</small></span><Icon name="lock" size={18} label="Fixed" /></div>
+          <div className="li"><span>Guests choose Show me or Cover me<small>Always on</small></span><Icon name="lock" size={18} label="Fixed" /></div>
+          <div className="li"><span>Anyone who hasn&apos;t said yes is tiled<small>Even if they never scan</small></span><Icon name="lock" size={18} label="Fixed" /></div>
         </div>
         <span className="hint">Who can add photos</span>
         <div className="seg" role="group"><button type="button" aria-pressed={f.uploads === "everyone"} onClick={() => setF({ ...f, uploads: "everyone" })}>Every guest</button><button type="button" aria-pressed={f.uploads === "hosts"} onClick={() => setF({ ...f, uploads: "hosts" })}>Only hosts</button></div>
@@ -78,18 +77,18 @@ export default function Setup({ hostName }: { hostName: string }) {
 
       {i === 4 && <>
         <h1>The morning round-up.</h1>
-        <span className="hint">Photos are live all night. Each guest also gets one nudge the morning after</span>
+        <span className="hint">Photos are live all night. One nudge per guest, next morning, at</span>
         <div className="seg" role="group">{["07:00", "07:30", "09:00"].map((t) => <button type="button" key={t} aria-pressed={f.deliver === t} onClick={() => setF({ ...f, deliver: t })}>{t}</button>)}</div>
-        <div className="panel"><p className="small">Guests get a notification, or an email if they didn&apos;t turn notifications on. Everyone can save their photos in full quality. Faces stay tiled in every copy.</p></div>
+        <p className="small">By notification or email. Faces stay tiled in every copy.</p>
       </>}
 
       {i === 5 && <>
         <h1>What guests will post.</h1>
         <label className="field">Suggested caption<textarea value={f.captionTemplate ?? suggested} onChange={set("captionTemplate")} rows={4} maxLength={500} /></label>
-        <p className="hint">Each guest gets three versions written for them, starting from this and your description. They edit before posting.</p>
+        <p className="hint">Each guest gets three versions to edit.</p>
         <div className="panel">
-          <h3>Free</h3><p className="small">QR code, consent and tiling, every photo pooled live, a round-up at {f.deliver}, downloads.</p>
-          <h3 style={{ marginTop: 8 }}>£50 per event, when you want it</h3><p className="small">Social sharing: posts written for each guest, smart links that count clicks, the cheer feed, the leaderboard and your reach report. Switch it on from your event page; discount codes welcome.</p>
+          <div className="row between"><h3>Free</h3><span className="small">QR, consent, live photos, round-up</span></div>
+          <div className="row between" style={{ borderTop: "1px solid var(--rule)", paddingTop: 8 }}><h3>£50 to share</h3><span className="small">Posts, smart links, likes, leaderboard</span></div>
         </div>
       </>}
 

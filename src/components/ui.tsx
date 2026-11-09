@@ -10,6 +10,24 @@ export function Burst({ size = 22, ink = "currentColor", you = true, width = 10 
     </svg>
   );
 }
+// The landing page's burst: ten hairline rays and one amber "you" ray, drawn from the centre.
+const RAYS: Array<[number, number]> = [[43.8, 89.0], [87.3, 42.9], [107.4, 49.7], [156.9, 97.9], [137.6, 149.0], [81.9, 172.5], [126.0, 160.1], [77.0, 139.9], [73.2, 120.0], [129.6, 57.0]];
+/**
+ * Decorative hairline rays. Stroke width stays in screen pixels at any size, so the same
+ * component works as a 96px mark or a 2000px background. Draws in once, then (optionally)
+ * turns very slowly; both are off under prefers-reduced-motion.
+ */
+export function Rays({ className = "", style, you = true, draw = true, spin = false }: { className?: string; style?: React.CSSProperties; you?: boolean; draw?: boolean; spin?: boolean }) {
+  return (
+    <svg viewBox="0 0 200 200" className={`rays${draw ? " draw" : ""}${spin ? " turn" : ""} ${className}`} style={style} aria-hidden="true" focusable="false">
+      <g>
+        {RAYS.map(([x, y], i) => <path key={i} d={`M100 100L${x} ${y}`} style={{ "--i": i } as React.CSSProperties} />)}
+        {you && <path className="y" d="M100 100L187.8 127.5" style={{ "--i": RAYS.length } as React.CSSProperties} />}
+      </g>
+    </svg>
+  );
+}
+
 export function Logo({ href = "/" }: { href?: string }) {
   return <a className="mark" href={href} aria-label="lumzel home"><Burst size={22} you="ink" />lumzel</a>;
 }
