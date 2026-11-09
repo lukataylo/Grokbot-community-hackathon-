@@ -15,7 +15,7 @@ async function tick() {
     await resumeDeliveries();
     await recheckFailedChecks();
     await requeueStale();
-    await migrateMatching();
+    await migrateMatching().catch((e) => console.error("[scheduler] match re-check", e)); // never blocks retention below
     await roundups();
     // Retention: originals and published photos leave after the host's retention window.
     const old = await sql`select p.id, p.original_key, p.public_key from photos p join events e on e.id = p.event_id

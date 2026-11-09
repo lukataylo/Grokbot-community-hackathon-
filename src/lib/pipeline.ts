@@ -134,7 +134,7 @@ async function render(photoId: string) {
   await sql.begin(async (tx) => {
     // Status from the row as it is now: the host may have hidden or approved it while we rendered.
     const [row] = await tx`update photos set public_key = ${key}, render_rev = ${rev}, tiled_count = ${toTile.length},
-      has_standins = ${!!standin}, tile_set = ${hash}, match_rule = ${MATCH_RULE},
+      has_standins = ${!!standin}, tile_set = ${hash}, match_rule = ${MATCH_RULE}, match_rev = ${rev},
       status = case when status in ('hidden', 'failed') then status when needs_review and reviewed_at is null then 'review' else 'ready' end,
       regions = ${tx.json(regions.map((r) => ({ ...r })) as never)} where id = ${photoId} returning status`;
     status = (row?.status as string) ?? "";
@@ -222,7 +222,7 @@ export const MATCH_RULE = 2;
  */
 export async function migrateMatching() {
   const ids = await sql.begin(async (tx) => {
-    const rows = await tx`select id from photos p where status in ('ready', 'review') and coalesce(match_rule, 0) < ${MATCH_RULE}
+    const rows = await tx`select id from photos p where status in ('ready', 'review') and (coalesce(match_rule, 0) < ${MATCH_RULE} or match_rev is distinct from render_rev) -- an old instance's render bumps render_rev only
       and not (stale_at is not null and hold)
       and (p.regions @? '$[*] ? (@.guestId != null)' or exists (select 1 from photo_people pp where pp.photo_id = p.id))
       for update skip locked`;

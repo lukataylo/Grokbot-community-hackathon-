@@ -209,3 +209,4 @@ create table if not exists migrations (
 );
 -- Guest-matching rule a photo was last rendered under (see pipeline.ts MATCH_RULE).
 alter table photos add column if not exists match_rule int;
+alter table photos add column if not exists match_rev int; -- render_rev that match_rule was stamped at
