@@ -136,7 +136,7 @@ export function Notify({ slug, feed, vapid, onDone, standaloneStart }: { slug: s
       <div className="moment" style={{ alignItems: "flex-start", textAlign: "left" }}>
         <Rays className="ink" style={{ width: 160, height: 160 }} />
         <h1>You&apos;re set. See you at {at}.</h1>
-        <p>We sent a test notification.</p>
+        <p>We sent a test. Change any of this in You.</p>
       </div>
       <div className="grow" />
       <button className="btn" onClick={onDone}>Back to {ev.name}</button>

@@ -50,7 +50,7 @@ export function Choose({ slug, feed, onDone, step = true }: { slug: string; feed
       <h1 style={{ marginTop: 16, fontSize: "clamp(36px, 10vw, 48px)" }}>How should you appear tonight?</h1>
       <div className="stack" style={{ marginTop: 12, gap: 14 }}>
         <button type="button" className="opt" aria-pressed={choice === "show"} onClick={() => setChoice("show")}>
-          <span className="ico"><Icon name="person" size={26} /></span><span><b>Show me</b><small>You appear in the photos</small></span>
+          <span className="ico"><Icon name="person" size={26} /></span><span><b>Show me</b><small>Your face shows in photos guests see, live</small></span>
           <span className="radio">{choice === "show" && <Icon name="check" size={14} color="#fff" width={2.6} />}</span>
         </button>
         <button type="button" className="opt" aria-pressed={choice === "cover"} onClick={() => setChoice("cover")}>
@@ -65,7 +65,7 @@ export function Choose({ slug, feed, onDone, step = true }: { slug: string; feed
       <div className="grow" />
       {err && <div className="err" role="alert">{err}</div>}
       <button className="btn" onClick={save} disabled={busy}>{busy ? <span className="spin" /> : "Continue"}</button>
-      <p className="small center">Change it any time. Anyone who hasn&apos;t said yes is tiled.</p>
+      <p className="small center">Change it any time. Anyone who hasn&apos;t said yes is {feed.event.faceStyle === "standins" ? "covered by an AI stand-in" : "tiled"}.</p>
     </div>
   );
 }

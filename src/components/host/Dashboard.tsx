@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, Icon, Logo, Rays, img, shrink, useToast } from "../ui";
+import { api, Icon, Logo, RAYS, Rays, img, shrink, useToast } from "../ui";
 import QrArt from "./QrArt";
 import type { ArtState } from "@/lib/qrart";
 
@@ -66,7 +66,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
         <div className="ev-title">
           <span className="ev-tag">{status === "Live" && <i />}{status}</span>
           <h1>{ev.name}</h1>
-          <p>{t(ev.startsAt, { weekday: "long", day: "numeric", month: "long" })} · {hhmm(ev.startsAt)}–{hhmm(ev.endsAt)}</p>
+          <p>{t(ev.startsAt, { weekday: "long", day: "numeric", month: "long" })} · <span style={{ whiteSpace: "nowrap" }}>{hhmm(ev.startsAt)}–{hhmm(ev.endsAt)}</span></p>
         </div>
         <section className="qr-card" aria-label="Your event code">
           <div className="row" style={{ alignItems: "flex-start", gap: 16 }}>
@@ -74,7 +74,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
               ? <img className="qr" src={`/api/events/${ev.id}/qr-art/${art.chosen}?w=320`} alt="Your artistic QR code" />
               : <div className="qr" role="img" aria-label="Your event QR code" dangerouslySetInnerHTML={{ __html: qr }} />}
             <div className="stack" style={{ gap: 6, minWidth: 0 }}>
-              <h3>Put this on the screen.</h3>
+              <h2 style={{ fontSize: 17, letterSpacing: "-0.015em" }}>Put this on the screen.</h2>
               <p className="small" style={{ wordBreak: "break-all" }}>{link.replace(/^https?:\/\//, "")}</p>
             </div>
           </div>
@@ -97,7 +97,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
 
       <div className="ev-cols">
         <div className="stack" style={{ gap: 36 }}>
-          {s.review.length > 0 && <section className="sec" aria-label="Review">
+          {s.review.length > 0 && <section className="sec o1" aria-label="Review">
             <div className="sec-h"><h2>{plural(s.review.length, "photo")} {delivered ? "held back. Check to publish." : `to check before ${hhmm(s.event.deliver_at)}.`}</h2></div>
             <p className="small">A face may have been missed. Publish only if everyone visible is happy to be shown.{delivered ? "" : " Unchecked photos stay hidden."}</p>
             {s.review.slice(0, 3).map((r) => (
@@ -111,7 +111,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
             ))}
           </section>}
 
-          <section className="sec" aria-label="Latest photos">
+          <section className="sec o3" aria-label="Latest photos">
             <div className="sec-h"><h2>Photos</h2>
               {c.processing > 0 && <span className="small" role="status"><span className="spin" style={{ width: 12, height: 12, verticalAlign: -1, marginRight: 6 }} />Checking {plural(c.processing, "photo")}</span>}</div>
             {s.recent.length > 0
@@ -120,11 +120,26 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
             <input ref={file} type="file" accept="image/*" multiple hidden onChange={(e) => upload(e.target.files)} />
             <button className="btn alt" disabled={busy === "upload"} onClick={() => file.current?.click()}>{busy === "upload" ? <span className="spin" /> : <><Icon name="plus" size={18} />Add your own photos</>}</button>
           </section>
+          {!delivered && <section className="sec o6" aria-label="When">
+            <div className="sec-h"><h2>When</h2></div>
+            <label className="field">Date<input type="date" value={when.date} onChange={(e) => setWhen({ ...when, date: e.target.value })} /></label>
+            <div className="two"><label className="field">Doors<input type="time" value={when.start} onChange={(e) => setWhen({ ...when, start: e.target.value })} /></label>
+              <label className="field">Ends<input type="time" value={when.end} onChange={(e) => setWhen({ ...when, end: e.target.value })} /></label></div>
+            <label className="field">Round-up, next morning<input type="time" value={when.deliver} onChange={(e) => setWhen({ ...when, deliver: e.target.value })} /></label>
+            <button className="btn alt sm" style={{ alignSelf: "flex-start" }} disabled={!!busy} onClick={() => act("when", async () => { await api(`/api/events/${ev.id}`, { method: "PATCH", json: when }); location.reload(); }, "Saved")}>Save times</button>
+          </section>}
+          <section className="sec o7" aria-label="About the event">
+            <div className="sec-h"><h2>Post brief</h2></div>
+            <p className="small">Guests&apos; posts are written from this.</p>
+            <label className="field">About the event<textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={1200} /></label>
+            <label className="field">Highlights<textarea rows={3} value={highlights} onChange={(e) => setHighlights(e.target.value)} maxLength={1200} placeholder="Who won, what was demoed, a line from a talk" /></label>
+            <button className="btn alt sm" style={{ alignSelf: "flex-start" }} disabled={!!busy} onClick={() => act("about", () => api(`/api/events/${ev.id}`, { method: "PATCH", json: { description, highlights } }), "Saved")}>Save</button>
+          </section>
 
         </div>
 
         <div className="stack" style={{ gap: 36 }}>
-          <section className="sec" aria-label="Delivery">
+          <section className="sec o2" aria-label="Delivery">
             {delivered ? <div className="moment" style={{ alignItems: "flex-start", textAlign: "left", paddingTop: 0 }}>
               <Rays className="ink" />
               <h2>Everyone&apos;s been notified.</h2>
@@ -140,7 +155,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
           </section>
 
           {!s.event.sharing_unlocked && (
-            <section className="upsell" aria-label="Social sharing">
+            <section className="upsell o4" aria-label="Social sharing">
               <h2>Switch on social sharing</h2>
               <p className="small">Guests post the night. Everyone likes each other&apos;s posts.</p>
               <div className="stack" style={{ gap: 8 }}>
@@ -153,7 +168,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
           )}
 
           {s.event.sharing_unlocked && (
-            <section className="sec" aria-label="Reach">
+            <section className="sec o4" aria-label="Reach">
               <div className="sec-h"><h2>Reach</h2><span className="live"><i />Sharing on</span></div>
               <div className="stats">
                 <div className="stat"><span>Posts</span><strong>{c.posts}</strong></div>
@@ -162,16 +177,16 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
                 <div className="stat"><span>Guest likes</span><strong>{c.cheers}</strong></div>
               </div>
               {s.leaders.length > 0
-                ? <div className="row" style={{ alignItems: "center", gap: 20 }}>
-                    <div className="leader-burst"><LeaderBurst leaders={s.leaders} /></div>
-                    <div className="list" style={{ flex: 1, minWidth: 0 }}>{s.leaders.slice(0, 5).map((l, k) => <div key={l.name + k} className="li"><span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}><span className="small" style={{ marginRight: 8 }}>{k + 1}</span>{l.name}</span><span className="small" style={{ whiteSpace: "nowrap" }}>{l.clicks} clicks · {l.cheers} likes</span></div>)}</div>
+                ? <div className="leader">
+                    <LeaderBurst leaders={s.leaders} />
+                    <div className="list">{s.leaders.slice(0, 5).map((l, k) => <div key={l.name + k} className="li"><span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}><span className="small" style={{ marginRight: 8 }}>{k + 1}</span>{l.name}</span><span className="small" style={{ whiteSpace: "nowrap" }}>{l.clicks} clicks · {l.cheers} likes</span></div>)}</div>
                   </div>
                 : <p className="small">Posts appear here as guests share.</p>}
             </section>
           )}
 
-          <section className="sec" aria-label="AI stand-ins">
-            <label className="li sec-h" style={{ alignItems: "center", paddingBottom: 0, opacity: s.event.sharing_unlocked ? 1 : 0.6 }}>
+          <section className="sec o5" aria-label="AI stand-ins">
+            <label className="li sec-h" style={{ alignItems: "center", paddingBottom: 0 }}>
               <span><b style={{ fontWeight: 500 }}>AI stand-ins</b><small>{s.event.sharing_unlocked
                 ? "Covered faces become people who don't exist. The AI only sees the tiled photo."
                 : "Part of social sharing"}</small></span>
@@ -180,38 +195,29 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
             </label>
           </section>
 
-          {!delivered && <section className="sec" aria-label="When">
-            <div className="sec-h"><h2>When</h2></div>
-            <label className="field">Date<input type="date" value={when.date} onChange={(e) => setWhen({ ...when, date: e.target.value })} /></label>
-            <div className="two"><label className="field">Doors<input type="time" value={when.start} onChange={(e) => setWhen({ ...when, start: e.target.value })} /></label>
-              <label className="field">Ends<input type="time" value={when.end} onChange={(e) => setWhen({ ...when, end: e.target.value })} /></label></div>
-            <label className="field">Round-up, next morning<input type="time" value={when.deliver} onChange={(e) => setWhen({ ...when, deliver: e.target.value })} /></label>
-            <button className="btn alt sm" style={{ alignSelf: "flex-start" }} disabled={!!busy} onClick={() => act("when", async () => { await api(`/api/events/${ev.id}`, { method: "PATCH", json: when }); location.reload(); }, "Saved")}>Save times</button>
-          </section>}
 
-          <section className="sec" aria-label="About the event">
-            <div className="sec-h"><h2>Post brief</h2></div>
-            <p className="small">Guests&apos; posts are written from this.</p>
-            <label className="field">About the event<textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} maxLength={1200} /></label>
-            <label className="field">Highlights<textarea rows={3} value={highlights} onChange={(e) => setHighlights(e.target.value)} maxLength={1200} placeholder="Who won, what was demoed, a line from a talk" /></label>
-            <button className="btn alt sm" style={{ alignSelf: "flex-start" }} disabled={!!busy} onClick={() => act("about", () => api(`/api/events/${ev.id}`, { method: "PATCH", json: { description, highlights } }), "Saved")}>Save</button>
-          </section>
         </div>
       </div>
     </main>
   );
 }
 
-/** The event's burst: one ray per sharer, length by clicks and likes; the leader's ray is amber. */
+/** The event's burst: one ray per sharer, longer for more clicks and likes; the leader is amber. Empty slots stay as faint hairlines. */
 function LeaderBurst({ leaders }: { leaders: Stats["leaders"] }) {
-  const max = Math.max(1, ...leaders.map((l) => l.clicks + l.cheers));
-  const n = Math.max(leaders.length, 11);
+  const top = leaders.slice(0, 11);
+  const max = Math.max(1, ...top.map((l) => l.clicks + l.cheers));
+  // The brand burst's angles: the leader takes the amber "you" ray, the rest follow in order.
+  const angles = [[187.8, 127.5] as [number, number], ...RAYS].map(([x, y]) => Math.atan2(y - 100, x - 100));
+  const n = angles.length;
+  const who = top.length === 1 ? "1 guest has shared" : `${top.length} guests have shared`;
   return (
-    <svg viewBox="0 0 200 200" width="100%" role="img" aria-label="Burst: one ray per guest who shared, longer for more clicks">
+    <svg viewBox="0 0 200 200" role="img" aria-label={`${who}. ${top[0].name} leads.`}>
       {Array.from({ length: n }, (_, k) => {
-        const l = leaders[k];
-        const a = (k / n) * Math.PI * 2 - Math.PI / 2, r = l ? 40 + 56 * ((l.clicks + l.cheers) / max) : 30;
-        return <line key={k} x1="100" y1="100" x2={100 + Math.cos(a) * r} y2={100 + Math.sin(a) * r} stroke={!l ? "#D9D9D5" : k === 0 ? "#FFB000" : "#0A0A0A"} strokeWidth={k === 0 && l ? 4 : 2} />;
+        const l = top[k];
+        const a = angles[k];
+        const r = l ? 80 + 18 * ((l.clicks + l.cheers) / max) : 55;
+        return <line key={k} x1="100" y1="100" x2={100 + Math.cos(a) * r} y2={100 + Math.sin(a) * r}
+          stroke={!l ? "#D9D9D5" : k === 0 ? "#FFB000" : "#0A0A0A"} strokeWidth={!l ? 1.25 : k === 0 ? 5 : 2.5} />;
       })}
     </svg>
   );

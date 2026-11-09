@@ -31,17 +31,17 @@ export function Photos({ slug, feed, reload, open, toast }: { slug: string; feed
   const canUpload = ev.uploads !== "hosts";
   return (
     <>
-      <div className="top"><h3 style={{ color: "var(--ink)", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.name}</h3>{ev.delivered ? <span>{feed.total} photo{feed.total === 1 ? "" : "s"}</span> : <span className="live"><i />Live</span>}</div>
+      <div className="top"><span className="ink" style={{ fontSize: 17, fontWeight: 500, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.name}</span>{ev.delivered ? <span>{feed.total} photo{feed.total === 1 ? "" : "s"}</span> : <span className="live"><i />Live</span>}</div>
       {!feed.total ? <div className="moment" style={{ paddingTop: 40 }}>
         <Rays spin style={{ width: 200, height: 200 }} />
         <h1>No photos yet.</h1>
-        <p>Add yours. Anyone who hasn&apos;t said yes is tiled.</p>
+        <p>Add yours. Anyone who hasn&apos;t said yes is {ev.faceStyle === "standins" ? "covered by an AI stand-in" : "tiled"}.</p>
       </div> : <div className="stack" style={{ gap: 8 }}>
         <h1>{mine.length ? `You're in ${mine.length} photo${mine.length === 1 ? "" : "s"}.` : "The night so far."}</h1>
         <p>{mine.length ? `Plus ${feed.total - mine.length} more from the room.` : feed.me?.hasFace ? "We haven't found you in any yet." : "Add a selfie in You to find yours."}</p>
       </div>}
       {mine.length > 0 && <Grid photos={mine} open={open} you />}
-      {mine.length > 0 && feed.photos.length > mine.length && <div className="sec-h" style={{ marginTop: 8 }}><h3>The whole night</h3></div>}
+      {mine.length > 0 && feed.photos.length > mine.length && <div className="sec-h" style={{ marginTop: 8 }}><h2 style={{ fontSize: 17 }}>The whole night</h2></div>}
       <Grid photos={feed.photos.filter((p) => !p.with_me)} open={open} />
       {feed.pending > 0 && <p className="small center" role="status"><span className="spin" style={{ width: 12, height: 12, verticalAlign: -1 }} /> Checking faces on {feed.pending} photo{feed.pending === 1 ? "" : "s"}…</p>}
       {err && <div className="err" role="alert">{err}</div>}
