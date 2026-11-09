@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>lumzel · every photo from your event, shared by morning</title>
+<meta name="description" content="One QR code collects every guest's photos. Anyone who says no is tiled. Everyone gets their photos at 07:30, and their posts carry your event further.">
+<meta property="og:title" content="lumzel">
+<meta property="og:description" content="Every photo from your event, consent-checked and shared by morning.">
+<meta property="og:image" content="https://lumzel.com/landing/img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://lumzel.com/">
+<link rel="icon" href="/icons/favicon-32.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500&display=swap">
+<style>
+/* One idea per screen. White page, black type, amber only for "you". */
+:root {
+  --bg: #FFFFFF; --ink: #0A0A0A; --muted: #8A8A8A; --quiet: #E9E9E7; --tile: #EDEDEB; --you: #FFB000;
+  --display: 'Familjen Grotesk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { color-scheme: light; }
+body { background: var(--bg); color: var(--ink); font-family: var(--display); font-size: 18px; line-height: 1.45; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+.wrap { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+nav { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; padding-block: 18px; background: rgba(255,255,255,0.86); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.brand { display: flex; align-items: center; gap: 9px; font-size: 22px; font-weight: 500; letter-spacing: -0.045em; color: var(--ink); text-decoration: none; }
+.pill { display: inline-flex; align-items: center; height: 42px; padding: 0 20px; border-radius: 999px; background: var(--ink); color: #FFFFFF; font-size: 15px; font-weight: 500; text-decoration: none; }
+.pill.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--quiet); }
+.pill:focus-visible, .brand:focus-visible { outline: 2px solid var(--you); outline-offset: 3px; }
+h1, h2 { margin: 0; font-weight: 500; letter-spacing: -0.045em; line-height: 0.98; text-wrap: balance; }
+h1 { font-size: clamp(48px, 8vw, 124px); max-width: 14ch; }
+h2 { font-size: clamp(40px, 6vw, 92px); max-width: 15ch; }
+.muted { color: var(--muted); }
+.line { display: block; overflow: hidden; padding-bottom: 0.06em; }
+.line > span { display: inline-block; }
+section { position: relative; }
+.hero { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 36px; padding-block: 120px 80px; }
+.hero svg { width: 88px; height: 88px; }
+.hero p { margin: 0; font-size: clamp(18px, 1.6vw, 22px); color: var(--muted); max-width: 34ch; }
+.scene { height: 100svh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.caption { position: absolute; left: 0; right: 0; top: 13svh; text-align: center; z-index: 2; pointer-events: none; }
+.caption h2 { margin: 0 auto; }
+.swap { position: relative; display: grid; }
+.swap > * { grid-area: 1 / 1; }
+.stage { position: relative; width: min(680px, 92vw); height: min(330px, 46vw); margin-top: 8svh; }
+.tile { position: absolute; width: 11%; aspect-ratio: 4 / 3; border-radius: 6px; background: var(--tile); will-change: transform; }
+.photo { position: relative; width: min(820px, 92vw); aspect-ratio: 3 / 2; border-radius: 20px; overflow: hidden; margin-top: 10svh; }
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cover { position: absolute; inset: 0; clip-path: ellipse(9.5% 17% at 69.2% 50.5%); }
+.steps { display: flex; flex-direction: column; gap: 6vh; padding-block: 18vh; align-items: center; text-align: center; }
+.steps h2 { font-size: clamp(40px, 6.4vw, 100px); }
+.phone { position: relative; width: 260px; height: 540px; border-radius: 44px; background: #0A0A0A; overflow: hidden; margin-top: 4vh; }
+.phone .clock { position: absolute; left: 0; right: 0; top: 70px; text-align: center; color: #FFFFFF; font-size: 76px; font-weight: 500; letter-spacing: -0.04em; }
+.phone .note { position: absolute; left: 12px; right: 12px; top: 220px; padding: 12px 14px; border-radius: 18px; background: rgba(255,255,255,0.14); backdrop-filter: blur(12px); color: #FFFFFF; font-size: 13px; line-height: 1.35; text-align: left; }
+.phone .note b { display: block; font-weight: 500; }
+.burstScene svg { width: min(520px, 80vw); height: auto; margin-top: 12svh; overflow: visible; }
+.count { position: absolute; bottom: 9svh; left: 0; right: 0; text-align: center; font-size: 20px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.close { min-height: 100svh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 40px; padding-block: 120px; }
+.close .cta { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.close .pill { height: 54px; padding: 0 28px; font-size: 17px; }
+/* The sign-up card: lifted off a soft panel, high-contrast labels and fields. */
+.close { background: #F4F4F2; }
+#interest, #i-done { scroll-margin-top: 110px; }
+.interest { width: min(520px, 100%); display: flex; flex-direction: column; gap: 18px; text-align: left;
+  background: #FFFFFF; border-radius: 28px; padding: 36px clamp(22px, 5vw, 40px) 32px;
+  box-shadow: 0 1px 2px rgba(10,10,10,0.06), 0 12px 32px rgba(10,10,10,0.08), 0 40px 80px -24px rgba(10,10,10,0.18); }
+.interest h3 { margin: 0; font-size: clamp(26px, 3vw, 32px); font-weight: 500; letter-spacing: -0.035em; line-height: 1.1; color: var(--ink); }
+.interest .beta { margin: -8px 0 6px; color: #55554F; font-size: 17px; line-height: 1.45; }
+.interest label { display: flex; flex-direction: column; gap: 8px; font-size: 15px; font-weight: 500; color: var(--ink); letter-spacing: -0.005em; }
+.interest label .opt { font-weight: 400; color: #6E6E68; }
+.interest input { font: inherit; font-size: 18px; color: var(--ink); background: #FFFFFF; height: 56px; padding: 0 18px; border-radius: 14px; border: 1.5px solid #CFCFCA; outline: none; width: 100%; letter-spacing: -0.005em; }
+.interest input::placeholder { color: #8C8C86; }
+.interest input:hover { border-color: #9E9E98; }
+.interest input:focus-visible { border-color: var(--ink); box-shadow: 0 0 0 4px rgba(255,176,0,0.4); }
+.navr { display: flex; align-items: center; gap: 18px; }
+.beta-link { color: var(--ink); font-size: 15px; font-weight: 500; text-decoration: none; padding: 10px 0; }
+.beta-link:hover, .have a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.beta-link:focus-visible, .have a:focus-visible { outline: 2px solid var(--you); outline-offset: 3px; border-radius: 4px; }
+.pill .short { display: none; }
+@media (max-width: 480px) { .pill .long { display: none; } .pill .short { display: inline; } .navr { gap: 14px; } }
+.have { margin: 0; font-size: 16px; color: #55554F; }
+.have a { color: var(--ink); font-weight: 500; }
+.interest .pill { height: 58px; justify-content: center; font-size: 18px; border: 0; cursor: pointer; font-family: inherit; margin-top: 4px; }
+.interest .pill[disabled] { opacity: 0.6; cursor: default; }
+.interest .msg { margin: -6px 0 -6px; min-height: 1.2em; font-size: 15px; color: #B42318; }
+.interest .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.done { margin: 0; width: min(520px, 100%); background: #FFFFFF; border-radius: 28px; padding: 40px 32px; font-size: clamp(24px, 3vw, 32px); letter-spacing: -0.03em; line-height: 1.2;
+  box-shadow: 0 1px 2px rgba(10,10,10,0.06), 0 12px 32px rgba(10,10,10,0.08), 0 40px 80px -24px rgba(10,10,10,0.18); }
+footer { display: flex; justify-content: space-between; padding-block: 28px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--quiet); }
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<nav class="wrap">
+  <a class="brand" href="#top" aria-label="Lumzel home">
+    <svg viewBox="0 0 200 200" width="24" height="24" aria-hidden="true"><path d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0M100 100L187.8 127.5" stroke="#0A0A0A" stroke-width="10" fill="none"/></svg>lumzel
+  </a>
+  <div class="navr"><a class="beta-link" href="/host">Use the beta</a><a class="pill" href="#interest" aria-label="Register interest"><span class="long">Register interest</span><span class="short">Join</span></a></div>
+</nav>
+
+<main id="top">
+  <section class="hero wrap">
+    <svg id="heroBurst" viewBox="0 0 200 200" aria-hidden="true"><g stroke="#0A0A0A" stroke-width="4" fill="none" stroke-linecap="butt"><path d="M100 100L43.8 89.0"/><path d="M100 100L87.3 42.9"/><path d="M100 100L107.4 49.7"/><path d="M100 100L156.9 97.9"/><path d="M100 100L137.6 149.0"/><path d="M100 100L81.9 172.5"/><path d="M100 100L126.0 160.1"/><path d="M100 100L77.0 139.9"/><path d="M100 100L73.2 120.0"/><path d="M100 100L129.6 57.0"/><path d="M100 100L187.8 127.5"/></g></svg>
+    <h1 class="split">Your event was great.</h1>
+    <h1 class="split muted">The proof is stuck in 40 camera rolls.</h1>
+  </section>
+
+  <section class="scene" id="gather">
+    <div class="caption wrap">
+      <div class="swap">
+        <h2 class="g1">Your guests took 412 photos.</h2>
+        <h2 class="g2" style="opacity:0">Lumzel pools them in one place.</h2>
+        <h2 class="g3" style="opacity:0">Then guests post them for you.</h2>
+      </div>
+    </div>
+    <div class="stage" id="stage" aria-hidden="true"></div>
+  </section>
+
+  <section class="scene" id="consent">
+    <div class="caption wrap">
+      <div class="swap">
+        <h2 class="c1">You can't ask 140 people if they're OK being posted.</h2>
+        <h2 class="c2" style="opacity:0">Lumzel asks. No means covered.</h2>
+      </div>
+    </div>
+    <div class="photo">
+      <img src="/landing/img/group.jpg" alt="Five friends in dark coats against a white wall; the face of one, who opted out, dissolves into soft tiles">
+      <img class="cover" id="cover" src="/landing/img/group_px.jpg" alt="" aria-hidden="true">
+    </div>
+  </section>
+
+  <section class="steps wrap" id="how">
+    <h2 class="step">Put one QR code on the screen.</h2>
+    <h2 class="step">Guests choose how they appear.</h2>
+    <h2 class="step">At 07:30, everyone gets their photos.</h2>
+    <div class="phone" aria-label="Lock screen at 7:30 with a Lumzel notification">
+      <div class="clock">7:30</div>
+      <div class="note" id="note"><b>Lumzel</b>Your 6 photos from last night are ready.</div>
+    </div>
+  </section>
+
+  <section class="scene burstScene" id="burst">
+    <div class="caption wrap">
+      <div class="swap">
+        <h2 class="b1">Every guest who shares is a ray.</h2>
+        <h2 class="b2" style="opacity:0">Watch your event travel.</h2>
+      </div>
+    </div>
+    <svg viewBox="0 0 200 200" aria-label="A burst of eleven rays, one per person who added photos">
+      <g stroke="#0A0A0A" stroke-width="1.4" fill="none" id="rays"><path d="M100 100L43.8 89.0"/><path d="M100 100L87.3 42.9"/><path d="M100 100L107.4 49.7"/><path d="M100 100L156.9 97.9"/><path d="M100 100L137.6 149.0"/><path d="M100 100L81.9 172.5"/><path d="M100 100L126.0 160.1"/><path d="M100 100L77.0 139.9"/><path d="M100 100L73.2 120.0"/><path d="M100 100L129.6 57.0"/><path d="M100 100L187.8 127.5" id="youRay"/></g>
+    </svg>
+    <div class="count" id="count">1 guest shared</div>
+  </section>
+
+  <section class="close wrap" id="host">
+    <h1 class="split">Your event, everywhere, by 9am.</h1>
+    <h1 class="split muted">Free to run. £50 to share.</h1>
+    <form class="interest" id="interest" novalidate aria-labelledby="i-title">
+      <h3 id="i-title">Join the private beta</h3>
+      <p class="beta">Tell us about your events. We'll email you when there's a spot.</p>
+      <label><span>Email</span><input type="email" name="email" id="i-email" autocomplete="email" required placeholder="you@company.com"></label>
+      <label><span>Name or organisation <span class="opt">(optional)</span></span><input type="text" name="name" id="i-name" autocomplete="organization" maxlength="120" placeholder="Hack Night London"></label>
+      <label><span>What do you host? <span class="opt">(optional)</span></span><input type="text" name="events" id="i-events" maxlength="500" placeholder="Monthly meetups, ~120 people"></label>
+      <label class="hp" aria-hidden="true">Website<input type="text" name="website" id="i-website" tabindex="-1" autocomplete="off"></label>
+      <p class="msg" id="i-msg" role="status" aria-live="polite"></p>
+      <button class="pill" type="submit" id="i-go">Register interest</button>
+    </form>
+    <p class="done" id="i-done" role="status" tabindex="-1" hidden>Thanks. You're on the list.<br><span class="muted">We'll email you when there's a spot.</span></p>
+    <p class="have">Already invited? <a href="/host">Use the beta</a></p>
+  </section>
+</main>
+
+<footer class="wrap"><span>lumzel</span><span>London</span></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(function () {
+  // Build the 40 camera-roll tiles: an 8 x 5 grid when gathered.
+  var stage = document.getElementById('stage');
+  var tiles = [];
+  for (var i = 0; i < 40; i++) {
+    var t = document.createElement('div'); t.className = 'tile'; stage.appendChild(t); tiles.push(t);
+    var c = i % 8, r = Math.floor(i / 8);
+    t.style.left = (c * 12.4 + 0.6) + '%'; t.style.top = (r * 20.4) + '%';
+  }
+  var youIdx = [3, 9, 14, 22, 29, 36];
+
+  // Split headlines into masked words.
+  document.querySelectorAll('.split').forEach(function (el) {
+    var words = el.textContent.trim().split(/\s+/);
+    el.innerHTML = words.map(function (w) { return '<span class="line" style="display:inline-block"><span>' + w + '&nbsp;</span></span>'; }).join('');
+  });
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!window.gsap || reduce) {
+    youIdx.forEach(function (k) { tiles[k].style.background = 'var(--you)'; });
+    document.getElementById('youRay').setAttribute('stroke', '#FFB000');
+    return;
+  }
+  gsap.registerPlugin(ScrollTrigger);
+
+  // Smooth scroll.
+  if (window.Lenis) {
+    var lenis = new Lenis({ lerp: 0.09, anchors: { offset: -110 } });
+    lenis.on('scroll', ScrollTrigger.update);
+    gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
+    gsap.ticker.lagSmoothing(0);
+  }
+
+  // Hero: rays draw, then words rise.
+  var heroRays = document.querySelectorAll('#heroBurst path');
+  heroRays.forEach(function (p) { var L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+  gsap.timeline({ defaults: { ease: 'expo.out' } })
+    .to(heroRays, { strokeDashoffset: 0, duration: 1.1, stagger: 0.06 })
+    .from('.hero .split .line > span', { yPercent: 110, duration: 1, stagger: 0.04 }, 0.25);
+
+  // Scene 1: scattered camera rolls gather into one.
+  var vw = window.innerWidth, vh = window.innerHeight;
+  gsap.set(tiles, {
+    x: function () { return gsap.utils.random(-vw * 0.45, vw * 0.45); },
+    y: function () { return gsap.utils.random(-vh * 0.4, vh * 0.35); },
+    rotation: function () { return gsap.utils.random(-28, 28); },
+    scale: function () { return gsap.utils.random(0.6, 1.25); }
+  });
+  var g = gsap.timeline({ scrollTrigger: { trigger: '#gather', start: 'top top', end: '+=160%', scrub: 0.8, pin: true } });
+  g.to(tiles, { x: 0, y: 0, rotation: 0, scale: 1, ease: 'power3.inOut', stagger: { each: 0.01, from: 'random' }, duration: 1 })
+   .to('#gather .g1', { opacity: 0, y: -20, duration: 0.2 }, 0.35)
+   .fromTo('#gather .g2', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, 0.45)
+   .to('#gather .g2', { opacity: 0, y: -20, duration: 0.2 }, 1.1)
+   .fromTo('#gather .g3', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, 1.2)
+   .to(youIdx.map(function (k) { return tiles[k]; }), { backgroundColor: '#FFB000', duration: 0.3, stagger: 0.04 }, 1.2)
+   .to({}, { duration: 0.3 });
+
+  // Scene 2: the cover lands on the person who said no.
+  gsap.set('#cover', { clipPath: 'ellipse(0% 0% at 69.2% 50.5%)' });
+  gsap.timeline({ scrollTrigger: { trigger: '#consent', start: 'top top', end: '+=120%', scrub: 0.8, pin: true } })
+    .to('#cover', { clipPath: 'ellipse(9.5% 17% at 69.2% 50.5%)', ease: 'power3.out', duration: 0.5 }, 0.3)
+    .to('#consent .c1', { opacity: 0, y: -20, duration: 0.2 }, 0.3)
+    .fromTo('#consent .c2', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, 0.45)
+    .to({}, { duration: 0.3 });
+
+  // Steps: each line rises as it enters; the notification drops in.
+  gsap.utils.toArray('.step').forEach(function (el) {
+    gsap.from(el, { yPercent: 40, opacity: 0, duration: 1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 85%' } });
+  });
+  gsap.from('#note', { y: -40, opacity: 0, scale: 0.96, duration: 0.9, ease: 'back.out(1.6)', scrollTrigger: { trigger: '.phone', start: 'top 60%' } });
+
+  // Scene 3: rays appear one person at a time; the last one is you.
+  var rays = gsap.utils.toArray('#rays path');
+  rays.forEach(function (p) { var L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+  var count = document.getElementById('count');
+  var b = gsap.timeline({ scrollTrigger: { trigger: '#burst', start: 'top top', end: '+=150%', scrub: 0.8, pin: true,
+    onUpdate: function (self) { var n = Math.max(1, Math.min(11, Math.round(self.progress * 13))); count.textContent = n + (n === 1 ? ' guest shared' : ' guests shared'); } } });
+  b.to(rays, { strokeDashoffset: 0, ease: 'none', stagger: 0.12, duration: 0.25 })
+   .to(rays, { stroke: '#FFB000', strokeWidth: 2.2, duration: 0.2, stagger: 0.02 })
+   .to('#burst .b1', { opacity: 0, y: -20, duration: 0.15 }, '<')
+   .fromTo('#burst .b2', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.15 }, '<0.08')
+   .to({}, { duration: 0.3 });
+
+  // Close: the opening line, inverted.
+  gsap.from('.close .split .line > span', { yPercent: 110, duration: 1, ease: 'expo.out', stagger: 0.04, scrollTrigger: { trigger: '.close', start: 'top 70%' } });
+})();
+</script>
+<script>
+// Register interest. Independent of the animation script, so it works with reduced motion or no GSAP.
+(function () {
+  var f = document.getElementById('interest'), msg = document.getElementById('i-msg'), go = document.getElementById('i-go');
+  f.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = document.getElementById('i-email');
+    if (!email.value || !email.checkValidity()) { msg.textContent = 'Enter a valid email.'; email.focus(); return; }
+    msg.textContent = ''; go.disabled = true; go.textContent = 'Sending…';
+    fetch('/api/interest', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
+      email: email.value, name: document.getElementById('i-name').value, events: document.getElementById('i-events').value,
+      website: document.getElementById('i-website').value }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong. Try again in a minute.'); }); })
+      .then(function () { f.hidden = true; var d = document.getElementById('i-done'); d.hidden = false; d.focus(); })
+      .catch(function (x) { msg.textContent = x.message === 'Please check the form.' ? 'Enter a valid email.' : x.message; go.disabled = false; go.textContent = 'Register interest'; email.focus(); });
+  });
+})();
+</script>
+</body>
+</html>

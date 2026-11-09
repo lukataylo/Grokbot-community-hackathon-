@@ -163,17 +163,24 @@ test("host sets up, guests join, photos are tiled and delivered, posts are share
 test("landing: register interest, and event creation is private beta", async ({ page, request }, info) => {
   const email = `e2e+lead-${info.project.name}${Date.now().toString(36)}@lumzel.test`;
   await page.goto("/");
-  await page.getByRole("link", { name: "Register interest" }).click();
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Name or organisation").fill("Hack Night London");
-  await page.getByLabel("What do you host?").fill("Monthly meetups, about 120 people");
-  await page.getByRole("button", { name: "Register interest" }).click();
-  await expect(page.getByText("Thanks. You're on the list.")).toBeVisible();
+  await page.getByRole("link", { name: /Get beta access/ }).first().click();
+  await page.locator("#email").fill(email);
+  await page.locator("#name").fill("Hack Night London");
+  await page.locator("#events").selectOption({ index: 1 });
+  await page.locator("#submit").click();
+  await expect(page.getByText("You're in.", { exact: true })).toBeVisible();
   await noSideScroll(page, "landing");
   expect(await hook(request, "interest", { email })).toMatchObject({ email, name: "Hack Night London" });
 
-  // Someone not on the beta list gets no sign-in link and can't create events.
+  // Signing up is the beta invite: that email can now get a sign-in link and host.
+  const again = await request.post("/api/interest", { headers: H, data: { email } });
+  expect(again.status()).toBe(201);
+  expect((await again.json()).link).toContain("/api/host/verify");
+  const ok = await request.post("/api/host/login", { headers: H, data: { email } });
+  expect(ok.status()).toBe(200);
+
+  // Someone who never signed up gets no sign-in link.
   const r = await request.post("/api/host/login", { headers: H, data: { email: `outsider${Date.now()}@example.com` } });
   expect(r.status()).toBe(403);
-  expect((await r.json()).error).toMatch(/private beta/);
+  expect((await r.json()).error).toMatch(/beta/);
 });

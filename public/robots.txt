@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /host
+Disallow: /r/
+
+Sitemap: https://lumzel.com/sitemap.xml

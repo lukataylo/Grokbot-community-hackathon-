@@ -1,16 +1,17 @@
 import { env } from "./env";
 
+/** Sends through Resend (lumzel.com is a verified sending domain there). Without a key, logs instead. */
 export async function sendEmail(to: string, subject: string, text: string, html?: string): Promise<boolean> {
-  if (!env.cfAccountId || !env.cfEmailToken) {
+  if (!env.resendKey) {
     console.log(`[email:dev] to=${to} subject=${subject}\n${text}`);
     return false;
   }
-  const r = await fetch(`https://api.cloudflare.com/client/v4/accounts/${env.cfAccountId}/email/sending/send`, {
+  const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
-    headers: { Authorization: `Bearer ${env.cfEmailToken}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ from: env.mailFrom, to, subject, text, html: html ?? textToHtml(text) }),
+    headers: { Authorization: `Bearer ${env.resendKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: env.mailFrom, to: [to], subject, text, html: html ?? textToHtml(text) }),
   });
-  if (!r.ok) { console.error("[email] failed", r.status, (await r.text()).slice(0, 300)); return false; }
+  if (!r.ok) { console.error("[email] resend failed", r.status, (await r.text()).slice(0, 300)); return false; }
   return true;
 }
 

@@ -21,9 +21,9 @@ export const env = {
   visionModel: process.env.VISION_MODEL || "openai/gpt-6-luna",
   textModel: process.env.TEXT_MODEL || "deepseek/deepseek-v4.1-flash",
   agentDebug: !!process.env.AGENT_DEBUG,
-  cfAccountId: process.env.CF_ACCOUNT_ID || "",
-  cfEmailToken: process.env.CF_EMAIL_TOKEN || "",
+  resendKey: process.env.RESEND_API_KEY || "",
   mailFrom: process.env.MAIL_FROM || "Lumzel <hello@lumzel.com>",
+  notifyEmail: process.env.NOTIFY_EMAIL || "", // gets an email for every new register-interest sign-up
   vapidPublic: process.env.VAPID_PUBLIC_KEY || "",
   vapidPrivate: process.env.VAPID_PRIVATE_KEY || "",
   testSecret: process.env.E2E_SECRET || "",

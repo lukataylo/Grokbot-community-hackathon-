@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lumzel: privacy and cookies</title>
+<meta name="description" content="How Lumzel handles guests' and organisers' data: what we keep, why, for how long, and the choices you have.">
+<link rel="canonical" href="https://lumzel.com/privacy">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root{--ink:#0A0A0A;--line:#2B2924;--paper:#F4F0E8;--mute:#A39D92;--soft:#C9C3B8;--you:#FFB000;--you-hi:#FFC233;
+  --display:"Archivo","Arial Black","Helvetica Neue",Arial,sans-serif;--text:"Instrument Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --gut:max(20px, env(safe-area-inset-left, 0px));--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box}
+html{background:var(--ink);color:var(--paper);-webkit-text-size-adjust:100%;scroll-padding-top:88px}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--text);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--you);outline-offset:3px;border-radius:2px}
+.wrap{padding-left:var(--gut);padding-right:max(20px, env(safe-area-inset-right, 0px));max-width:1520px;margin:0 auto}
+.skip{position:absolute;left:-999px;top:8px;z-index:100;background:var(--you);color:var(--ink);padding:10px 14px;font-weight:600}
+.skip:focus{left:8px}
+.ul{text-decoration:none;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 100%;background-size:100% 1px;padding-bottom:2px}
+.ul:hover{animation:redraw .45s var(--ease)}
+@keyframes redraw{0%{background-size:0 1px}100%{background-size:100% 1px}}
+.navl{text-decoration:none;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 calc(100% - 10px);background-size:0 1px;transition:background-size .3s var(--ease),color .2s}
+.navl:hover{background-size:100% 1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;background:var(--you);color:var(--ink);font-family:var(--display);font-stretch:112%;font-weight:700;font-size:14px;text-decoration:none;transition:background-color .2s,transform .12s var(--ease)}
+.btn:hover{background:var(--you-hi);transform:translateY(-1px)}
+.btn:active{transform:scale(.98)}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-stretch:108%;font-weight:500;font-size:22px;letter-spacing:-.035em;text-decoration:none;color:var(--paper);min-height:44px}
+.brand svg{width:24px;height:24px;flex:none}
+.logo path{fill:none;stroke-linecap:butt;stroke-width:10}
+.top{position:sticky;top:0;z-index:40;padding-top:env(safe-area-inset-top,0px);background:rgba(10,10,10,.94);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;justify-content:space-between;height:72px;gap:16px}
+.nav{display:flex;align-items:center;gap:28px}
+.nav .navl{font-size:15px;color:var(--mute);padding:12px 0}
+.nav .navl:hover{color:var(--paper)}
+@media (max-width:600px){.nav .navl{display:none}}
+main{padding:clamp(56px,10vh,110px) 0 clamp(80px,12vh,140px)}
+.kicker{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:0 0 20px}
+.page-h{font-family:var(--display);font-stretch:125%;font-weight:800;letter-spacing:-.025em;line-height:.95;font-size:clamp(40px,6vw,88px);margin:0 0 clamp(40px,6vh,72px);max-width:14ch}
+/* Long-form article column */
+#policy{max-width:68ch;font-size:18px;line-height:1.7;color:#DDD7CC}
+#policy>*:first-child{margin-top:0}
+#policy p,#policy ul,#policy ol,#policy table,#policy blockquote{margin:0 0 1.15em}
+#policy h2{font-family:var(--display);font-stretch:118%;font-weight:800;font-size:clamp(26px,2.6vw,34px);line-height:1.1;letter-spacing:-.02em;color:var(--paper);margin:2.4em 0 .6em;padding-top:1.1em;border-top:1px solid var(--line)}
+#policy h3{font-family:var(--display);font-stretch:108%;font-weight:700;font-size:20px;line-height:1.25;color:var(--paper);margin:1.8em 0 .4em}
+#policy h4{font-size:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:1.6em 0 .4em}
+#policy strong,#policy b{color:var(--paper);font-weight:600}
+#policy a{color:var(--paper);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:var(--you)}
+#policy a:hover{text-decoration-thickness:2px}
+#policy ul,#policy ol{padding-left:1.3em}
+#policy li{margin:.35em 0}
+#policy li::marker{color:var(--mute)}
+#policy blockquote{border-left:2px solid var(--you);padding:.2em 0 .2em 1em;color:var(--soft)}
+#policy hr{border:0;border-top:1px solid var(--line);margin:2.4em 0}
+#policy code{font-size:.9em;background:#1A1916;padding:.1em .35em;border-radius:4px}
+#policy table{width:100%;border-collapse:collapse;font-size:16px;line-height:1.5;display:block;overflow-x:auto}
+#policy th,#policy td{text-align:left;vertical-align:top;padding:12px 16px 12px 0;border-bottom:1px solid var(--line)}
+#policy th{color:var(--paper);font-weight:600;font-size:14px;letter-spacing:.04em;border-bottom-color:#4A4740;white-space:nowrap}
+#policy .updated{font-size:15px;color:var(--mute)}
+footer{border-top:1px solid var(--line);padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));font-size:14px;color:var(--mute)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between}
+footer .brand{font-size:19px}
+footer .brand svg{width:20px;height:20px}
+footer nav{display:flex;flex-wrap:wrap;gap:4px 24px}
+footer nav a{color:var(--mute);min-height:44px;display:inline-flex;align-items:center}
+footer nav a:hover{color:var(--paper)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Lumzel home"><svg class="logo" viewBox="0 0 200 200" aria-hidden="true"><path stroke="currentColor" d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0"/><path stroke="#FFB000" d="M100 100L187.8 127.5"/></svg>lumzel</a>
+    <nav class="nav" aria-label="Main">
+      <a class="navl" href="/">Home</a>
+      <a class="navl" href="/host">Use the beta</a>
+      <a class="btn" href="/#join">Get beta access</a>
+    </nav>
+  </div>
+</header>
+<main id="main">
+  <div class="wrap">
+    <p class="kicker">Privacy &amp; cookies</p>
+    <h1 class="page-h">How Lumzel looks after your data.</h1>
+    <article id="policy">
+<p class="kicker">Last updated 10 November 2026</p>
+<h1>Privacy and cookies</h1>
+<p class="lede">Lumzel collects photos from events, covers the faces of anyone who hasn't said yes, and delivers each guest the photos they're in. This page explains what we collect to do that, why, how long we keep it, and what you can ask us to do with it.</p>
+<p>Questions or requests: email <a href="mailto:hello@lumzel.com">hello@lumzel.com</a>. We're based in London and we follow the UK GDPR and the Data Protection Act 2018.</p>
+
+<h2>The short version</h2>
+<ul>
+  <li>Guests don't need an account or an app. We ask for a name and how they want to appear: Show me or Cover me.</li>
+  <li>Anyone who doesn't choose Show me, including people who never scanned the QR code, has their face covered with tiles in every photo before anyone sees it.</li>
+  <li>A selfie is optional. We turn it into a face pattern to find a guest's photos, never keep the selfie itself, and delete the pattern with the event.</li>
+  <li>Photos and face patterns are deleted when the event's retention period ends: 7, 30 or 90 days after delivery, as the host chose.</li>
+  <li>We don't sell data, we don't run ads, and our site uses no advertising or tracking cookies.</li>
+</ul>
+
+<h2>What we collect</h2>
+<h3>If you sign up for the beta on lumzel.com</h3>
+<p>Your email address, and if you give them, your name or organisation and the kind of events you host. We use these to send your sign-in link, to give you access to the beta and to send occasional beta updates. You can ask us to stop at any time.</p>
+<h3>If you host an event</h3>
+<p>Your email address (to sign you in), the event details you enter, the photos you upload, and payment records if you switch on social sharing. Card payments are handled by Stripe; we never see or store your card details.</p>
+<h3>If you're a guest</h3>
+<ul>
+  <li>The name you type and your choice: Show me or Cover me, and whether others may tag you.</li>
+  <li>Optionally, an email address or a notification permission, so we can tell you when your photos are ready.</li>
+  <li>Optionally, a face pattern made from a selfie (see below).</li>
+  <li>The photos you upload, and any post links you add or cheers you give if the host has switched on sharing.</li>
+</ul>
+<h3>People in photos who never scanned the code</h3>
+<p>We detect faces and heads in every photo so we can cover them. We don't try to identify anyone who hasn't given us a selfie, and the detection data stays with that photo and is deleted with it.</p>
+<h3>Visitors to a shared photo link</h3>
+<p>We count link previews and clicks so the host and guest can see how far a post travelled. We don't build a profile of you.</p>
+
+<h2>Face patterns</h2>
+<p>A face pattern is a set of numbers that describes a face. It counts as biometric data, a special category of personal data, so we only create one with your explicit consent, when you choose to add a selfie. We use it for one thing: finding the photos you're in at that event, so we can show you if you said Show me and keep you covered if you said Cover me.</p>
+<p>The selfie image is never stored. The pattern is deleted when the event's photos are deleted, when you remove it in the app, or when you choose "Forget me". You can withdraw consent at any time, and you'll simply be covered like everyone else.</p>
+
+<h2>Why we use it (our lawful basis)</h2>
+<table>
+  <thead><tr><th>What</th><th>Why</th><th>Basis</th></tr></thead>
+  <tbody>
+    <tr><td>Beta sign-up</td><td>Sign-in links, beta access and updates</td><td>Your consent; you can withdraw it any time</td></tr>
+    <tr><td>Host account and events</td><td>Running the service you asked for</td><td>Contract</td></tr>
+    <tr><td>Guest name, choice and photos</td><td>Pooling and delivering the event's photos, covering people who didn't say yes</td><td>Legitimate interests of the host and guests, balanced by covering by default</td></tr>
+    <tr><td>Face patterns</td><td>Finding a guest's own photos</td><td>Explicit consent (UK GDPR Article 9(2)(a))</td></tr>
+    <tr><td>Payments</td><td>Switching on sharing for an event</td><td>Contract, and legal obligations for financial records</td></tr>
+    <tr><td>Site analytics</td><td>Knowing which pages are read, without identifying anyone</td><td>Legitimate interests</td></tr>
+  </tbody>
+</table>
+
+<h2>Who helps us run Lumzel</h2>
+<p>We use these providers, each under a data processing agreement. Some are based outside the UK; where data is transferred, we rely on UK adequacy regulations or the UK International Data Transfer Addendum.</p>
+<table>
+  <thead><tr><th>Provider</th><th>What for</th></tr></thead>
+  <tbody>
+    <tr><td>Railway</td><td>Hosting the app and database. Photos are stored in Railway's object storage in Amsterdam.</td></tr>
+    <tr><td>Resend</td><td>Sending sign-in links and photo emails</td></tr>
+    <tr><td>Stripe</td><td>Payments</td></tr>
+    <tr><td>OpenRouter and the AI model providers it routes to</td><td>A second privacy check on photos that are already fully tiled, and drafting post captions. They never receive an uncovered face of someone who didn't say yes.</td></tr>
+    <tr><td>Cloudflare</td><td>Domain, email forwarding and cookieless web analytics</td></tr>
+    <tr><td>Google Fonts, cdnjs and jsDelivr</td><td>Fonts and scripts on lumzel.com. Your browser contacts them directly, so they see your IP address.</td></tr>
+  </tbody>
+</table>
+
+<h2>How long we keep things</h2>
+<ul>
+  <li><strong>Event photos and face patterns:</strong> deleted 7, 30 or 90 days after delivery, as the host chose.</li>
+  <li><strong>Guest names and choices:</strong> kept with the event so it keeps working, and removed if you choose "Forget me" or ask us.</li>
+  <li><strong>Beta sign-ups:</strong> until you ask us to remove you, or the beta ends.</li>
+  <li><strong>Host accounts:</strong> while you use Lumzel. Ask us and we'll delete it.</li>
+  <li><strong>Payment records:</strong> as long as the law requires, usually six years.</li>
+</ul>
+
+<h2>Cookies</h2>
+<p>We only use cookies that are strictly necessary to make Lumzel work, so we don't ask for consent and there's no banner.</p>
+<table>
+  <thead><tr><th>Cookie</th><th>What it does</th><th>Lasts</th></tr></thead>
+  <tbody>
+    <tr><td><code>lz_host</code></td><td>Keeps a host signed in</td><td>30 days</td></tr>
+    <tr><td><code>lz_g_…</code></td><td>Remembers a guest at one event, so they don't have to join again</td><td>120 days</td></tr>
+  </tbody>
+</table>
+<p>Our analytics are Cloudflare Web Analytics, which sets no cookies and doesn't track you across sites. The guest app may also store small preferences in your browser, such as which tab you last opened.</p>
+
+<h2>Your rights</h2>
+<p>You can ask us to access, correct, delete or export your data, to restrict or object to how we use it, and to withdraw consent. Guests can remove their face pattern or use "Forget me" in the app at any time. For anything else, email <a href="mailto:hello@lumzel.com">hello@lumzel.com</a> and we'll reply within a month.</p>
+<p>If you're unhappy with how we've handled your data, you can complain to the Information Commissioner's Office at <a href="https://ico.org.uk/make-a-complaint/">ico.org.uk</a>.</p>
+
+<h2>Children</h2>
+<p>Lumzel is for adults at events. It isn't intended for children under 13, and hosts shouldn't use it at events for children.</p>
+
+<h2>Changes</h2>
+<p>If we change how we use your data, we'll update this page and the date at the top. If a change is significant, we'll tell beta users and hosts by email.</p>
+
+</article>
+  </div>
+</main>
+<footer>
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Lumzel home"><svg class="logo" viewBox="0 0 200 200" aria-hidden="true"><path stroke="currentColor" d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0"/><path stroke="#FFB000" d="M100 100L187.8 127.5"/></svg>lumzel</a>
+    <span>Built in London · In beta</span>
+    <nav aria-label="Footer"><a class="ul" href="/host">Use the beta</a><a class="ul" href="/#faq">Questions</a><a class="ul" href="/privacy" aria-current="page">Privacy &amp; cookies</a></nav>
+  </div>
+</footer>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "bab7cb7263114691a2cf926454de6401"}'></script>
+</body>
+</html>

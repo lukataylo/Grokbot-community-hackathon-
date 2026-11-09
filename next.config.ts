@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: { "/**": ["./models/**/*", "./db/**/*"] },
   poweredByHeader: false,
   async rewrites() {
-    return [{ source: "/", destination: "/landing.html" }];
+    return [{ source: "/", destination: "/landing.html" }, { source: "/v1", destination: "/landing-v1.html" }, { source: "/privacy", destination: "/privacy.html" }];
   },
   async headers() {
     return [

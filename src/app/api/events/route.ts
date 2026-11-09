@@ -3,11 +3,11 @@ import { route, json, requireHost, HttpError } from "@/lib/api";
 import { EventInput } from "@/lib/eventInput";
 import { schedule } from "@/lib/time";
 import { slugFrom } from "@/lib/ids";
-import { inBeta } from "@/lib/env";
+import { canHost } from "@/lib/beta";
 
 export const POST = route(async (req: Request) => {
   const h = await requireHost();
-  if (!inBeta(h.email)) throw new HttpError(403, "Creating events is in private beta. Register your interest at lumzel.com.");
+  if (!(await canHost(h.email))) throw new HttpError(403, "Creating events is in beta. Get access at lumzel.com.");
   const i = EventInput.parse(await req.json());
   const s = schedule(i);
   // Delivery runs as soon as its time passes, which also closes uploads: a past date would end the event at once.

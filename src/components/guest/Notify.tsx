@@ -92,7 +92,7 @@ export function Notify({ slug, feed, vapid, onDone, standaloneStart }: { slug: s
       </div>
       <div className="grow" />
       <div className="row panel" style={{ flexDirection: "row" }}>
-        <span style={{ width: 52, height: 52, borderRadius: 12, background: "#0A0A0A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Burst size={34} ink="#F2F0EB" width={9} /></span>
+        <span style={{ width: 52, height: 52, borderRadius: 12, background: "#0A0A0A", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Burst size={34} ink="#F2F0EB" width={6} /></span>
         <span className="small">Your icon opens straight into {ev.name}. You stay signed in.</span>
       </div>
       <button className="btn" onClick={() => setStep("open")}>I've added it</button>
@@ -103,7 +103,7 @@ export function Notify({ slug, feed, vapid, onDone, standaloneStart }: { slug: s
   if (step === "open") return (
     <div className="shell" style={{ background: "#2A2A28", color: "#F2F0EB", maxWidth: "none" }}>
       <div className="grow" />
-      <div style={{ alignSelf: "center", width: 96, height: 96, borderRadius: 22, background: "#0A0A0A", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 0 3px #FFB000" }}><Burst size={62} ink="#F2F0EB" width={9} /></div>
+      <div style={{ alignSelf: "center", width: 96, height: 96, borderRadius: 22, background: "#0A0A0A", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 0 3px #FFB000" }}><Burst size={62} ink="#F2F0EB" width={5} /></div>
       <h1 className="center" style={{ color: "#F2F0EB" }}>Now open Lumzel from your Home Screen.</h1>
       <p className="center" style={{ color: "#C9C7C2" }}>You'll land straight back in {ev.name} to turn notifications on.</p>
       <div className="grow" />

@@ -2,11 +2,11 @@
 import { useCallback, useEffect, useState } from "react";
 
 const BURST = "M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0";
-export function Burst({ size = 22, ink = "currentColor", you = true, width = 12 }: { size?: number; ink?: string; you?: boolean | "ink"; width?: number }) {
+export function Burst({ size = 22, ink = "currentColor", you = true, width = 10 }: { size?: number; ink?: string; you?: boolean | "ink"; width?: number }) {
   return (
     <svg viewBox="0 0 200 200" width={size} height={size} aria-hidden="true">
-      <path d={BURST} stroke={ink} strokeWidth={width} strokeLinecap="round" fill="none" />
-      {you && <path d="M100 100L187.8 127.5" stroke={you === "ink" ? ink : "#FFB000"} strokeWidth={you === "ink" ? width : width * 1.4} strokeLinecap="round" fill="none" />}
+      <path d={BURST} stroke={ink} strokeWidth={width} fill="none" />
+      {you && <path d="M100 100L187.8 127.5" stroke={you === "ink" ? ink : "#FFB000"} strokeWidth={you === "ink" ? width : width * 1.15} fill="none" />}
     </svg>
   );
 }
