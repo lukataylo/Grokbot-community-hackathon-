@@ -9,9 +9,12 @@
 <meta property="og:description" content="Every photo from your event, consent-checked and shared by morning.">
 <meta property="og:image" content="https://lumzel.com/landing/img/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="robots" content="noindex">
 <link rel="canonical" href="https://lumzel.com/">
-<link rel="icon" href="/icons/favicon-32.png">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/icons/favicon-32.png" sizes="32x32">
+<meta property="og:url" content="https://lumzel.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Lumzel">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <meta name="theme-color" content="#FFFFFF">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500&display=swap">
@@ -101,7 +104,7 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
   <a class="brand" href="#top" aria-label="Lumzel home">
     <svg viewBox="0 0 200 200" width="24" height="24" aria-hidden="true"><path d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0M100 100L187.8 127.5" stroke="#0A0A0A" stroke-width="10" fill="none"/></svg>lumzel
   </a>
-  <div class="navr"><a class="beta-link" href="/host">Use the beta</a><a class="pill" href="#interest" aria-label="Register interest"><span class="long">Register interest</span><span class="short">Join</span></a></div>
+  <div class="navr"><a class="beta-link" href="/host">Use the beta</a><a class="pill" href="#interest" aria-label="Get beta access"><span class="long">Get beta access</span><span class="short">Join</span></a></div>
 </nav>
 
 <main id="top">
@@ -162,21 +165,21 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
     <h1 class="split">Your event, everywhere, by 9am.</h1>
     <h1 class="split muted">Free to run. £50 to share.</h1>
     <form class="interest" id="interest" novalidate aria-labelledby="i-title">
-      <h3 id="i-title">Join the private beta</h3>
-      <p class="beta">Tell us about your events. We'll email you when there's a spot.</p>
+      <h3 id="i-title">Get beta access</h3>
+      <p class="beta">Free to run. We'll email you a sign-in link in a minute.</p>
       <label><span>Email</span><input type="email" name="email" id="i-email" autocomplete="email" required placeholder="you@company.com"></label>
       <label><span>Name or organisation <span class="opt">(optional)</span></span><input type="text" name="name" id="i-name" autocomplete="organization" maxlength="120" placeholder="Hack Night London"></label>
       <label><span>What do you host? <span class="opt">(optional)</span></span><input type="text" name="events" id="i-events" maxlength="500" placeholder="Monthly meetups, ~120 people"></label>
       <label class="hp" aria-hidden="true">Website<input type="text" name="website" id="i-website" tabindex="-1" autocomplete="off"></label>
       <p class="msg" id="i-msg" role="status" aria-live="polite"></p>
-      <button class="pill" type="submit" id="i-go">Register interest</button>
+      <button class="pill" type="submit" id="i-go">Get beta access</button>
     </form>
-    <p class="done" id="i-done" role="status" tabindex="-1" hidden>Thanks. You're on the list.<br><span class="muted">We'll email you when there's a spot.</span></p>
+    <p class="done" id="i-done" role="status" tabindex="-1" hidden>You're in.<br><span class="muted">Check your inbox for your sign-in link.</span></p>
     <p class="have">Already invited? <a href="/host">Use the beta</a></p>
   </section>
 </main>
 
-<footer class="wrap"><span>lumzel</span><span>London</span></footer>
+<footer class="wrap"><span>lumzel · London</span><span><a href="/privacy" style="color:inherit">Privacy &amp; cookies</a></span></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
@@ -283,9 +286,10 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
       website: document.getElementById('i-website').value }) })
       .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { if (!r.ok) throw new Error(j.error || 'Something went wrong. Try again in a minute.'); }); })
       .then(function () { f.hidden = true; var d = document.getElementById('i-done'); d.hidden = false; d.focus(); })
-      .catch(function (x) { msg.textContent = x.message === 'Please check the form.' ? 'Enter a valid email.' : x.message; go.disabled = false; go.textContent = 'Register interest'; email.focus(); });
+      .catch(function (x) { msg.textContent = x.message === 'Please check the form.' ? 'Enter a valid email.' : x.message; go.disabled = false; go.textContent = 'Get beta access'; email.focus(); });
   });
 })();
 </script>
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "bab7cb7263114691a2cf926454de6401"}'></script>
 </body>
 </html>

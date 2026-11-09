@@ -163,12 +163,12 @@ test("host sets up, guests join, photos are tiled and delivered, posts are share
 test("landing: register interest, and event creation is private beta", async ({ page, request }, info) => {
   const email = `e2e+lead-${info.project.name}${Date.now().toString(36)}@lumzel.test`;
   await page.goto("/");
-  await page.getByRole("link", { name: /Get beta access/ }).first().click();
-  await page.locator("#email").fill(email);
-  await page.locator("#name").fill("Hack Night London");
-  await page.locator("#events").selectOption({ index: 1 });
-  await page.locator("#submit").click();
-  await expect(page.getByText("You're in.", { exact: true })).toBeVisible();
+  await page.getByRole("link", { name: "Get beta access" }).first().click();
+  await page.locator("#i-email").fill(email);
+  await page.locator("#i-name").fill("Hack Night London");
+  await page.locator("#i-events").fill("Monthly meetups, about 120 people");
+  await page.locator("#i-go").click();
+  await expect(page.locator("#i-done")).toContainText("You're in.");
   await noSideScroll(page, "landing");
   expect(await hook(request, "interest", { email })).toMatchObject({ email, name: "Hack Night London" });
 
