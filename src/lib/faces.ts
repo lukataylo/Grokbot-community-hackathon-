@@ -135,12 +135,12 @@ export function assignMatches(scores: number[][]): Array<number | null> {
   for (let gi = 0; gi < nG; gi++) {
     let best = -1, bs = -Infinity, ss = -Infinity;
     for (let f = 0; f < scores.length; f++) {
-      const s = scores[f][gi];
+      const s = Number.isFinite(scores[f][gi]) ? scores[f][gi] : -Infinity; // a bad embedding never matches
       if (s > bs) { ss = bs; bs = s; best = f; } else if (s > ss) ss = s;
     }
     if (best < 0 || bs < MATCH_THRESHOLD) continue;
-    if (ss >= MATCH_THRESHOLD && bs - ss < MATCH_MARGIN) continue; // two faces look like this guest
-    const rival = Math.max(-Infinity, ...scores[best].filter((_, k) => k !== gi));
+    if (bs - ss < MATCH_MARGIN) continue; // two faces look like this guest
+    const rival = Math.max(-Infinity, ...scores[best].filter((_, k) => k !== gi).map((x) => (Number.isFinite(x) ? x : Infinity)));
     if (bs - rival < MATCH_MARGIN) continue; // this face looks like another guest too
     out[best] = gi;
   }

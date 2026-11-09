@@ -207,3 +207,5 @@ create table if not exists migrations (
   name text primary key,
   applied_at timestamptz not null default now()
 );
+-- Guest-matching rule a photo was last rendered under (see pipeline.ts MATCH_RULE).
+alter table photos add column if not exists match_rule int;

@@ -3,14 +3,14 @@
 // each tiled rectangle. Checks publish order, what the model is sent, pixels outside the rectangles, the cache,
 // a guest switching to Cover me, switching back to tiles, a locked event, a misaligned answer (kept as tiles), an answer
 // with no face where a face was (rejected), a photo the vision check flagged (never gets stand-ins), a stale claim, and
-// the one-time match_v2 migration (withholds and re-renders matched photos, once, even with two boots at once).
+// the matching-rule re-check (withholds and re-renders photos matched under an older rule, safe with two instances).
 // Usage: npx tsx --env-file=.env.local scripts/standin-flow.mts [out-dir]   (needs DATABASE_URL; spends nothing)
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { sql, migrate } from "../src/lib/db";
 import * as store from "../src/lib/storage";
-import { ingest, processPhoto, rerender, rerenderEvent, markStale, requestRenders, migrateMatching } from "../src/lib/pipeline";
+import { ingest, processPhoto, rerender, rerenderEvent, markStale, requestRenders, migrateMatching, MATCH_RULE } from "../src/lib/pipeline";
 import { selfieEmbedding, detectRegions, type Region } from "../src/lib/faces";
 import { rectsFor, generate } from "../src/lib/standins";
 import { tileRect } from "../src/lib/tiles";
@@ -157,20 +157,21 @@ try {
   await new Promise((x) => setTimeout(x, 2000));
   check(!ap.has_standins && (await runs()) === 0, "after approval it publishes tiles and no stand-in is generated");
 
-  // One-time migration: photos with a matched guest are withheld and re-rendered under the current rule, exactly once.
+  // Matching-rule re-check: a photo matched under an older rule (or by an old instance mid-deploy) is withheld and
+  // re-rendered under the current one; photos already on the current rule are left alone.
   photoId = firstId;
   const pre = await row();
   check(pre.regions.some((r: Region) => r.guestId), "the first photo has a matched guest region");
-  await sql`delete from migrations where name = 'match_v2'`;
-  await Promise.all([migrateMatching(), migrateMatching()]); // two boots at once
+  check(pre.match_rule === MATCH_RULE, "renders stamp the current matching rule");
+  await sql`update photos set match_rule = null where id = ${photoId}`; // as if published by the old rule
+  await Promise.all([migrateMatching(), migrateMatching()]); // two instances at once
   const held = await row();
-  check(held.hold && !!held.stale_at, "match_v2 withholds a matched photo and marks it for re-render");
-  check((await sql`select count(*)::int as n from migrations where name = 'match_v2'`)[0].n === 1, "the marker is written once");
+  check(held.hold && !!held.stale_at, "a photo matched under an old rule is withheld and marked for re-render");
   const redone = await until((r) => !r.hold && !r.stale_at && r.render_rev > pre.render_rev);
-  check(redone.status === "ready", `it is re-rendered and published again (rev ${pre.render_rev} -> ${redone.render_rev})`);
+  check(redone.status === "ready" && redone.match_rule === MATCH_RULE, `it is re-rendered under the current rule (rev ${pre.render_rev} -> ${redone.render_rev})`);
   await migrateMatching();
   const again = await row();
-  check(!again.hold && !again.stale_at && again.render_rev === redone.render_rev, "a later boot does nothing (marker present)");
+  check(!again.hold && !again.stale_at && again.render_rev === redone.render_rev, "a photo on the current rule is left alone");
 } catch (e) { check(false, (e as Error).message); }
 finally {
   for (const c of await sql`select c.key from standin_cache c join photos p on p.id = c.photo_id where p.event_id = ${ev.id}`) await store.del(c.key as string);

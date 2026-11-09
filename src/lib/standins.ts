@@ -28,7 +28,9 @@ export const SAME_PERSON = 0.6;
 const FEATHER = 4; // px, blended inwards from the tiled area's edge, so nothing outside it changes
 // Written into every published stand-in JPEG (its only metadata). No parentheses: libvips reads "(...)" in an EXIF string as type info.
 export const DISCLOSURE = "Faces of people who did not opt in are AI-generated stand-ins - Lumzel";
-const XMP = `<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">`
+/** Re-encoded copies of a stand-in photo (thumbnails, link previews) keep the AI disclosure. */
+export const disclose = (img: import("sharp").Sharp, ai: boolean) => (ai ? img.withExif({ IFD0: { ImageDescription: DISCLOSURE, Software: "Lumzel" } }).withXmp(XMP) : img);
+export const XMP = `<?xpacket begin="\uFEFF" id="W5M0MpCehiHzreSzNTczkc9d"?><x:xmpmeta xmlns:x="adobe:ns:meta/"><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">`
   + `<rdf:Description rdf:about="" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:Iptc4xmpExt="http://iptc.org/std/Iptc4xmpExt/2008-02-29/"`
   + ` Iptc4xmpExt:DigitalSourceType="http://cv.iptc.org/newscodes/digitalsourcetype/compositeWithTrainedAlgorithmicMedia">`
   + `<dc:description><rdf:Alt><rdf:li xml:lang="x-default">${DISCLOSURE}</rdf:li></rdf:Alt></dc:description>`

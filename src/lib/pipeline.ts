@@ -134,7 +134,7 @@ async function render(photoId: string) {
   await sql.begin(async (tx) => {
     // Status from the row as it is now: the host may have hidden or approved it while we rendered.
     const [row] = await tx`update photos set public_key = ${key}, render_rev = ${rev}, tiled_count = ${toTile.length},
-      has_standins = ${!!standin}, tile_set = ${hash},
+      has_standins = ${!!standin}, tile_set = ${hash}, match_rule = ${MATCH_RULE},
       status = case when status in ('hidden', 'failed') then status when needs_review and reviewed_at is null then 'review' else 'ready' end,
       regions = ${tx.json(regions.map((r) => ({ ...r })) as never)} where id = ${photoId} returning status`;
     status = (row?.status as string) ?? "";
@@ -179,9 +179,9 @@ export async function requeueStale() {
     if (!retries.has(r.id as string)) requestRender(r.id as string); // a pending retry timer already covers it
 }
 /** A selfie changed: any photo of the event may now match differently. */
-export async function rerenderEvent(eventId: string) {
+export async function rerenderEvent(eventId: string, hold = false) {
   const rows = await sql`select id from photos where event_id = ${eventId} and status in ('ready','review')`;
-  await rerender(rows.map((r) => r.id as string));
+  await rerender(rows.map((r) => r.id as string), hold);
 }
 /**
  * The photos a guest's change can affect: those they were matched in, plus any of the event's photos
@@ -214,21 +214,23 @@ export async function recheckFailedChecks() {
   }
 }
 
+/** Version of the guest-matching rule; every render stamps it. 2 = threshold 0.8 with two-way margins. */
+export const MATCH_RULE = 2;
 /**
- * One-time (marker 'match_v2'): photos published under the old, looser guest matching are withheld and re-rendered
- * with the current rule. The marker insert serialises concurrent boots; only the one that inserts it marks photos.
+ * Photos with a guest matched under an older rule (or by an old instance during a deploy overlap) are withheld and
+ * re-rendered with the current one. Runs at boot and on every scheduler tick, so it is idempotent by construction.
  */
 export async function migrateMatching() {
   const ids = await sql.begin(async (tx) => {
-    const [m] = await tx`insert into migrations (name) values ('match_v2') on conflict do nothing returning name`;
-    if (!m) return [] as string[];
-    const rows = await tx`select id from photos p where status in ('ready', 'review')
-      and (p.regions @? '$[*] ? (@.guestId != null)' or exists (select 1 from photo_people pp where pp.photo_id = p.id))`;
+    const rows = await tx`select id from photos p where status in ('ready', 'review') and coalesce(match_rule, 0) < ${MATCH_RULE}
+      and not (stale_at is not null and hold)
+      and (p.regions @? '$[*] ? (@.guestId != null)' or exists (select 1 from photo_people pp where pp.photo_id = p.id))
+      for update skip locked`;
     const ids = rows.map((r) => r.id as string);
     await markStale(tx, ids, true);
     return ids;
   });
-  if (ids.length) console.log(`[pipeline] match_v2: ${ids.length} photo(s) withheld for re-render`);
+  if (ids.length) console.log(`[pipeline] match rule ${MATCH_RULE}: ${ids.length} photo(s) withheld for re-render`);
   requestRenders(ids);
 }
 

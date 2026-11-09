@@ -38,7 +38,7 @@ export const PATCH = route(async (req: Request, { params }: Ctx) => {
   // until each stand-in is ready (no hold needed); switching off, the next render publishes plain tiles.
   if (style) {
     const [changed] = await sql`update events set face_style = ${style} where id = ${ev.id} and face_style <> ${style} returning id`;
-    if (changed) await rerenderEvent(ev.id);
+    if (changed) await rerenderEvent(ev.id, true); // hold: no photo shows the old style meanwhile
   }
   return json({ ok: true });
 });
