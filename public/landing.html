@@ -27,6 +27,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/archivo/v25/k3kQo8UDI-1M0wlSfdnoLmvDIaI.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/instrumentsans/v4/pxiTypc9vsFDm051Uf6KVwgkfoSxQ0GsQv8ToedPibnr0SZe1ZuWi3g.woff2" crossorigin>
+<script>
+/* Hold the hero and nav for at most 300ms so the web fonts swap in without a layout shift. */
+(function(){var d=document.documentElement,f=document.fonts;if(!f||!f.load)return;d.classList.add("fp");var done=function(){d.classList.remove("fp")};Promise.race([Promise.all([f.load("800 100px Archivo"),f.load("400 18px \"Instrument Sans\"")]),new Promise(function(r){setTimeout(r,300)})]).then(done,done);})();
+</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:wght@400;500;600&display=swap">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
@@ -61,6 +66,7 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
+.fp .hero-copy,.fp .top{visibility:hidden}
 html{background:var(--ink);color:var(--paper);-webkit-text-size-adjust:100%;scroll-padding-top:80px}
 body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--text);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:clip}
 img{display:block;max-width:100%;height:auto}
@@ -72,6 +78,11 @@ a{color:inherit}
 .kicker{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:0 0 20px}
 h2.disp{font-size:clamp(36px,5.6vw,92px);margin:0;text-wrap:balance;max-width:17ch}
 .lede{font-size:clamp(18px,1.5vw,21px);color:var(--soft);max-width:40ch;margin:24px 0 0}
+.sub{font-size:clamp(17px,1.4vw,20px);color:var(--soft);margin:16px 0 0;max-width:44ch}
+.checks{list-style:none;margin:0;padding:0}
+.checks li{display:flex;align-items:center;gap:12px;white-space:nowrap;font-weight:600;font-size:17px;color:var(--paper);padding:14px 0;border-top:1px solid var(--line)}
+.checks .tk{width:20px;height:20px;flex:none;color:var(--you)}
+@media (max-width:359px){.checks li{white-space:normal}}
 .amber{color:var(--you)}
 .skip{position:absolute;left:-999px;top:8px;z-index:100;background:var(--you);color:var(--ink);padding:10px 14px;font-weight:600}
 .skip:focus{left:8px}
@@ -126,7 +137,7 @@ h2.disp{font-size:clamp(36px,5.6vw,92px);margin:0;text-wrap:balance;max-width:17
 .iphone .di{height:calc(var(--u) * 37);border-radius:calc(var(--u) * 19);background:#000}
 .iphone .ic{height:calc(var(--u) * 37);display:flex;align-items:center;justify-content:center;padding-right:calc(var(--u) * 4)}
 .iphone .ic svg{width:calc(var(--u) * 71);height:calc(var(--u) * 13)}
-.iphone .shot{width:100%;height:auto;aspect-ratio:786/1518}
+.iphone .shot{display:block;width:100%;height:auto;aspect-ratio:786/1518;object-fit:cover;object-position:top;background:#FFFFFF}
 .iphone .hm{height:calc(var(--u) * 34);position:relative}
 .iphone .hm i{position:absolute;left:50%;bottom:calc(var(--u) * 8);width:calc(var(--u) * 134);height:calc(var(--u) * 5);margin-left:calc(var(--u) * -67);border-radius:calc(var(--u) * 3);background:#000}
 
@@ -134,28 +145,27 @@ h2.disp{font-size:clamp(36px,5.6vw,92px);margin:0;text-wrap:balance;max-width:17
 .hero{position:relative;min-height:100svh;padding-top:72px;overflow:hidden;display:flex;align-items:center}
 .hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:center;width:100%;padding-top:24px;padding-bottom:56px}
 .hero .kicker{margin-bottom:24px}
-.hero h1{font-size:clamp(44px,6vw,108px);margin:0;max-width:10ch;text-wrap:balance}
+.hero h1{margin:0;font-size:min(calc((min(100vw, 1520px) - 80px) / 19.8), 88px)}
+.hero h1 .l{display:block;white-space:nowrap}
 .hero .lede{margin-top:28px}
 .hero-cta{margin-top:32px}
 .rays path{fill:none;stroke-linecap:butt;stroke-dasharray:1;stroke-dashoffset:0}
-.hv{--S:min(420px,46vh,28vw);--pw:clamp(220px,17vw,260px);--ph:calc(var(--pw) * 2.098);position:relative;width:var(--S);aspect-ratio:1;margin-right:calc(var(--S) * -.06 + var(--pw) * .96 + 16px);margin-top:max(0px,calc(var(--ph) / 2 - var(--S) * .6375));margin-bottom:max(0px,calc(var(--ph) / 2 - var(--S) * .3625));justify-self:end}
+/* The burst alone is the hero image: large, centred in its column, nothing floating around it. */
+.hv{--S:min(560px,40vw,72vh);position:relative;width:var(--S);aspect-ratio:1;justify-self:center}
 .hv>svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.hv .rays path{stroke:var(--paper);stroke-width:.85}
-.hv .rays path.you{stroke:var(--you);stroke-width:.95}
-.hv .iphone{--pw:inherit;position:absolute;left:93.9%;top:63.75%;transform:translate(-4%,-50%)}
-.hv-you{position:absolute;left:61%;top:57%;font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--you);transform:rotate(17.4deg)}
+.hv .rays path{stroke:var(--paper);stroke-width:.7}
+.hv .rays path.you{stroke:var(--you);stroke-width:.8}
 @keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .hero-copy>*{animation:rise .5s var(--ease) both}
 .hero-copy>*:nth-child(2){animation-delay:.06s}.hero-copy>*:nth-child(3){animation-delay:.12s}.hero-copy>*:nth-child(4){animation-delay:.18s}
 @media (max-width:900px){
   .hero{align-items:flex-start}
   .hero-grid{grid-template-columns:1fr;gap:0;padding-top:16px;padding-bottom:40px}
-  .hv{order:-1;--S:min(40vw,160px);--pw:min(34vw,132px);justify-self:start;margin-left:4px;margin-bottom:calc(var(--ph) / 2 - var(--S) * .3625 + 28px)}
-  .hv .rays path{stroke-width:1.9}
-  .hv .rays path.you{stroke-width:2.1}
-  .hv-you{font-size:10px}
+  .hv{order:-1;--S:min(46vw,190px);justify-self:start;margin:0 0 20px -6px}
+  .hv .rays path{stroke-width:1.2}
+  .hv .rays path.you{stroke-width:1.35}
   .hero .kicker{margin-bottom:14px}
-  .hero h1{font-size:clamp(34px,9.6vw,52px)}
+  .hero h1{font-size:min(calc((100vw - 40px) / 9.9), 72px)}
   .hero .lede{font-size:16px;margin-top:18px}
   .hero-cta{margin-top:22px}
 }
@@ -190,7 +200,7 @@ h2.disp{font-size:clamp(36px,5.6vw,92px);margin:0;text-wrap:balance;max-width:17
 .pair{display:flex;gap:24px;align-items:flex-start}
 .pair figure{margin:0;width:var(--fw)}
 .pair .iphone{--pw:var(--fw)}
-.pair figcaption{font-size:14px;color:var(--soft);margin-top:12px;line-height:1.4}
+.pair figcaption{font-size:15px;color:var(--paper);font-weight:500;margin-top:14px;line-height:1.4}
 .pair figcaption b{display:block;color:var(--paper);font-weight:600}
 .pair-wide{--fw:clamp(240px,20.5vw,320px)}
 .pair-narrow{display:none}
@@ -246,6 +256,7 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px var(--ink
 .lz .big{margin:2px 0 6px}
 .friend{font-family:var(--display);font-stretch:112%;font-weight:700;font-size:clamp(22px,2.2vw,30px);letter-spacing:-.015em;line-height:1.15;margin:40px 0 0;max-width:24ch}
 .how{margin-top:28px;border-top:1px solid var(--line)}
+.calc-cta{margin-top:36px}
 @media (max-width:900px){
   .calc-grid{grid-template-columns:1fr;margin-top:36px}
   .mini{width:130px;margin-left:12px}
@@ -260,9 +271,7 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px var(--ink
 .qa:last-child{border-bottom:1px solid var(--line)}
 .qa h3{margin:0;font:inherit}
 .qa button{width:100%;display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:64px;padding:14px 12px;margin:0 -12px;width:calc(100% + 24px);background:none;border:0;border-radius:10px;color:var(--paper);text-align:left;cursor:pointer;font-family:var(--display);font-stretch:110%;font-weight:700;font-size:clamp(18px,1.6vw,23px);letter-spacing:-.01em;transition:color .2s,background-color .2s}
-.qa button{color:#E4DED3}
-.qa button:hover{background:rgba(244,240,232,.045);color:#FFFFFF}
-.qa.open button{color:#FFFFFF}
+.qa button{color:var(--paper)}
 .qa button:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--you)}
 .qa .pm{position:relative;flex:none;width:14px;height:14px;transition:transform .26s ease-out}
 .qa .pm::before,.qa .pm::after{content:"";position:absolute;left:0;top:6px;width:14px;height:2px;background:var(--you);border-radius:1px}
@@ -320,9 +329,6 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px var(--ink
 .compare input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
 .compare input:focus-visible ~ .bar::after{box-shadow:0 0 0 3px var(--ink),0 0 0 5px var(--you)}
 .compare figcaption{font-size:14px;color:var(--mute);margin-top:12px}
-.facts{list-style:none;margin:0;padding:0}
-.facts li{border-top:1px solid var(--line);padding:16px 0;font-size:16px;color:var(--soft)}
-.facts b{color:var(--paper);font-weight:600}
 @media (max-width:900px){.consent-grid{grid-template-columns:1fr}}
 
 /* Pricing */
@@ -331,14 +337,14 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px var(--ink
 .plan{padding:36px 0 8px}
 .plan+.plan{border-left:1px solid var(--line);padding-left:clamp(24px,4vw,64px)}
 .plan h3{font-size:14px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin:0 0 18px;color:var(--mute)}
-.plan .price{font-family:var(--display);font-stretch:125%;font-weight:800;font-size:clamp(64px,8vw,132px);line-height:.85;letter-spacing:-.045em;margin:0}
+.plan .price{font-family:var(--display);font-stretch:125%;font-weight:800;font-size:clamp(64px,7vw,116px);line-height:.85;letter-spacing:-.045em;margin:0 0 24px}
+.plan .checks{max-width:40ch}
+.plan .checks li{font-weight:500;font-size:16px;color:#D9D3C8;padding:11px 0}
+.plan:not(.paid) .checks .tk{color:var(--mute)}
 .plan .per{font-size:16px;color:var(--mute);margin:12px 0 22px}
-.plan .anchor{font-size:16px;color:var(--soft);margin:-8px 0 22px;max-width:38ch}
+.plan .anchor{font-size:15px;color:var(--soft);margin:18px 0 0;max-width:40ch}
 .plan .anchor a{color:var(--paper)}
 .plan ul{list-style:none;margin:0;padding:0;max-width:40ch}
-.plan li{padding:10px 0 10px 26px;position:relative;font-size:16px;color:#D9D3C8;border-top:1px solid var(--line)}
-.plan li::before{content:"";position:absolute;left:0;top:20px;width:12px;height:1.5px;background:var(--mute)}
-.plan.paid li::before{background:var(--you)}
 .plan.paid .price{color:var(--you)}
 .small-print{list-style:none;margin:28px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:8px 24px;font-size:14px;color:var(--mute)}
 .small-print li::before{content:"·";margin-right:8px;color:var(--mute-2)}
@@ -352,18 +358,13 @@ input[type=range]:focus-visible::-moz-range-thumb{box-shadow:0 0 0 3px var(--ink
 @media (max-width:900px){.faq-grid{grid-template-columns:1fr}}
 
 /* Join */
-.join{background:var(--paper);color:var(--ink);padding:clamp(90px,14vh,170px) 0 clamp(60px,8vh,100px);position:relative;overflow:hidden}
-.join .kicker{color:var(--mute-2)}
-.join h2.disp{font-size:clamp(44px,7.6vw,132px);max-width:10ch}
-.join-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(28px,5vw,90px);margin-top:48px;align-items:start}
-.join .lede{color:#57524A;margin-top:0}
-.join-burst{position:absolute;right:-8vw;top:-6vw;width:min(46vw,620px);aspect-ratio:1;pointer-events:none}
-.join-burst svg{width:100%;height:100%;overflow:visible}
-.join-burst .rays path{stroke:var(--ink);stroke-width:.55}
-.join-burst .rays path.you{stroke:var(--you);stroke-width:.6}
-.reassure{list-style:none;padding:0;margin:28px 0 0;display:grid;gap:0;max-width:440px}
-.reassure li{font-size:15px;color:#3D3A34;padding:12px 0;border-top:1px solid #DCD5C8}
-.reassure b{color:var(--ink);font-weight:600}
+.join{background:var(--paper);color:var(--ink);padding:clamp(88px,12vh,140px) 0 clamp(72px,10vh,120px);position:relative;overflow:hidden}
+.join-inner{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center}
+.join h2.disp{font-size:clamp(32px,3.4vw,52px);line-height:1;max-width:none;margin:0 0 32px}
+.join .card{width:100%;max-width:520px;text-align:left}
+.join .checks.inline{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 28px;margin:28px 0 0}
+.join .checks.inline li{border:0;padding:0;color:var(--ink);font-size:16px}
+.join .checks .tk{color:var(--ink)}
 .card{background:#FFFFFF;color:var(--ink);border-radius:26px;padding:clamp(24px,3.4vw,44px);box-shadow:0 1px 2px rgba(10,10,10,.06),0 8px 24px -6px rgba(10,10,10,.10),0 36px 72px -16px rgba(10,10,10,.18);position:relative;z-index:1}
 .card:focus-visible{outline:2px solid var(--you);outline-offset:3px}
 .card-t{font-family:var(--display);font-stretch:118%;font-weight:800;font-size:clamp(26px,2.4vw,34px);letter-spacing:-.025em;line-height:1.05;margin:0 0 10px}
@@ -387,9 +388,8 @@ form{display:grid;gap:20px}
 .done .card-s{margin-bottom:18px}
 .done .card-s b{color:var(--ink);font-weight:600;word-break:break-all}
 .done a{font-size:16px;font-weight:600;color:var(--ink)}
-.after-card{margin:20px 0 0;font-size:15px;color:#57524A;text-align:center}
+.after-card{margin:16px 0 0;font-size:15px;color:#57524A;text-align:center}
 .after-card a{color:var(--ink);font-weight:600}
-@media (max-width:900px){.join-grid{grid-template-columns:1fr}.join-burst{width:62vw;right:-18vw;top:-10vw}}
 
 /* Footer */
 footer{background:var(--ink);padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));font-size:14px;color:var(--mute)}
@@ -435,9 +435,9 @@ footer nav a:hover{color:var(--paper)}
   <section class="hero" id="top" aria-labelledby="h1">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <p class="kicker">For London event organisers · Photos by 07:30</p>
-        <h1 id="h1" class="disp">The night ends. The posts don't.</h1>
-        <p class="lede">Your guests took the photos. They're on forty different phones, and nobody knows who's happy to be posted. Lumzel collects them with one QR code and covers anyone who didn't say yes. By 07:30 every guest has their photos, and the ones who want to share have a post ready to go.</p>
+        <p class="kicker">For London event organisers</p>
+        <h1 id="h1" class="disp"><span class="l">The night ends.</span><span class="l">The posts don't.</span></h1>
+        <p class="lede">Every guest's photos by 07:30. Faces covered unless they said yes.</p>
         <div class="hero-cta">
           <a class="btn" href="#join">Get beta access <span class="arr" aria-hidden="true">→</span></a>
           <p class="next">Free to run. We'll email you a sign-in link in a minute.</p>
@@ -445,8 +445,6 @@ footer nav a:hover{color:var(--paper)}
       </div>
       <div class="hv">
         <svg viewBox="0 0 200 200" aria-hidden="true"><g class="rays"><path pathLength="1" d="M100 100L43.8 89.0"/><path pathLength="1" d="M100 100L87.3 42.9"/><path pathLength="1" d="M100 100L107.4 49.7"/><path pathLength="1" d="M100 100L156.9 97.9"/><path pathLength="1" d="M100 100L137.6 149.0"/><path pathLength="1" d="M100 100L81.9 172.5"/><path pathLength="1" d="M100 100L126.0 160.1"/><path pathLength="1" d="M100 100L77.0 139.9"/><path pathLength="1" d="M100 100L73.2 120.0"/><path pathLength="1" d="M100 100L129.6 57.0"/><path class="you" pathLength="1" d="M100 100L187.8 127.5"/></g></svg>
-        <span class="hv-you" aria-hidden="true">You</span>
-        <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><img class="shot" src="landing/screens/08-guest-delivered.jpg" width="786" height="1518" alt="Lumzel on a guest's phone the next morning: Builders' Night 14. You're in 1 photo. Plus 1 more from the room." fetchpriority="high" decoding="async"><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
       </div>
     </div>
   </section>
@@ -457,7 +455,8 @@ footer nav a:hover{color:var(--paper)}
       <div class="reach-grid">
         <div class="reach-head">
           <p class="kicker">The morning after</p>
-          <h2 id="reach-h" class="disp">Every guest who posts carries your night further.</h2>
+          <h2 id="reach-h" class="disp">Every post is a ray.</h2>
+          <p class="sub">Each guest who shares takes your night further.</p>
         </div>
         <div class="stage" id="stage">
           <svg viewBox="0 0 200 200" aria-hidden="true">
@@ -480,17 +479,17 @@ footer nav a:hover{color:var(--paper)}
         </div>
         <div class="reach-count">
           <p class="counter"><span class="n" id="postCount">11</span><span class="u">posts the next morning</span></p>
-          <p class="example">An example night. The handles are made up.</p>
+          <p class="example">Example night. Made-up handles.</p>
         </div>
         <div class="reach-copy">
           <div class="pair pair-wide">
             <figure>
-              <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><img class="shot" src="landing/screens/10-guest-post-draft.jpg" width="786" height="1518" alt="Lumzel's post draft: a LinkedIn caption written for the guest, with tone options Thank you, What stood out and Short, and Copy and Share photo buttons." loading="lazy" decoding="async"><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
-              <figcaption><b>Nothing to write.</b>Lumzel drafts the post in the guest's voice from your event description.</figcaption>
+              <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><video class="shot" autoplay muted loop playsinline preload="metadata" poster="landing/video/post.jpg" data-fallback="landing/screens/10-guest-post-draft.jpg" width="786" height="1518" role="img" aria-label="Lumzel drafting a LinkedIn post for a guest, with tone options and a Share photo button."><source src="landing/video/post.mp4" type="video/mp4"><img class="shot" src="landing/screens/10-guest-post-draft.jpg" width="786" height="1518" alt="Lumzel drafting a LinkedIn post for a guest, with tone options and a Share photo button." loading="lazy" decoding="async"></video><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
+              <figcaption>Drafted in their voice.</figcaption>
             </figure>
             <figure id="fig2">
-              <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><img class="shot" src="landing/screens/11-smart-link.jpg" width="786" height="1518" alt="Lumzel's smart link page: the group photo with everyone tiled except the guest who posted, and a line saying they were at Builders' Night 14." loading="lazy" decoding="async"><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
-              <figcaption><b>Every post links back.</b>The link shows their photo and counts the clicks for you.</figcaption>
+              <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><video class="shot" autoplay muted loop playsinline preload="metadata" poster="landing/video/link.jpg" data-fallback="landing/screens/11-smart-link.jpg" width="786" height="1518" role="img" aria-label="Lumzel's smart link page: the group photo with everyone tiled except the guest who posted."><source src="landing/video/link.mp4" type="video/mp4"><img class="shot" src="landing/screens/11-smart-link.jpg" width="786" height="1518" alt="Lumzel's smart link page: the group photo with everyone tiled except the guest who posted." loading="lazy" decoding="async"></video><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
+              <figcaption>Links back. Counts clicks.</figcaption>
             </figure>
           </div>
         </div>
@@ -499,12 +498,12 @@ footer nav a:hover{color:var(--paper)}
     <div class="wrap">
       <div class="pair pair-narrow">
         <figure>
-          <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><img class="shot" src="landing/screens/10-guest-post-draft.jpg" width="786" height="1518" alt="Lumzel's post draft: a LinkedIn caption written for the guest, with Copy and Share photo buttons." loading="lazy" decoding="async"><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
-          <figcaption><b>Nothing to write.</b>The post is drafted in their voice.</figcaption>
+          <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><video class="shot" autoplay muted loop playsinline preload="metadata" poster="landing/video/post.jpg" data-fallback="landing/screens/10-guest-post-draft.jpg" width="786" height="1518" role="img" aria-label="Lumzel drafting a LinkedIn post for a guest."><source src="landing/video/post.mp4" type="video/mp4"><img class="shot" src="landing/screens/10-guest-post-draft.jpg" width="786" height="1518" alt="Lumzel drafting a LinkedIn post for a guest." loading="lazy" decoding="async"></video><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
+          <figcaption>Drafted in their voice.</figcaption>
         </figure>
         <figure>
-          <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><img class="shot" src="landing/screens/11-smart-link.jpg" width="786" height="1518" alt="Lumzel's smart link page: the group photo with everyone tiled except the guest who posted." loading="lazy" decoding="async"><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
-          <figcaption><b>Every post links back.</b>It shows the photo and counts clicks.</figcaption>
+          <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><video class="shot" autoplay muted loop playsinline preload="metadata" poster="landing/video/link.jpg" data-fallback="landing/screens/11-smart-link.jpg" width="786" height="1518" role="img" aria-label="Lumzel's smart link page: the group photo with everyone tiled except the guest who posted."><source src="landing/video/link.mp4" type="video/mp4"><img class="shot" src="landing/screens/11-smart-link.jpg" width="786" height="1518" alt="Lumzel's smart link page: the group photo with everyone tiled except the guest who posted." loading="lazy" decoding="async"></video><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
+          <figcaption>Links back. Counts clicks.</figcaption>
         </figure>
       </div>
     </div>
@@ -514,11 +513,11 @@ footer nav a:hover{color:var(--paper)}
   <section class="calc" id="calc" aria-labelledby="calc-h">
     <div class="wrap">
       <p class="kicker" data-reveal>Before you spend on ads</p>
-      <h2 id="calc-h" class="disp" data-reveal>See what your guests' reach would cost as ads.</h2>
+      <h2 id="calc-h" class="disp" data-reveal>Your reach, priced as ads.</h2>
       <div class="calc-grid">
         <div class="controls">
           <div class="ctl">
-            <label for="rGuests">Guests at your event <output id="oGuests" for="rGuests">140</output></label>
+            <label for="rGuests">Guests <output id="oGuests" for="rGuests">140</output></label>
             <input type="range" id="rGuests" min="20" max="1000" step="10" value="140">
           </div>
           <div class="ctl">
@@ -526,11 +525,11 @@ footer nav a:hover{color:var(--paper)}
             <input type="range" id="rPct" min="5" max="60" step="1" value="20">
           </div>
           <div class="ctl">
-            <label for="rFol">Average followers per guest who posts <output id="oFol" for="rFol">800</output></label>
+            <label for="rFol">Followers each <output id="oFol" for="rFol">800</output></label>
             <input type="range" id="rFol" min="100" max="5000" step="50" value="800">
           </div>
           <div class="ctl">
-            <span class="lab" id="platLab">Where guests post</span>
+            <span class="lab" id="platLab">Where they post</span>
             <div class="seg" role="group" aria-labelledby="platLab">
               <button type="button" data-plat="li" aria-pressed="true">LinkedIn</button>
               <button type="button" data-plat="x" aria-pressed="false">X (Twitter)</button>
@@ -543,30 +542,34 @@ footer nav a:hover{color:var(--paper)}
           <p class="big" id="cViews">5,600</p>
           <div class="cmp2">
             <div>
-              <p class="rlabel" id="cPaidLab">The same views as LinkedIn ads would cost</p>
+              <p class="rlabel" id="cPaidLab">As LinkedIn ads</p>
               <p class="mid" id="cMid">£154</p>
-              <p class="range">Range <span id="cRange">£112–£196</span><span id="cRough" hidden> · Rough estimate</span></p>
+              <p class="range"><span id="cRange">£112–£196</span><span id="cRough" hidden> · Rough estimate</span></p>
             </div>
             <div class="lz">
               <p class="rlabel">With Lumzel</p>
               <p class="big amber">£50</p>
-              <p class="range">Once, for the whole event. Running it stays free.</p>
+              <p class="range">Per event. Running it is free.</p>
             </div>
           </div>
-          <p class="xnote" id="xNote" hidden>LinkedIn is where event posts travel. X reach is cheaper to buy, so on X the £50 is about the posts themselves: real guests, named, with your photo.</p>
-          <p class="friend">An ad doesn't come with a friend's name on it. <span class="amber">These posts do.</span></p>
+          <p class="xnote" id="xNote" hidden>LinkedIn is where event posts travel. X reach is cheaper to buy.</p>
+          <p class="friend">Ads don't carry a friend's name. <span class="amber">These posts do.</span></p>
           <div class="how">
             <div class="qa">
               <h3><button type="button" aria-expanded="false" aria-controls="how-a" id="how-q">How we worked this out<span class="pm" aria-hidden="true"></span></button></h3>
               <div class="ans" id="how-a" role="region" aria-labelledby="how-q"><div>
-                <p>It's an estimate, not a promise. Views = guests × share who post × average followers × 25%. Ad cost = views ÷ 1,000 × CPM.</p>
+                <p>An estimate: guests × share who post × followers × 25% reach, priced per 1,000 views.</p>
                 <ul>
-                  <li>Organic reach is set at 25% of followers. That's conservative for personal accounts under about 1,000 followers (about 31% for 0–1K followers, TheShieldIndex, Feb 2026 LinkedIn reach benchmarks). Very large accounts see closer to 6–7%.</li>
-                  <li>LinkedIn UK CPM £20–£35 (Lever Digital / The B2B House 2026 benchmarks, via stackmatix.com and charle.co.uk). The big figure uses the midpoint, £27.50 per 1,000 views.</li>
-                  <li>X CPM is a rough estimate of £4–£7 per 1,000 views (midpoint £5.50), converted from global 2026 benchmarks of about $5–$9 for broad audiences (WebFX average $6.46, Improvado $5.80). There's no verified UK figure.</li>
+                  <li>25% reach is conservative for accounts under 1,000 followers (about 31%, TheShieldIndex, Feb 2026).</li>
+                  <li>LinkedIn UK CPM £20–£35, midpoint £27.50 (Lever Digital / The B2B House 2026, via stackmatix.com and charle.co.uk).</li>
+                  <li>X: rough estimate of £4–£7, midpoint £5.50, converted from global 2026 figures of about $5–$9 (WebFX $6.46, Improvado $5.80). No verified UK figure.</li>
                 </ul>
               </div></div>
             </div>
+          </div>
+          <div class="calc-cta">
+            <a class="btn" href="#join">Get beta access <span class="arr" aria-hidden="true">→</span></a>
+            <p class="next">Free to run. Sharing is £50 per event.</p>
           </div>
         </div>
       </div>
@@ -577,32 +580,32 @@ footer nav a:hover{color:var(--paper)}
   <section class="steps" id="steps" aria-labelledby="steps-h">
     <div class="wrap steps-head">
       <p class="kicker">How it works</p>
-      <h2 id="steps-h" class="disp">Ready before doors open. Nothing for guests to install.</h2>
+      <h2 id="steps-h" class="disp">Three steps. No app.</h2>
     </div>
     <div class="track" id="track">
       <article class="panel">
         <div>
           <p class="num" aria-hidden="true">01</p>
-          <h3>Put one QR code on the screen.</h3>
-          <p>Create the event in a couple of minutes. Guests scan from their seats and type a name. No app, no account.</p>
+          <h3>One QR code on the screen.</h3>
+          <p>Guests scan and type a name.</p>
         </div>
-        <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><img class="shot" src="landing/screens/02-host-dashboard.jpg" width="786" height="1518" alt="Lumzel's host screen for Builders' Night 14, showing the QR code to put on the screen and counts of guests and photos." loading="lazy" decoding="async"><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
+        <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><video class="shot" autoplay muted loop playsinline preload="metadata" poster="landing/video/host.jpg" data-fallback="landing/screens/02-host-dashboard.jpg" width="786" height="1518" role="img" aria-label="Lumzel's host screen showing the event's QR code to put on the screen."><source src="landing/video/host.mp4" type="video/mp4"><img class="shot" src="landing/screens/02-host-dashboard.jpg" width="786" height="1518" alt="Lumzel's host screen showing the event's QR code to put on the screen." loading="lazy" decoding="async"></video><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
       </article>
       <article class="panel">
         <div>
           <p class="num" aria-hidden="true">02</p>
-          <h3>Each guest picks Show me or Cover me.</h3>
-          <p>Cover me, or never scanning at all, means a tiled face in every photo. You don't chase anyone for consent.</p>
+          <h3>Show me or Cover me.</h3>
+          <p>Everyone else is tiled automatically.</p>
         </div>
-        <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><img class="shot" src="landing/screens/04-guest-choose.jpg" width="786" height="1518" alt="Lumzel's guest screen asking How should you appear tonight?, with the choices Show me and Cover me." loading="lazy" decoding="async"><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
+        <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><video class="shot" autoplay muted loop playsinline preload="metadata" poster="landing/video/guest.jpg" data-fallback="landing/screens/04-guest-choose.jpg" width="786" height="1518" role="img" aria-label="A guest joining on Lumzel and choosing Show me."><source src="landing/video/guest.mp4" type="video/mp4"><img class="shot" src="landing/screens/04-guest-choose.jpg" width="786" height="1518" alt="A guest joining on Lumzel and choosing Show me." loading="lazy" decoding="async"></video><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
       </article>
       <article class="panel">
         <div>
           <p class="num am" aria-hidden="true">03</p>
-          <h3>07:30. Photos land, posts are ready.</h3>
-          <p>Each guest gets the photos they're in, by notification or email. With sharing on, a post is waiting too.</p>
+          <h3>Photos at 07:30.</h3>
+          <p>With sharing on, a post is ready too.</p>
         </div>
-        <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><img class="shot" src="landing/screens/08-guest-delivered.jpg" width="786" height="1518" alt="Lumzel the next morning: You're in 1 photo, with the guest's photos from the night." loading="lazy" decoding="async"><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
+        <div class="iphone"><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr"><div class="sb" aria-hidden="true"><span class="tm">9:41</span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><video class="shot" autoplay muted loop playsinline preload="metadata" poster="landing/video/hero.jpg" data-fallback="landing/screens/08-guest-delivered.jpg" width="786" height="1518" role="img" aria-label="Lumzel the next morning: a guest's photos from the night."><source src="landing/video/hero.mp4" type="video/mp4"><img class="shot" src="landing/screens/08-guest-delivered.jpg" width="786" height="1518" alt="Lumzel the next morning: a guest's photos from the night." loading="lazy" decoding="async"></video><div class="hm" aria-hidden="true"><i></i></div></div></div></div>
       </article>
     </div>
     <div class="progress" aria-hidden="true"><i id="prog"></i></div>
@@ -612,7 +615,7 @@ footer nav a:hover{color:var(--paper)}
   <section class="consent" id="consent" aria-labelledby="consent-h">
     <div class="wrap">
       <p class="kicker" data-reveal>Consent, in the pixels</p>
-      <h2 id="consent-h" class="disp" data-reveal>Post the whole night. Nobody's face goes out without a yes.</h2>
+      <h2 id="consent-h" class="disp" data-reveal>Nobody posted without a yes.</h2>
       <div class="consent-grid">
         <figure class="compare" id="compare">
           <div class="frame">
@@ -622,13 +625,13 @@ footer nav a:hover{color:var(--paper)}
             <span class="bar" aria-hidden="true"></span>
             <span class="lbl a" aria-hidden="true">After</span><span class="lbl b" aria-hidden="true">Before</span>
           </div>
-          <figcaption>A real Lumzel result. The fourth guest chose Cover me. Drag to compare.</figcaption>
+          <figcaption>A real result. Drag to compare.</figcaption>
         </figure>
-        <ul class="facts" data-reveal>
-          <li><b>The tiles are part of the image.</b> There's no layer to peel back.</li>
-          <li><b>People who never scanned are covered too.</b> Only Show me means shown.</li>
-          <li><b>A second check.</b> AI looks for any face the first pass missed and holds that photo for you.</li>
-          <li><b>The selfie is never kept.</b> Only a face pattern, deleted with the event.</li>
+        <ul class="checks" data-reveal>
+          <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Tiles are burned into the image</li>
+          <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Non-scanners are covered too</li>
+          <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>A second AI check on every photo</li>
+          <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Selfies are never kept</li>
         </ul>
       </div>
     </div>
@@ -638,32 +641,31 @@ footer nav a:hover{color:var(--paper)}
   <section class="pricing" id="pricing" aria-labelledby="pricing-h">
     <div class="wrap">
       <p class="kicker" data-reveal>Pricing</p>
-      <h2 id="pricing-h" class="disp" data-reveal>Run it free. Pay £50 when you want the night to travel.</h2>
+      <h2 id="pricing-h" class="disp" data-reveal>Free to run. £50 to share.</h2>
+      <p class="sub" data-reveal>Pay per event, only when you want the reach.</p>
       <div class="plans" data-reveal>
         <div class="plan">
           <h3>Every event</h3>
           <p class="price">£0</p>
-          <p class="per">Photos to every guest by 07:30</p>
-          <ul>
-            <li>One QR code, no app for guests</li>
-            <li>Show me or Cover me, and tiling for everyone else</li>
-            <li>Every guest's photos in one place, to download</li>
+          <ul class="checks">
+            <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>One QR code, no app</li>
+            <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Tiling for anyone who didn't say yes</li>
+            <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Photos to every guest by 07:30</li>
           </ul>
         </div>
         <div class="plan paid">
-          <h3>When you want reach</h3>
+          <h3>Sharing, per event</h3>
           <p class="price">£50</p>
-          <p class="per">Per event, to switch on sharing</p>
-          <p class="anchor">At the example numbers above, the same views as LinkedIn ads would cost about £154. <a class="ul" href="#calc">Try your own numbers</a></p>
-          <ul>
-            <li>A ready post for each guest, in their voice</li>
-            <li>Links that show the photo and count the clicks</li>
-            <li>Reach and a leaderboard for you</li>
+          <ul class="checks">
+            <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>A ready post for each guest</li>
+            <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Links that count clicks</li>
+            <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Reach and a leaderboard</li>
           </ul>
+          <p class="anchor">Same views as LinkedIn ads: about £154. <a class="ul" href="#calc">Your numbers</a></p>
         </div>
       </div>
       <ul class="small-print">
-        <li>Pay per event. No subscription.</li>
+        <li>No subscription.</li>
         <li>Discount codes accepted.</li>
         <li>Running events stays free.</li>
       </ul>
@@ -674,82 +676,66 @@ footer nav a:hover{color:var(--paper)}
   <section class="faq" id="faq" aria-labelledby="faq-h">
     <div class="wrap faq-grid">
       <div>
-        <p class="kicker">Questions</p>
-        <h2 id="faq-h" class="disp">Answers before your first event.</h2>
+        <h2 id="faq-h" class="disp">FAQ</h2>
       </div>
       <div class="qas">
-        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a1" id="faq-q1">Do guests need to download anything?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a1" role="region" aria-labelledby="faq-q1"><div><p>No. They scan the QR code and type a name in their phone's browser. No app, no account.</p></div></div></div>
-        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a2" id="faq-q2">What about people who never scan?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a2" role="region" aria-labelledby="faq-q2"><div><p>They're tiled. Only guests who choose Show me appear. Everyone else is covered, including people who never scanned. A second AI check looks for faces the first pass missed and holds those photos for you to review.</p></div></div></div>
-        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a3" id="faq-q3">What do you keep about guests?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a3" role="region" aria-labelledby="faq-q3"><div><ul>
-          <li>Their name, and their Show me or Cover me choice.</li>
-          <li>An email, if they want their photos delivered that way.</li>
-          <li>A face pattern, if they add the optional selfie. Never the selfie itself, and it's deleted with the event.</li>
-          <li>The photos they upload.</li>
-        </ul></div></div></div>
-        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a4" id="faq-q4">What does the £50 get me?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a4" role="region" aria-labelledby="faq-q4"><div><p>Sharing for one event. Each guest gets a post drafted in their voice from your event description, with a link that shows their photo and counts clicks. Guests can cheer each other's posts, and you see reach and a leaderboard. Running the event, the tiling and the 07:30 delivery stay free.</p></div></div></div>
+        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a1" id="faq-q1">Do guests need an app?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a1" role="region" aria-labelledby="faq-q1"><div><p>No. They scan the QR code and type a name in their browser.</p></div></div></div>
+        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a2" id="faq-q2">What about people who never scan?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a2" role="region" aria-labelledby="faq-q2"><div><p>They're tiled. Only guests who choose Show me appear, and a second AI check holds any photo with a missed face for you.</p></div></div></div>
+        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a3" id="faq-q3">What do you keep about guests?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a3" role="region" aria-labelledby="faq-q3"><div><p>A name and their choice, an email if they want delivery by email, a face pattern if they add the optional selfie (deleted with the event), and the photos they upload.</p></div></div></div>
+        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a4" id="faq-q4">What does the £50 get me?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a4" role="region" aria-labelledby="faq-q4"><div><p>Sharing for one event: a drafted post for every guest, links that count clicks, and reach for you.</p></div></div></div>
         <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a5" id="faq-q5">Who owns the photos?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a5" role="region" aria-labelledby="faq-q5"><div><p>Guests keep their photos. Lumzel pools them for the event, and nothing is posted unless a guest chooses to share it.</p></div></div></div>
-        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a6" id="faq-q6">How soon can I use it?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a6" role="region" aria-labelledby="faq-q6"><div><p>Today. Register below and we email you a sign-in link straight away. Setting up an event takes a couple of minutes. We're in London and work with meetups, community nights, hackathons, launches, and agency and brand nights.</p></div></div></div>
+        <div class="qa"><h3><button type="button" aria-expanded="false" aria-controls="faq-a6" id="faq-q6">How soon can I start?<span class="pm" aria-hidden="true"></span></button></h3><div class="ans" id="faq-a6" role="region" aria-labelledby="faq-q6"><div><p>Today. Register and we'll email you a sign-in link straight away.</p></div></div></div>
       </div>
     </div>
   </section>
 
   <!-- JOIN -->
   <section class="join" id="join" aria-labelledby="join-h">
-    <div class="join-burst" aria-hidden="true"><svg viewBox="0 0 200 200"><g class="rays"><path pathLength="1" d="M100 100L43.8 89.0"/><path pathLength="1" d="M100 100L87.3 42.9"/><path pathLength="1" d="M100 100L107.4 49.7"/><path pathLength="1" d="M100 100L156.9 97.9"/><path pathLength="1" d="M100 100L137.6 149.0"/><path pathLength="1" d="M100 100L81.9 172.5"/><path pathLength="1" d="M100 100L126.0 160.1"/><path pathLength="1" d="M100 100L77.0 139.9"/><path pathLength="1" d="M100 100L73.2 120.0"/><path pathLength="1" d="M100 100L129.6 57.0"/><path class="you" pathLength="1" d="M100 100L187.8 127.5"/></g></svg></div>
-    <div class="wrap">
-      <p class="kicker">Beta access</p>
+    <div class="wrap join-inner">
       <h2 id="join-h" class="disp">Try it at your next event.</h2>
-      <div class="join-grid">
-        <div>
-          <p class="lede">Lumzel is in beta in London. Register and you can set up your first event straight away.</p>
-          <ul class="reassure">
-            <li><b>Free to run.</b> You only pay if you switch on sharing.</li>
-            <li><b>Nothing for guests to install.</b> A QR code and a name.</li>
-            <li><b>Nobody posted without a yes.</b> Non-scanners are covered too.</li>
-          </ul>
+      <div class="card" id="card" tabindex="-1">
+        <div id="formBody">
+          <p class="card-s">We'll email a sign-in link. It works for 20 minutes.</p>
+          <form id="form" novalidate>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="formErr">
+            </div>
+            <div class="field">
+              <label for="name">Name or organisation <span>(optional)</span></label>
+              <input id="name" name="name" type="text" autocomplete="organization">
+            </div>
+            <div class="field">
+              <label for="events">What do you run? <span>(optional)</span></label>
+              <select id="events" name="events">
+                <option value="">Choose one</option>
+                <option>Community meetups</option>
+                <option>Hackathons</option>
+                <option>Conferences</option>
+                <option>Launches</option>
+                <option>Agency or brand events</option>
+                <option>Something else</option>
+              </select>
+            </div>
+            <div class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+            <p class="err" id="formErr" role="alert" hidden></p>
+            <button class="btn" type="submit" id="submit"><span class="lbl">Get beta access</span> <span class="arr" aria-hidden="true">→</span><span class="spin" aria-hidden="true"></span></button>
+            <p class="next">We'll use your email to send your sign-in link and beta updates. <a class="ul" href="/privacy">Privacy &amp; cookies</a>.</p>
+          </form>
         </div>
-        <div>
-          <div class="card" id="card" tabindex="-1">
-            <div id="formBody">
-              <h3 class="card-t">Get beta access</h3>
-              <p class="card-s">Leave your email. We'll send a sign-in link that works for 20 minutes.</p>
-              <form id="form" novalidate>
-                <div class="field">
-                  <label for="email">Email</label>
-                  <input id="email" name="email" type="email" autocomplete="email" inputmode="email" required aria-describedby="formErr">
-                </div>
-                <div class="field">
-                  <label for="name">Name or organisation <span>(optional)</span></label>
-                  <input id="name" name="name" type="text" autocomplete="organization">
-                </div>
-                <div class="field">
-                  <label for="events">What do you run? <span>(optional)</span></label>
-                  <select id="events" name="events">
-                    <option value="">Choose one</option>
-                    <option>Community meetups</option>
-                    <option>Hackathons</option>
-                    <option>Conferences</option>
-                    <option>Launches</option>
-                    <option>Agency or brand events</option>
-                    <option>Something else</option>
-                  </select>
-                </div>
-                <div class="hp" aria-hidden="true"><label for="website">Website</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
-                <p class="err" id="formErr" role="alert" hidden></p>
-                <button class="btn" type="submit" id="submit"><span class="lbl">Get beta access</span> <span class="arr" aria-hidden="true">→</span><span class="spin" aria-hidden="true"></span></button>
-                <p class="next">We'll use your email to send your sign-in link and beta updates. <a class="ul" href="/privacy">Privacy &amp; cookies</a>.</p>
-              </form>
-            </div>
-            <div class="done" id="done" role="status" tabindex="-1" hidden>
-              <span class="done-mark" aria-hidden="true"><svg class="logo" viewBox="0 0 200 200" aria-hidden="true"><path stroke="currentColor" d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0"/><path stroke="#FFB000" d="M100 100L187.8 127.5"/></svg></span>
-              <h3 class="card-t">You're in.</h3>
-              <p class="card-s">We've emailed a sign-in link to <b id="doneEmail"></b>. It works once, for 20 minutes.</p>
-              <a class="ul" href="/host">Not there? Sign in here</a>
-            </div>
-          </div>
-          <p class="after-card">Already have access? <a class="ul" href="/host">Use the beta</a></p>
+        <div class="done" id="done" role="status" tabindex="-1" hidden>
+          <span class="done-mark" aria-hidden="true"><svg class="logo" viewBox="0 0 200 200" aria-hidden="true"><path stroke="currentColor" d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0"/><path stroke="#FFB000" d="M100 100L187.8 127.5"/></svg></span>
+          <h3 class="card-t">You're in.</h3>
+          <p class="card-s">We've emailed a sign-in link to <b id="doneEmail"></b>. It works once, for 20 minutes.</p>
+          <a class="ul" href="/host">Not there? Sign in here</a>
         </div>
       </div>
+      <ul class="checks inline">
+        <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Free to run</li>
+        <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Nothing to install</li>
+        <li><svg class="tk" viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10.5l3.5 3.5 7.5-8" fill="none" stroke="currentColor" stroke-width="2"/></svg>Nobody posted without a yes</li>
+      </ul>
+      <p class="after-card">Already have access? <a class="ul" href="/host">Use the beta</a></p>
     </div>
   </section>
 </main>
@@ -790,6 +776,26 @@ document.addEventListener('DOMContentLoaded', function(){
       b.setAttribute('aria-expanded', String(open));
     });
   });
+
+  /* Phone videos: play only on screen; poster only under reduced motion; screenshot if a poster is missing */
+  var vids = Array.prototype.slice.call(document.querySelectorAll('video.shot'));
+  vids.forEach(function(v){
+    var fb = v.getAttribute('data-fallback');
+    var probe = new Image(); probe.onerror = function(){ v.setAttribute('poster', fb); }; probe.src = v.getAttribute('poster');
+    v.muted = true;
+    v.autoplay = false; v.removeAttribute('autoplay');
+    v.pause();
+    if (reduce) v.preload = 'none';
+  });
+  if (!reduce && 'IntersectionObserver' in window) {
+    var vio = new IntersectionObserver(function(es){
+      es.forEach(function(en){
+        var v = en.target;
+        if (en.isIntersecting) { var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); } else v.pause();
+      });
+    }, { threshold: 0.2 });
+    vids.forEach(function(v){ vio.observe(v); });
+  }
 
   /* Subtle once-only reveals */
   if (!reduce && 'IntersectionObserver' in window) {
@@ -925,7 +931,6 @@ document.addEventListener('DOMContentLoaded', function(){
 
   // Hero: the burst draws itself.
   gsap.fromTo('.hv .rays path', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: 'expo.out', stagger: { each: .045, from: 'random' } });
-  gsap.from('.hv-you', { opacity: 0, duration: .5, delay: .8 });
 
   // Signature: the reach story.
   var rays = gsap.utils.toArray('#stage .rays path'), tips = gsap.utils.toArray('#stage .tip'), countEl = $('postCount');
@@ -968,8 +973,6 @@ document.addEventListener('DOMContentLoaded', function(){
   ScrollTrigger.create({ trigger: '#compare', start: 'top 75%', end: 'bottom 45%', scrub: true,
     onUpdate: function(s){ if (cmpTouched) return; var p = Math.round(s.progress * 100); setCmp(p); cmp.value = p; } });
 
-  gsap.fromTo('.join-burst .rays path', { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 1.1, ease: 'expo.out', stagger: .04,
-    scrollTrigger: { trigger: '#join', start: 'top 75%', once: true } });
 
   window.addEventListener('load', function(){ ScrollTrigger.refresh(); });
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ ScrollTrigger.refresh(); });
