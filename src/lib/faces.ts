@@ -121,8 +121,31 @@ export async function facesIn(input: Buffer): Promise<Array<{ x: number; y: numb
 
 // Measured on this model: the same person scores ~0.95 selfie-to-photo; different people scored up to 0.69.
 // A weak or ambiguous match means tiled, never shown.
-export const MATCH_THRESHOLD = 0.75;
-export const MATCH_MARGIN = 0.1; // the best guest must beat the runner-up by this much
+export const MATCH_THRESHOLD = 0.8;
+export const MATCH_MARGIN = 0.1;
+
+/**
+ * Pairs faces with guests from a score matrix (scores[face][guest]). Face f goes to guest g only if the score is at
+ * least MATCH_THRESHOLD, beats f's runner-up guest by MATCH_MARGIN, and beats g's second-best face (if that one is
+ * also at least MATCH_THRESHOLD) by MATCH_MARGIN. Anything ambiguous stays unmatched, i.e. tiled.
+ */
+export function assignMatches(scores: number[][]): Array<number | null> {
+  const nG = scores[0]?.length ?? 0;
+  const out: Array<number | null> = scores.map(() => null);
+  for (let gi = 0; gi < nG; gi++) {
+    let best = -1, bs = -Infinity, ss = -Infinity;
+    for (let f = 0; f < scores.length; f++) {
+      const s = scores[f][gi];
+      if (s > bs) { ss = bs; bs = s; best = f; } else if (s > ss) ss = s;
+    }
+    if (best < 0 || bs < MATCH_THRESHOLD) continue;
+    if (ss >= MATCH_THRESHOLD && bs - ss < MATCH_MARGIN) continue; // two faces look like this guest
+    const rival = Math.max(-Infinity, ...scores[best].filter((_, k) => k !== gi));
+    if (bs - rival < MATCH_MARGIN) continue; // this face looks like another guest too
+    out[best] = gi;
+  }
+  return out;
+}
 
 export async function similarity(a: number[], b: number[]) {
   const h = await getHuman();

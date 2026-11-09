@@ -1,16 +1,18 @@
 // Free end-to-end run of AI stand-ins through the real pipeline and the local database, with OpenRouter stubbed
 // in-process: the "model" returns the tiled image it was sent with a stranger's face (from bench.jpg) pasted over
 // each tiled rectangle. Checks publish order, what the model is sent, pixels outside the rectangles, the cache,
-// a guest switching to Cover me, switching back to tiles, a locked event, and a misaligned answer (kept as tiles).
+// a guest switching to Cover me, switching back to tiles, a locked event, a misaligned answer (kept as tiles), an answer
+// with no face where a face was (rejected), a photo the vision check flagged (never gets stand-ins), a stale claim, and
+// the one-time match_v2 migration (withholds and re-renders matched photos, once, even with two boots at once).
 // Usage: npx tsx --env-file=.env.local scripts/standin-flow.mts [out-dir]   (needs DATABASE_URL; spends nothing)
 import fs from "fs";
 import path from "path";
 import sharp from "sharp";
 import { sql, migrate } from "../src/lib/db";
 import * as store from "../src/lib/storage";
-import { ingest, processPhoto, rerender, rerenderEvent, markStale, requestRenders } from "../src/lib/pipeline";
+import { ingest, processPhoto, rerender, rerenderEvent, markStale, requestRenders, migrateMatching } from "../src/lib/pipeline";
 import { selfieEmbedding, detectRegions, type Region } from "../src/lib/faces";
-import { rectsFor } from "../src/lib/standins";
+import { rectsFor, generate } from "../src/lib/standins";
 import { tileRect } from "../src/lib/tiles";
 
 process.env.OPENROUTER_API_KEY ||= "stub"; // env.ts reads it at import time, so set it on the command line to be sure
@@ -22,20 +24,21 @@ const check = (c: boolean, m: string) => { console.log(c ? "PASS" : "FAIL", m); 
 const bench = fs.readFileSync("e2e/fixtures/bench.jpg");
 const stranger = (await detectRegions(bench)).regions.filter((r) => r.kind === "face")[0];
 const sent: Buffer[] = [];
-let photoId = "", misalign = false;
+let photoId = "", misalign = false, blank = false, flagged = false;
 const realFetch = globalThis.fetch;
 globalThis.fetch = (async (url: string | URL | Request, init?: RequestInit) => {
   if (!String(url).startsWith("https://openrouter.ai/")) return realFetch(url, init);
   const body = JSON.parse(String(init?.body));
-  if (!body.modalities) return Response.json({ choices: [{ message: { content: '{"visible_faces":0,"where":""}' } }] }); // vision check
+  if (!body.modalities) return Response.json({ choices: [{ message: { content: `{"visible_faces":${flagged ? 1 : 0},"where":""}` } }] }); // vision check
   const img = Buffer.from(body.messages[0].content[1].image_url.url.split(",")[1], "base64");
   sent.push(img);
   const m = (await sharp(img).metadata()) as { width: number; height: number };
   const regs: Region[] = (await sql`select regions from photos where id = ${photoId}`)[0].regions;
   const layers = [];
-  for (const r of regs.filter((r) => !r.guestId)) {
+  const showing = new Set((await sql`select id from guests where choice = 'show'`).map((x) => x.id as string));
+  for (const r of regs.filter((r) => !(r.guestId && showing.has(r.guestId)))) { // every tiled region, as render() decides
     const t = tileRect(r, m.width, m.height); if (!t) continue;
-    const face = await sharp(bench).extract({ left: Math.max(0, Math.round(stranger.x - stranger.w * 0.25)), top: Math.max(0, Math.round(stranger.y - stranger.h * 0.35)), width: Math.round(stranger.w * 1.5), height: Math.round(stranger.h * 1.7) })
+    const face = blank ? await sharp({ create: { width: t.ew, height: t.eh, channels: 3, background: { r: 205, g: 160, b: 135 } } }).png().toBuffer() : await sharp(bench).extract({ left: Math.max(0, Math.round(stranger.x - stranger.w * 0.25)), top: Math.max(0, Math.round(stranger.y - stranger.h * 0.35)), width: Math.round(stranger.w * 1.5), height: Math.round(stranger.h * 1.7) })
       .resize(t.ew, t.eh, { fit: "fill" }).png().toBuffer();
     layers.push({ input: face, left: t.ex, top: t.ey });
   }
@@ -69,6 +72,7 @@ const save = (name: string, b: Buffer) => OUT && fs.writeFileSync(path.join(OUT,
 
 try {
   await addPhoto();
+  const firstId = photoId;
   const first = await until((r) => r.status === "ready");
   const tiledPub = (await store.get(first.public_key))!;
   save("flow-1-tiled.jpg", tiledPub);
@@ -120,6 +124,53 @@ try {
   for (let t = Date.now(); Date.now() - t < 30000; await new Promise((x) => setTimeout(x, 300))) if ((await sql`select 1 from standin_run where photo_id = ${photoId} and outcome <> 'started'`).length) break;
   const [m] = await sql`select outcome from standin_run where photo_id = ${photoId}`;
   check(m?.outcome === "drift" && !(await row()).has_standins, `a misaligned model answer is rejected and the photo keeps its tiles (${m?.outcome})`);
+
+  const lastRun = async () => { for (let t = Date.now(); Date.now() - t < 30000; await new Promise((x) => setTimeout(x, 300))) if ((await sql`select 1 from standin_run where photo_id = ${photoId} and outcome <> 'started'`).length) break; return (await sql`select outcome from standin_run where photo_id = ${photoId}`)[0]?.outcome; };
+
+  // A model answer with no detectable face where a covered face was: the likeness check can't run, so rejected.
+  misalign = false; blank = true;
+  await addPhoto();
+  await until((r) => r.status === "ready");
+  const o = await lastRun();
+  check(o === "identity" && !(await row()).has_standins, `a model answer with no face in a replaced face region is rejected (${o})`);
+  blank = false;
+
+  // A claim against a version that is no longer the published one spends nothing.
+  const cur = await row();
+  const runsBefore = await runs();
+  const toTileNow = (cur.regions as Region[]).filter((r) => !r.guestId);
+  const tiledNow = (await store.get(cur.public_key))!;
+  check(await generate(photoId, ev.id, cur.tile_set, tiledNow, toTileNow, "e/stale-version.jpg") === "capped" && (await runs()) === runsBefore, "a claim for a superseded public version is refused, no run");
+  await sql`update photos set hold = true where id = ${photoId}`;
+  check(await generate(photoId, ev.id, cur.tile_set, tiledNow, toTileNow, cur.public_key) === "capped" && (await runs()) === runsBefore, "a claim for a held photo is refused, no run");
+  await sql`update photos set hold = false where id = ${photoId}`;
+
+  // A photo the vision check flagged goes to review; once a person approves it, it publishes tiles, never stand-ins.
+  flagged = true;
+  await addPhoto();
+  const rv = await until((r) => r.status === "review");
+  flagged = false;
+  check(rv.model_count === 1 && (await runs()) === 0, "a flagged photo waits in review with no stand-in run");
+  await sql`update photos set status = 'review', reviewed_at = now(), needs_review = false where id = ${photoId}`; // as review/route.ts approve
+  await rerender([photoId]);
+  const ap = await until((r) => r.status === "ready" && r.render_rev > rv.render_rev && !r.stale_at);
+  await new Promise((x) => setTimeout(x, 2000));
+  check(!ap.has_standins && (await runs()) === 0, "after approval it publishes tiles and no stand-in is generated");
+
+  // One-time migration: photos with a matched guest are withheld and re-rendered under the current rule, exactly once.
+  photoId = firstId;
+  const pre = await row();
+  check(pre.regions.some((r: Region) => r.guestId), "the first photo has a matched guest region");
+  await sql`delete from migrations where name = 'match_v2'`;
+  await Promise.all([migrateMatching(), migrateMatching()]); // two boots at once
+  const held = await row();
+  check(held.hold && !!held.stale_at, "match_v2 withholds a matched photo and marks it for re-render");
+  check((await sql`select count(*)::int as n from migrations where name = 'match_v2'`)[0].n === 1, "the marker is written once");
+  const redone = await until((r) => !r.hold && !r.stale_at && r.render_rev > pre.render_rev);
+  check(redone.status === "ready", `it is re-rendered and published again (rev ${pre.render_rev} -> ${redone.render_rev})`);
+  await migrateMatching();
+  const again = await row();
+  check(!again.hold && !again.stale_at && again.render_rev === redone.render_rev, "a later boot does nothing (marker present)");
 } catch (e) { check(false, (e as Error).message); }
 finally {
   for (const c of await sql`select c.key from standin_cache c join photos p on p.id = c.photo_id where p.event_id = ${ev.id}`) await store.del(c.key as string);

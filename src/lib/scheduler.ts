@@ -1,6 +1,6 @@
 import { sql, migrate } from "./db";
 import { deliverEvent, resumeDeliveries, roundups } from "./notify";
-import { resumePending, recheckFailedChecks, requeueStale } from "./pipeline";
+import { resumePending, recheckFailedChecks, requeueStale, migrateMatching } from "./pipeline";
 import * as store from "./storage";
 
 const g = globalThis as unknown as { __lzTimer?: NodeJS.Timeout };
@@ -35,6 +35,7 @@ async function tick() {
 export async function startScheduler() {
   if (g.__lzTimer) return;
   await migrate();
+  await migrateMatching();
   await resumePending();
   g.__lzTimer = setInterval(tick, 60_000);
   setTimeout(tick, 5_000);

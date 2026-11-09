@@ -22,6 +22,17 @@ export function tileRect(r: Region, width: number, height: number): TileRect | n
   return { ex, ey, ew, eh, w, h, block, cols, rows };
 }
 
+/** The tile grid actually drawn: gc x gr blocks from the rectangle's corner, each drawn only if its centre is in the ellipse. */
+export function tileGrid(t: TileRect) {
+  const gc = Math.max(1, Math.round((t.ew / t.w) * t.cols)), gr = Math.max(1, Math.round((t.eh / t.h) * t.rows));
+  const rx = t.ew / 2, ry = t.eh / 2;
+  const drawn = (i: number, j: number) => {
+    const dx = (i * t.block + t.block / 2 - rx) / rx, dy = (j * t.block + t.block / 2 - ry) / ry;
+    return dx * dx + dy * dy <= 1.08;
+  };
+  return { gc, gr, drawn };
+}
+
 /**
  * Burns soft tiles into every region: a coarse mosaic of rounded squares, averaged per block,
  * fading out in an ellipse around the head. Baked into the pixels, never an overlay.
@@ -41,18 +52,16 @@ export async function renderTiled(original: Buffer, regions: Region[]): Promise<
       .extract({ left: ex, top: ey, width: ew, height: eh })
       .resize(Math.max(1, Math.round((ew / w) * cols)), Math.max(1, Math.round((eh / h) * rows)), { fit: "fill", kernel: "linear" })
       .blur(0.4).removeAlpha().raw().toBuffer({ resolveWithObject: true });
-    const gc = Math.max(1, Math.round((ew / w) * cols)), gr = Math.max(1, Math.round((eh / h) * rows));
+    const { gc, gr, drawn } = tileGrid(t);
     let mr = 0, mg = 0, mb = 0;
     for (let i = 0; i < gc * gr; i++) { mr += data[i * 3]; mg += data[i * 3 + 1]; mb += data[i * 3 + 2]; }
     const n = gc * gr; const bg = [mr / n, mg / n, mb / n].map((v) => Math.round(v * 0.45 + 236 * 0.55));
 
     const gap = Math.max(1, Math.round(block * 0.08)), rad = Math.round(block * 0.2);
     let rects = "";
-    const rx = ew / 2, ry = eh / 2;
     for (let j = 0; j < gr; j++) for (let i = 0; i < gc; i++) {
       const bx = i * block, by = j * block;
-      const dx = (bx + block / 2 - rx) / rx, dy = (by + block / 2 - ry) / ry;
-      if (dx * dx + dy * dy > 1.08) continue;
+      if (!drawn(i, j)) continue;
       const k = (j * gc + i) * 3;
       rects += `<rect x="${bx}" y="${by}" width="${block}" height="${block}" fill="rgb(${bg.join(",")})"/>`;
       rects += `<rect x="${bx + gap}" y="${by + gap}" width="${block - gap * 2}" height="${block - gap * 2}" rx="${rad}" fill="rgb(${data[k]},${data[k + 1]},${data[k + 2]})"/>`;

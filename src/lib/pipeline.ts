@@ -2,7 +2,7 @@ import sharp from "sharp";
 import type postgres from "postgres";
 import { sql } from "./db";
 import * as store from "./storage";
-import { detectRegions, similarity, MATCH_THRESHOLD, MATCH_MARGIN, type Region } from "./faces";
+import { detectRegions, similarity, assignMatches, type Region } from "./faces";
 import { renderTiled } from "./tiles";
 import { useStandins, setHash, cachedStandin, requestStandins } from "./standins";
 import { chat, parseJson, dataUrl } from "./llm";
@@ -109,33 +109,23 @@ async function render(photoId: string) {
   const original = await store.get(p.original_key);
   if (!original) { await sql`update photos set status = 'failed', error = 'original missing', stale_at = null where id = ${photoId}`; return; }
   const guests = await sql`select id, choice, embedding from guests where event_id = ${p.event_id} and embedding is not null`;
-  const regions = (p.regions as Region[]).map((r) => ({ ...r }));
-  // Each guest matches at most one face per photo (their best), so a lookalike or reflection stays tiled.
-  const pairs: Array<{ r: Region; who: string; s: number }> = [];
-  for (const r of regions) {
-    r.guestId = null;
-    if (r.kind !== "face" || !r.embedding) continue;
-    // Only a clear match counts: above the threshold and well ahead of the next most similar guest.
-    const scored = [];
-    for (const gst of guests) scored.push({ who: gst.id as string, s: await similarity(r.embedding, gst.embedding as number[]) });
-    scored.sort((a, b) => b.s - a.s);
-    const [best, second] = scored;
-    if (best && best.s >= MATCH_THRESHOLD && (!second || best.s - second.s >= MATCH_MARGIN)) pairs.push({ r, ...best });
-  }
+  const regions = (p.regions as Region[]).map((r) => ({ ...r, guestId: null as string | null }));
+  // Each guest matches at most one face and each face at most one guest, only when unambiguous (faces.ts assignMatches).
+  const faces = regions.filter((r) => r.kind === "face" && r.embedding?.length);
+  const scores: number[][] = [];
+  for (const r of faces) { const row = []; for (const gst of guests) row.push(await similarity(r.embedding!, gst.embedding as number[])); scores.push(row); }
   const people = new Set<string>();
-  for (const { r, who } of pairs.sort((a, b) => b.s - a.s)) {
-    if (r.guestId || people.has(who)) continue;
-    r.guestId = who; people.add(who);
-  }
+  assignMatches(scores).forEach((gi, f) => { if (gi != null) { faces[f].guestId = guests[gi].id as string; people.add(guests[gi].id as string); } });
   const showing = new Set(guests.filter((x) => x.choice === "show").map((x) => x.id as string));
   const toTile = regions.filter((r) => !(r.guestId && showing.has(r.guestId)));
   const out = await renderTiled(original, toTile);
-  // AI stand-ins (paid events): only ever made from `out`, the tiled render, and only once the photo is past review
-  // (a reviewer must see tiles, not faces). A stand-in made for exactly this tiled set is reused; otherwise the
+  // AI stand-ins (paid events): only ever made from `out`, the tiled render, and never for a photo that needed review. A stand-in made for exactly this tiled set is reused; otherwise the
   // tiles go out now and the stand-in version follows as a later render. Any doubt publishes the tiles.
   const [ev] = await sql`select face_style, sharing_unlocked from events where id = ${p.event_id}`;
   const hash = setHash(toTile);
-  const wantStandins = !!ev && useStandins(ev) && toTile.length > 0 && !(p.needs_review && !p.reviewed_at) && !["hidden", "failed"].includes(p.status);
+  // Never for a photo the vision check ever flagged or a person reviewed: a reviewer approved those tiles, not new faces.
+  const wantStandins = !!ev && useStandins(ev) && toTile.length > 0 && !p.needs_review && !(Number(p.model_count) > 0) && !p.reviewed_at
+    && !["hidden", "failed"].includes(p.status);
   const standin = wantStandins ? await cachedStandin(photoId, hash, out, toTile, guests as never) : null;
   const rev = (p.render_rev as number) + 1;
   const key = `e/${p.event_id}/pub/${photoId}-${rev}.jpg`;
@@ -155,7 +145,7 @@ async function render(photoId: string) {
   });
   if (p.public_key && p.public_key !== key) await store.del(p.public_key);
   // Not when a newer change already marked it again: that render decides (and pays) instead.
-  if (wantStandins && !standin && status === "ready" && settled) requestStandins({ photoId, eventId: p.event_id, hash, toTile }, requestRender);
+  if (wantStandins && !standin && status === "ready" && settled) requestStandins({ photoId, eventId: p.event_id, hash, toTile, key }, requestRender);
 }
 
 /**
@@ -222,6 +212,24 @@ export async function recheckFailedChecks() {
       requestRender(p.id as string);
     } catch { continue; } // still failing: try again next tick
   }
+}
+
+/**
+ * One-time (marker 'match_v2'): photos published under the old, looser guest matching are withheld and re-rendered
+ * with the current rule. The marker insert serialises concurrent boots; only the one that inserts it marks photos.
+ */
+export async function migrateMatching() {
+  const ids = await sql.begin(async (tx) => {
+    const [m] = await tx`insert into migrations (name) values ('match_v2') on conflict do nothing returning name`;
+    if (!m) return [] as string[];
+    const rows = await tx`select id from photos p where status in ('ready', 'review')
+      and (p.regions @? '$[*] ? (@.guestId != null)' or exists (select 1 from photo_people pp where pp.photo_id = p.id))`;
+    const ids = rows.map((r) => r.id as string);
+    await markStale(tx, ids, true);
+    return ids;
+  });
+  if (ids.length) console.log(`[pipeline] match_v2: ${ids.length} photo(s) withheld for re-render`);
+  requestRenders(ids);
 }
 
 export async function resumePending() {

@@ -13,6 +13,9 @@ export const PATCH = route(async (req: Request, { params }: Ctx) => {
   // Zod applies defaults even under .partial(), so keep only the keys the client actually sent.
   const parsed = EventInput.partial().parse(raw) as Record<string, unknown>;
   const i = Object.fromEntries(Object.entries(parsed).filter(([k]) => k in raw)) as Partial<EventInput>;
+  // Validate everything before writing anything, so a bad request changes nothing.
+  const style = "faceStyle" in raw ? z.enum(["tiles", "standins"]).parse(raw.faceStyle) : undefined;
+  if (style === "standins" && !ev.sharing_unlocked) throw new HttpError(403, "AI stand-ins are part of social sharing. Unlock sharing first.");
 
   if (i.date || i.start || i.end || i.deliver || i.timezone) {
     if (!(i.date && i.start && i.end)) throw new HttpError(400, "Send the date, start and end together");
@@ -33,9 +36,7 @@ export const PATCH = route(async (req: Request, { params }: Ctx) => {
 
   // AI stand-ins are part of social sharing. Either way the photos re-render: switching on, the tiles stay up
   // until each stand-in is ready (no hold needed); switching off, the next render publishes plain tiles.
-  if ("faceStyle" in raw) {
-    const style = z.enum(["tiles", "standins"]).parse(raw.faceStyle);
-    if (style === "standins" && !ev.sharing_unlocked) throw new HttpError(403, "AI stand-ins are part of social sharing. Unlock sharing first.");
+  if (style) {
     const [changed] = await sql`update events set face_style = ${style} where id = ${ev.id} and face_style <> ${style} returning id`;
     if (changed) await rerenderEvent(ev.id);
   }

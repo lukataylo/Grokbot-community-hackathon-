@@ -202,3 +202,8 @@ create table if not exists standin_cache (
   created_at timestamptz not null default now(),
   primary key (photo_id, set_hash)
 );
+-- One-time data migrations already applied (see pipeline.ts migrateMatching).
+create table if not exists migrations (
+  name text primary key,
+  applied_at timestamptz not null default now()
+);
