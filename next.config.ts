@@ -5,8 +5,11 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@vladmandic/human", "@tensorflow/tfjs-node", "sharp", "web-push", "postgres"],
   outputFileTracingIncludes: { "/**": ["./models/**/*", "./db/**/*"] },
   poweredByHeader: false,
+  async redirects() {
+    return ["/v1", "/v2", "/v3"].map((source) => ({ source, destination: "/", permanent: true }));
+  },
   async rewrites() {
-    return [{ source: "/", destination: "/landing-v1.html" }, { source: "/v1", destination: "/landing-v1.html" }, { source: "/v2", destination: "/landing.html" }, { source: "/v3", destination: "/landing-v3.html" }, { source: "/privacy", destination: "/privacy.html" }];
+    return [{ source: "/", destination: "/landing-v1.html" }, { source: "/privacy", destination: "/privacy.html" }];
   },
   async headers() {
     return [

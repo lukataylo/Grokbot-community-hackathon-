@@ -6,94 +6,68 @@
 <title>Lumzel: privacy and cookies</title>
 <meta name="description" content="How Lumzel handles guests' and organisers' data: what we keep, why, for how long, and the choices you have.">
 <link rel="canonical" href="https://lumzel.com/privacy">
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#FFFFFF">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/icons/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500&display=swap">
 <style>
-:root{--ink:#0A0A0A;--line:#2B2924;--paper:#F4F0E8;--mute:#A39D92;--soft:#C9C3B8;--you:#FFB000;--you-hi:#FFC233;
-  --display:"Archivo","Arial Black","Helvetica Neue",Arial,sans-serif;--text:"Instrument Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
-  --gut:max(20px, env(safe-area-inset-left, 0px));--ease:cubic-bezier(.22,1,.36,1)}
+:root{--bg:#FFFFFF;--ink:#0A0A0A;--muted:#6E6E6B;--quiet:#E9E9E7;--you:#FFB000;--display:'Familjen Grotesk','Helvetica Neue',Helvetica,Arial,sans-serif;--ease:cubic-bezier(.22,1,.36,1)}
 *{box-sizing:border-box}
-html{background:var(--ink);color:var(--paper);-webkit-text-size-adjust:100%;scroll-padding-top:88px}
-body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--text);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased}
-a{color:inherit}
-:focus{outline:none}
-:focus-visible{outline:2px solid var(--you);outline-offset:3px;border-radius:2px}
-.wrap{padding-left:var(--gut);padding-right:max(20px, env(safe-area-inset-right, 0px));max-width:1520px;margin:0 auto}
-.skip{position:absolute;left:-999px;top:8px;z-index:100;background:var(--you);color:var(--ink);padding:10px 14px;font-weight:600}
+html{color-scheme:light;scroll-padding-top:96px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--display);font-size:18px;line-height:1.55;letter-spacing:-.01em;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+.wrap{padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.skip{position:absolute;left:-999px;top:8px;z-index:100;background:var(--ink);color:#fff;padding:10px 14px}
 .skip:focus{left:8px}
-.ul{text-decoration:none;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 100%;background-size:100% 1px;padding-bottom:2px}
-.ul:hover{animation:redraw .45s var(--ease)}
-@keyframes redraw{0%{background-size:0 1px}100%{background-size:100% 1px}}
-.navl{text-decoration:none;background-image:linear-gradient(currentColor,currentColor);background-repeat:no-repeat;background-position:0 calc(100% - 10px);background-size:0 1px;transition:background-size .3s var(--ease),color .2s}
-.navl:hover{background-size:100% 1px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;background:var(--you);color:var(--ink);font-family:var(--display);font-stretch:112%;font-weight:700;font-size:14px;text-decoration:none;transition:background-color .2s,transform .12s var(--ease)}
-.btn:hover{background:var(--you-hi);transform:translateY(-1px)}
-.btn:active{transform:scale(.98)}
-.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-stretch:108%;font-weight:500;font-size:22px;letter-spacing:-.035em;text-decoration:none;color:var(--paper);min-height:44px}
-.brand svg{width:24px;height:24px;flex:none}
-.logo path{fill:none;stroke-linecap:butt;stroke-width:10}
-.top{position:sticky;top:0;z-index:40;padding-top:env(safe-area-inset-top,0px);background:rgba(10,10,10,.94);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;height:72px;gap:16px}
-.nav{display:flex;align-items:center;gap:28px}
-.nav .navl{font-size:15px;color:var(--mute);padding:12px 0}
-.nav .navl:hover{color:var(--paper)}
-@media (max-width:600px){.nav .navl{display:none}}
-main{padding:clamp(56px,10vh,110px) 0 clamp(80px,12vh,140px)}
-.kicker{font-size:13px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:0 0 20px}
-.page-h{font-family:var(--display);font-stretch:125%;font-weight:800;letter-spacing:-.025em;line-height:.95;font-size:clamp(40px,6vw,88px);margin:0 0 clamp(40px,6vh,72px);max-width:14ch}
-/* Long-form article column */
-#policy{max-width:68ch;font-size:18px;line-height:1.7;color:#DDD7CC}
-#policy>*:first-child{margin-top:0}
-#policy p,#policy ul,#policy ol,#policy table,#policy blockquote{margin:0 0 1.15em}
-#policy h2{font-family:var(--display);font-stretch:118%;font-weight:800;font-size:clamp(26px,2.6vw,34px);line-height:1.1;letter-spacing:-.02em;color:var(--paper);margin:2.4em 0 .6em;padding-top:1.1em;border-top:1px solid var(--line)}
-#policy h3{font-family:var(--display);font-stretch:108%;font-weight:700;font-size:20px;line-height:1.25;color:var(--paper);margin:1.8em 0 .4em}
-#policy h4{font-size:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);margin:1.6em 0 .4em}
-#policy strong,#policy b{color:var(--paper);font-weight:600}
-#policy a{color:var(--paper);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:var(--you)}
+nav.top{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding-block:18px;background:rgba(255,255,255,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.brand{display:flex;align-items:center;gap:9px;font-size:22px;font-weight:500;letter-spacing:-.045em;color:var(--ink);text-decoration:none}
+.navr{display:flex;align-items:center;gap:18px}
+.beta-link{color:var(--ink);font-size:15px;font-weight:500;text-decoration:none;padding:10px 0}
+.beta-link:hover{text-decoration:underline;text-underline-offset:3px}
+.pill{display:inline-flex;align-items:center;height:42px;padding:0 20px;border-radius:0;background:var(--ink);color:#fff;font-size:15px;font-weight:500;text-decoration:none;transition:transform .15s var(--ease),box-shadow .15s var(--ease)}
+.pill:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--you)}
+.pill:active{transform:none;box-shadow:none}
+.pill .short{display:none}
+@media (max-width:480px){.pill .long{display:none}.pill .short{display:inline}.navr{gap:14px}}
+a:focus-visible{outline:2px solid var(--you);outline-offset:3px}
+.page{position:relative;overflow:hidden}
+.rays{position:absolute;right:-260px;top:-380px;width:min(1000px,140vw);aspect-ratio:1;pointer-events:none;z-index:0}
+.rays g{stroke:var(--quiet);stroke-width:1.2;fill:none}
+.rays .you{stroke:var(--you);stroke-width:3}
+@media (max-width:600px){.rays{right:-45vw;top:-70vw;width:150vw}}
+#policy{position:relative;z-index:1;max-width:68ch;margin:0 auto;padding-block:clamp(72px,14vh,150px) clamp(80px,12vh,140px);font-size:18px;line-height:1.7;color:#2A2A28}
+#policy>.updated{font-size:14px;color:var(--muted);margin:0 0 18px;text-transform:none}
+#policy>h1{font-size:clamp(48px,8vw,112px);font-weight:500;letter-spacing:-.045em;line-height:.95;margin:0 0 28px;color:var(--ink)}
+#policy .lede{font-size:clamp(19px,1.7vw,23px);line-height:1.45;color:var(--muted);max-width:40ch;margin:0 0 1.4em}
+#policy p,#policy ul,#policy ol,#policy table{margin:0 0 1.15em}
+#policy h2{font-size:clamp(30px,3.2vw,44px);font-weight:500;letter-spacing:-.035em;line-height:1.05;color:var(--ink);margin:2.2em 0 .6em;padding-top:1em;border-top:1px solid var(--ink)}
+#policy h3{font-size:21px;font-weight:500;letter-spacing:-.02em;line-height:1.25;color:var(--ink);margin:1.8em 0 .4em}
+#policy strong,#policy b{color:var(--ink);font-weight:500}
+#policy a{color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:var(--you)}
 #policy a:hover{text-decoration-thickness:2px}
-#policy ul,#policy ol{padding-left:1.3em}
+#policy ul,#policy ol{padding-left:1.2em}
 #policy li{margin:.35em 0}
-#policy li::marker{color:var(--mute)}
-#policy blockquote{border-left:2px solid var(--you);padding:.2em 0 .2em 1em;color:var(--soft)}
-#policy hr{border:0;border-top:1px solid var(--line);margin:2.4em 0}
-#policy code{font-size:.9em;background:#1A1916;padding:.1em .35em;border-radius:4px}
+#policy li::marker{color:var(--you)}
 #policy table{width:100%;border-collapse:collapse;font-size:16px;line-height:1.5;display:block;overflow-x:auto}
-#policy th,#policy td{text-align:left;vertical-align:top;padding:12px 16px 12px 0;border-bottom:1px solid var(--line)}
-#policy th{color:var(--paper);font-weight:600;font-size:14px;letter-spacing:.04em;border-bottom-color:#4A4740;white-space:nowrap}
-#policy .updated{font-size:15px;color:var(--mute)}
-footer{border-top:1px solid var(--line);padding:40px 0 calc(40px + env(safe-area-inset-bottom,0px));font-size:14px;color:var(--mute)}
-footer .wrap{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between}
-footer .brand{font-size:19px}
-footer .brand svg{width:20px;height:20px}
-footer nav{display:flex;flex-wrap:wrap;gap:4px 24px}
-footer nav a{color:var(--mute);min-height:44px;display:inline-flex;align-items:center}
-footer nav a:hover{color:var(--paper)}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+#policy th,#policy td{text-align:left;vertical-align:top;padding:12px 16px 12px 0;border-bottom:1px solid var(--quiet)}
+#policy th{font-weight:500;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom-color:var(--ink);white-space:nowrap}
+footer{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;padding-block:28px;color:var(--muted);font-size:14px;border-top:1px solid var(--quiet)}
+footer a{color:inherit}
+@media (prefers-reduced-motion:no-preference){.rays{animation:spin 160s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}}
 </style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
-<header class="top">
-  <div class="wrap">
-    <a class="brand" href="/" aria-label="Lumzel home"><svg class="logo" viewBox="0 0 200 200" aria-hidden="true"><path stroke="currentColor" d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0"/><path stroke="#FFB000" d="M100 100L187.8 127.5"/></svg>lumzel</a>
-    <nav class="nav" aria-label="Main">
-      <a class="navl" href="/">Home</a>
-      <a class="navl" href="/host">Use the beta</a>
-      <a class="btn" href="/#join">Get beta access</a>
-    </nav>
-  </div>
-</header>
-<main id="main">
-  <div class="wrap">
-    <p class="kicker">Privacy &amp; cookies</p>
-    <h1 class="page-h">How Lumzel looks after your data.</h1>
-    <article id="policy">
-<p class="kicker">Last updated 10 November 2026</p>
+<a class="skip" href="#policy">Skip to content</a>
+<nav class="top wrap" aria-label="Main">
+  <a class="brand" href="/" aria-label="Lumzel home"><svg viewBox="0 0 200 200" width="24" height="24" aria-hidden="true"><path d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0" stroke="#0A0A0A" stroke-width="10" fill="none"/><path d="M100 100L187.8 127.5" stroke="#FFB000" stroke-width="10" fill="none"/></svg>lumzel</a>
+  <div class="navr"><a class="beta-link" href="/host">Use the beta</a><a class="pill" href="/#interest" aria-label="Get beta access"><span class="long">Get beta access</span><span class="short">Join</span></a></div>
+</nav>
+<main>
+<div class="page wrap"><svg class="rays" aria-hidden="true" viewBox="0 0 1000 1000"><g><path d="M500 500L1260 500"/><path d="M500 500L1229 714"/><path d="M500 500L1139 911"/><path d="M500 500L998 1074"/><path d="M500 500L816 1191"/><path d="M500 500L608 1252"/><path d="M500 500L392 1252"/><path d="M500 500L184 1191"/><path d="M500 500L2 1074"/><path d="M500 500L-139 911"/><path d="M500 500L-229 714"/><path d="M500 500L-260 500"/><path d="M500 500L-229 286"/><path d="M500 500L-139 89"/><path d="M500 500L2 -74"/><path d="M500 500L184 -191"/><path d="M500 500L392 -252"/><path d="M500 500L608 -252"/><path d="M500 500L816 -191"/><path d="M500 500L998 -74"/><path d="M500 500L1139 89"/><path d="M500 500L1229 286"/></g><path class="you" d="M500 500L1000 640"/></svg>
+<article id="policy">
+<p class="updated">Last updated 10 November 2026</p>
 <h1>Privacy and cookies</h1>
 <p class="lede">Lumzel collects photos from events, covers the faces of anyone who hasn't said yes, and delivers each guest the photos they're in. This page explains what we collect to do that, why, how long we keep it, and what you can ask us to do with it.</p>
 <p>Questions or requests: email <a href="mailto:hello@lumzel.com">hello@lumzel.com</a>. We're based in London and we follow the UK GDPR and the Data Protection Act 2018.</p>
@@ -187,15 +161,9 @@ footer nav a:hover{color:var(--paper)}
 <p>If we change how we use your data, we'll update this page and the date at the top. If a change is significant, we'll tell beta users and hosts by email.</p>
 
 </article>
-  </div>
+</div>
 </main>
-<footer>
-  <div class="wrap">
-    <a class="brand" href="/" aria-label="Lumzel home"><svg class="logo" viewBox="0 0 200 200" aria-hidden="true"><path stroke="currentColor" d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0"/><path stroke="#FFB000" d="M100 100L187.8 127.5"/></svg>lumzel</a>
-    <span>Built in London · In beta</span>
-    <nav aria-label="Footer"><a class="ul" href="/host">Use the beta</a><a class="ul" href="/#faq">Questions</a><a class="ul" href="/privacy" aria-current="page">Privacy &amp; cookies</a></nav>
-  </div>
-</footer>
+<footer class="wrap"><span>lumzel · London</span><span><a href="/">Home</a> · <a href="/privacy" aria-current="page">Privacy &amp; cookies</a></span></footer>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "bab7cb7263114691a2cf926454de6401"}'></script>
 </body>
 </html>
