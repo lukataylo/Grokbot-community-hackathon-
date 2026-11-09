@@ -122,7 +122,7 @@ export function ShareFlow({ slug, p, feed, onClose, toast }: { slug: string; p: 
         {stage === "done" && <div className="stack" style={{ alignItems: "center", textAlign: "center", padding: "12px 0" }}>
           <Burst size={140} ink="#0A0A0A" width={3} />
           <h2>You're in the burst.</h2>
-          <p>People in your photo hear about it first. Everyone else sees it in tomorrow's round-up.</p>
+          <p>People in your photo hear about it first. Everyone else sees it in the Posts tab and the next round-up.</p>
           <button className="btn" onClick={onClose}>Done</button>
         </div>}
       </div>

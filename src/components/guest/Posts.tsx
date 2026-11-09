@@ -11,6 +11,7 @@ export function Posts({ slug, feed, focus }: { slug: string; feed: Feed; focus?:
   const [ask, setAsk] = useState<Post | null>(null);
   const [adding, setAdding] = useState(false);
   const [queue, setQueue] = useState(false); // walking through every post you haven't liked yet
+  const skipped = useRef(new Set<string>()); // passed on during this run of the queue
   const opened = useRef<Post | null>(null);
   const load = useCallback(() => api<Post[]>(`/api/g/${slug}/posts`).then(setRows).catch(() => setRows([])), [slug]);
   useEffect(() => { load(); }, [load]);
@@ -22,13 +23,17 @@ export function Posts({ slug, feed, focus }: { slug: string; feed: Feed; focus?:
 
   function openPost(p: Post) { opened.current = p; window.open(p.url, "_blank", "noopener"); }
   const toLike = (rows ?? []).filter((r) => !r.mine && !r.cheered);
+  const left = toLike.filter((r) => !skipped.current.has(r.id));
+  const startQueue = () => { skipped.current = new Set(); setQueue(true); setNext(toLike[0]); };
+  const stopQueue = () => { setNext(null); setQueue(false); };
   async function cheer(p: Post, liked: boolean) {
     setAsk(null);
     if (liked) await api(`/api/g/${slug}/posts/${p.id}/cheer`, { method: "POST", json: { liked } }).catch(() => {});
+    else skipped.current.add(p.id);
     const fresh = await api<Post[]>(`/api/g/${slug}/posts`).catch(() => rows ?? []);
     setRows(fresh);
     // In the queue, go straight on to the next post you haven't liked (skipping ones you passed on).
-    if (queue) { const next = fresh.find((r) => !r.mine && !r.cheered && r.id !== p.id); if (next) setNext(next); else setQueue(false); }
+    if (queue) { const next = fresh.find((r) => !r.mine && !r.cheered && r.id !== p.id && !skipped.current.has(r.id)); if (next) setNext(next); else setQueue(false); }
   }
   const [next, setNext] = useState<Post | null>(null);
   const list = (rows ?? []).filter((r) => filter === "all" || r.with_me || r.mine);
@@ -41,7 +46,7 @@ export function Posts({ slug, feed, focus }: { slug: string; feed: Feed; focus?:
       <p className="small">Posts travel further when the room likes them early. Share yours, then like everyone else&apos;s.</p>
       <div className="two">
         <button className="btn alt" onClick={() => setAdding(true)}><Icon name="plus" size={18} />Share your post</button>
-        <button className="btn" disabled={!toLike.length} onClick={() => { setQueue(true); setNext(toLike[0]); }}>{toLike.length ? `Like them all (${toLike.length})` : "All liked"}</button>
+        <button className="btn" disabled={!toLike.length} onClick={startQueue}>{toLike.length ? `Like them all (${toLike.length})` : "All liked"}</button>
       </div>
       {mine.length > 0 && <div className="panel"><div className="row between"><span className="ink">Your post{mine.length > 1 ? "s" : ""}</span><span className="small">{mine.reduce((a, p) => a + p.cheers, 0)} likes from guests · {mine.reduce((a, p) => a + p.clicks, 0)} clicks</span></div></div>}
       <div className="seg" role="group" aria-label="Filter posts">
@@ -67,18 +72,18 @@ export function Posts({ slug, feed, focus }: { slug: string; feed: Feed; focus?:
       {rows && rows.length > 0 && <p className="small center">You cheered {cheered} of {rows.filter((r) => !r.mine).length}. Likes happen on {list[0]?.platform === "x" ? "X" : "LinkedIn"}; we just ask.</p>}
       {adding && <AddPost slug={slug} onClose={() => setAdding(false)} onAdded={() => { setAdding(false); setFilter("all"); load(); }} />}
       {next && !ask && (
-        <div className="sheet-bg" onClick={(e) => e.target === e.currentTarget && (setNext(null), setQueue(false))}>
+        <div className="sheet-bg" onClick={(e) => e.target === e.currentTarget && stopQueue()} onKeyDown={(e) => e.key === "Escape" && stopQueue()}>
           <div className="sheet" role="dialog" aria-modal="true" aria-label="Next post to like">
             <span className="grab" />
-            <p className="small">{toLike.length} to go</p>
+            <p className="small">{left.length} to go</p>
             <h2>{next.author.split(" ")[0]}&apos;s post on {next.platform === "x" ? "X" : "LinkedIn"}</h2>
             <p>Open it, give it a like, then come back here.</p>
-            <div className="two"><button className="btn alt" onClick={() => { setNext(null); setQueue(false); }}>Stop</button><button className="btn" onClick={() => { const p = next; setNext(null); openPost(p); }}>Open and like<Icon name="ext" size={14} color="#fff" /></button></div>
+            <div className="two"><button className="btn alt" onClick={stopQueue}>Stop</button><button className="btn" autoFocus onClick={() => { const p = next; setNext(null); openPost(p); setAsk(p); }}>Open and like<Icon name="ext" size={14} color="#fff" /></button></div>
           </div>
         </div>
       )}
       {ask && (
-        <div className="sheet-bg" onClick={(e) => e.target === e.currentTarget && setAsk(null)}>
+        <div className="sheet-bg" onClick={(e) => e.target === e.currentTarget && (setAsk(null), setQueue(false))} onKeyDown={(e) => e.key === "Escape" && (setAsk(null), setQueue(false))}>
           <div className="sheet" role="dialog" aria-modal="true" aria-label="Did you like it?">
             <span className="grab" />
             <h2>Did you like {ask.author.split(" ")[0]}&apos;s post?</h2>
@@ -102,12 +107,12 @@ function AddPost({ slug, onClose, onAdded }: { slug: string; onClose: () => void
     catch (x) { setErr((x as Error).message); setBusy(false); }
   }
   return (
-    <div className="sheet-bg" onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="sheet-bg" onClick={(e) => e.target === e.currentTarget && onClose()} onKeyDown={(e) => e.key === "Escape" && onClose()}>
       <form className="sheet" role="dialog" aria-modal="true" aria-label="Share your post" onSubmit={save}>
         <span className="grab" />
         <h2>Share your post</h2>
         <p>Posted about tonight on LinkedIn or X? Paste the link and everyone here gets the chance to like it.</p>
-        <label className="field">Link to your post<input type="url" inputMode="url" required value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.linkedin.com/posts/…" /></label>
+        <label className="field">Link to your post<input type="text" inputMode="url" autoFocus required value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.linkedin.com/posts/…" /></label>
         <p className="small">In the app, tap ··· on your post, then Copy link.</p>
         {err && <div className="err" role="alert">{err}</div>}
         <div className="two"><button type="button" className="btn alt" onClick={onClose}>Cancel</button><button className="btn" disabled={busy || !url}>{busy ? <span className="spin" /> : "Share"}</button></div>

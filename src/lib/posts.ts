@@ -6,7 +6,8 @@ export function normalisePost(raw: string): { url: string; platform: "linkedin" 
   const host = u.hostname.replace(/^www\.|^m\./, "");
   if (host === "linkedin.com" || host.endsWith(".linkedin.com") || host === "lnkd.in") {
     if (!/\/(posts|feed\/update|pulse)\//.test(u.pathname) && host !== "lnkd.in") return null;
-    return { url: `https://www.linkedin.com${u.pathname.replace(/\/$/, "")}`.replace("https://www.linkedin.comlnkd.in", "https://lnkd.in"), platform: "linkedin" };
+    const path = u.pathname.replace(/\/$/, "");
+    return { url: host === "lnkd.in" ? `https://lnkd.in${path}` : `https://www.linkedin.com${path}`, platform: "linkedin" };
   }
   if (["x.com", "twitter.com"].includes(host)) {
     const s = u.pathname.match(/^\/([^/]+)\/status\/(\d+)/);

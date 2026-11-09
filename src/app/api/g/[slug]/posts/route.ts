@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { sql } from "@/lib/db";
-import { route, json, requireGuest, HttpError } from "@/lib/api";
+import { route, json, requireGuest, HttpError, limit } from "@/lib/api";
 import { notifyPost } from "@/lib/notify";
 import { normalisePost } from "@/lib/posts";
 
@@ -9,6 +9,7 @@ type Ctx = { params: Promise<{ slug: string }> };
 export const POST = route(async (req: Request, { params }: Ctx) => {
   const { ev, g } = await requireGuest((await params).slug);
   if (!ev.sharing_unlocked) throw new HttpError(402, "Sharing isn't switched on for this event");
+  limit("post:" + g.id, 10, 60_000); // each post lands in everyone's like queue
   const b = z.object({ url: z.string().max(600), code: z.string().max(20).optional() }).parse(await req.json());
   const n = normalisePost(b.url);
   if (!n) throw new HttpError(400, "That doesn't look like a LinkedIn or X post link. In the app, tap ··· on your post, then Copy link.");

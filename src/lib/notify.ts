@@ -61,7 +61,7 @@ export async function roundups() {
   for (const ev of events) {
     const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: ev.timezone }).format(new Date()));
     if (hour < 11 || hour > 13) continue;
-    const since = ev.last_roundup_at ?? ev.delivered_at;
+    const since = ev.last_roundup_at ?? ev.starts_at; // posts from the night itself count in the first round-up
     const [{ n }] = await sql`select count(*)::int as n from posts where event_id = ${ev.id} and created_at > ${since}`;
     await sql`update events set roundups_sent = roundups_sent + 1, last_roundup_at = now() where id = ${ev.id}`;
     if (!n) continue;

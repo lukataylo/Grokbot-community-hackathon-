@@ -28,11 +28,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="https://fonts.gstatic.com/s/familjengrotesk/v11/Qw3GZR9ZHiDnImG6-NEMQ41wby8WbHoEj7E49PA.woff2" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&display=swap">
 <script>
 /* Hold the hero and nav for at most 300ms so the web font swaps in without a layout shift. */
 (function(){var d=document.documentElement,f=document.fonts;d.classList.add('js');if(!f||!f.load)return;d.classList.add("fp");var done=function(){d.classList.remove("fp")};Promise.race([f.load('500 100px "Familjen Grotesk"'),new Promise(function(r){setTimeout(r,300)})]).then(done,done);})();
 </script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600&display=swap">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
  {"@type":"Organization","@id":"https://lumzel.com/#org","name":"Lumzel","url":"https://lumzel.com/","logo":"https://lumzel.com/icons/apple-touch-icon.png","areaServed":"London, GB"},
@@ -161,9 +161,8 @@ section{position:relative}
 .swap{display:grid}
 .swap>*{grid-area:1/1;margin:0 auto}
 .stage{position:relative;width:min(680px,92vw);height:min(330px,46vw);margin-top:6svh}
-.tile{--y:0;position:absolute;width:11%;aspect-ratio:4/3;border-radius:0;background-color:var(--tile);background-repeat:no-repeat;background-size:420% auto;background-blend-mode:luminosity;box-shadow:inset 0 0 0 1px rgba(10,10,10,.06);will-change:transform}
-.tile::after{content:"";position:absolute;inset:0;background:var(--you);mix-blend-mode:multiply;opacity:var(--y,0)}
-.tile.you{--y:.9}
+.tile{position:absolute;width:11%;aspect-ratio:4/3;border-radius:6px;background:var(--tile);will-change:transform}
+.tile.you{background:var(--you)}
 .photo{position:relative;width:min(760px,92vw,calc((100svh - 330px) * 1.5));aspect-ratio:3/2;border-radius:20px;overflow:hidden;margin-top:5svh;background:var(--tile)}
 .photo img{width:100%;height:100%;object-fit:cover}
 .cover{position:absolute;inset:0;clip-path:ellipse(9.5% 17% at 69.2% 50.5%)}
@@ -735,7 +734,6 @@ document.addEventListener('DOMContentLoaded', function(){
   var stage = $('stage'), tiles = [], youIdx = [3, 9, 14, 22, 29, 36];
   for (var t = 0; t < 40; t++) {
     var el = document.createElement('div'); el.className = 'tile';
-    { var img = (t % 3 === 0) ? '/landing/img/group_px.jpg' : '/landing/img/group.jpg'; el.style.backgroundImage = 'url(' + img + ')'; el.style.backgroundPosition = ((t * 37) % 100) + '% ' + (35 + (t * 53) % 55) + '%'; }
     el.style.left = ((t % 8) * 12.4 + 0.6) + '%'; el.style.top = (Math.floor(t / 8) * 20.4) + '%';
     stage.appendChild(el); tiles.push(el);
   }
@@ -776,7 +774,7 @@ document.addEventListener('DOMContentLoaded', function(){
   g.to(tiles, { x: 0, y: 0, rotation: 0, scale: 1, ease: 'power3.inOut', stagger: { each: .01, from: 'random' }, duration: 1 });
   swapIn(g, '#gather .g1', '#gather .g2', .35);
   swapIn(g, '#gather .g2', '#gather .g3', 1.1);
-  g.to(youIdx.map(function(k){ return tiles[k]; }), { '--y': .9, duration: .3, stagger: .04 }, 1.2).to({}, { duration: .3 });
+  g.to(youIdx.map(function(k){ return tiles[k]; }), { backgroundColor: '#FFB000', duration: .3, stagger: .04 }, 1.2).to({}, { duration: .3 });
 
   // Scene 2: the cover lands on the person who said no.
   gsap.set('#consent .c1', { opacity: 1 }); gsap.set('#consent .c2', { opacity: 0 });

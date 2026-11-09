@@ -57,7 +57,7 @@ export function Notify({ slug, feed, vapid, onDone, standaloneStart }: { slug: s
     <div className="shell">{top}
       <h1 style={{ marginTop: 16 }}>Want your photos the moment they're ready?</h1>
       <div className="stack" style={{ gap: 16, marginTop: 8 }}>
-        {[["clock", `Your photos, at ${at}`, "Once, tomorrow morning"], ["photo", "When someone posts a photo you're in", "So you can see it, and like it"], ["heart", "Posts from tonight's guests", "One round-up a day, for three days"]].map(([i, t, s]) => (
+        {[["clock", `A round-up of your photos, at ${at}`, "Once, tomorrow morning"], ["photo", "When someone posts a photo you're in", "So you can see it, and like it"], ["heart", "Posts from tonight's guests", "One round-up a day, for three days"]].map(([i, t, s]) => (
           <div key={t} className="step"><span className="ico" style={{ width: 42, height: 42, borderRadius: 12 }}><Icon name={i} size={20} /></span><span>{t}<small>{s}</small></span></div>
         ))}
       </div>
@@ -115,7 +115,7 @@ export function Notify({ slug, feed, vapid, onDone, standaloneStart }: { slug: s
     <div className="shell">{top}
       <h1 style={{ marginTop: 16 }}>What should we tell you about?</h1>
       <div className="list">
-        <label className="li"><span>Your photos are ready<small>{at} tomorrow. Always on.</small></span><input type="checkbox" className="switch" checked disabled aria-label="Photos ready, always on" /></label>
+        <label className="li"><span>Your morning round-up<small>{at} tomorrow. Always on.</small></span><input type="checkbox" className="switch" checked disabled aria-label="Photos ready, always on" /></label>
         {ev.sharing && <>
           <label className="li"><span>You're in someone's post<small>When a guest posts a photo of you</small></span><input type="checkbox" className="switch" checked={prefs.post} onChange={(e) => setPrefs({ ...prefs, post: e.target.checked })} /></label>
           <label className="li"><span>Posts from tonight<small>A daily round-up you can like</small></span><input type="checkbox" className="switch" checked={prefs.roundup} onChange={(e) => setPrefs({ ...prefs, roundup: e.target.checked })} /></label>
@@ -145,7 +145,7 @@ export function Notify({ slug, feed, vapid, onDone, standaloneStart }: { slug: s
   return (
     <form className="shell" onSubmit={saveEmail}>{top}
       <h1 style={{ marginTop: 16 }}>{step === "denied" ? "No notifications. That's fine." : "We'll email you instead."}</h1>
-      <p>Your photos arrive by email at {at}. One email, plus nothing else.</p>
+      <p>Your round-up arrives by email at {at}. One email, nothing else.</p>
       <label className="field">Email<input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} /></label>
       {err && <div className="err" role="alert">{err}</div>}
       <button className="btn" disabled={busy}>{busy ? <span className="spin" /> : "Email my photos"}</button>

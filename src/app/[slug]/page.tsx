@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const ev = await load(slug);
   if (!ev) return {};
-  return { title: ev.name, description: `Join ${ev.name}. Choose how you appear, and get your photos in the morning.`, manifest: `/${slug}/manifest.webmanifest`, robots: { index: false } };
+  return { title: ev.name, description: `Join ${ev.name}. Choose how you appear, and see every photo you're in.`, manifest: `/${slug}/manifest.webmanifest`, robots: { index: false } };
 }
 
 export default async function Page({ params }: Props) {

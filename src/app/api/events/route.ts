@@ -10,7 +10,7 @@ export const POST = route(async (req: Request) => {
   if (!(await canHost(h.email))) throw new HttpError(403, "Creating events is in beta. Get access at lumzel.com.");
   const i = EventInput.parse(await req.json());
   const s = schedule(i);
-  // Delivery runs as soon as its time passes, which also closes uploads: a past date would end the event at once.
+  // The morning round-up runs as soon as its time passes: a past date would send it at once.
   if (s.deliverAt.getTime() < Date.now()) throw new HttpError(400, "That event has already finished. Pick today or a later date.");
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
