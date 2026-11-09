@@ -1,6 +1,8 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { api, Icon, Logo, img, shrink, useToast } from "../ui";
+import QrArt from "./QrArt";
+import type { ArtState } from "@/lib/qrart";
 
 type Stats = {
   counts: { guests: number; notify: number; photos: number; processing: number; tiled: number; delivered: number; posts: number; clicks: number; previews: number; cheers: number };
@@ -11,8 +13,9 @@ type Stats = {
 };
 type Ev = { id: string; slug: string; name: string; startsAt: string; endsAt: string; deliverAt: string; timezone: string; description: string; highlights: string; sharing: boolean; delivered: boolean };
 
-export default function Dashboard({ ev, qr, link, initial, notice }: { ev: Ev; qr: string; link: string; initial: Stats; notice?: string }) {
+export default function Dashboard({ ev, qr, art: initialArt, link, initial, notice }: { ev: Ev; qr: string; art: ArtState; link: string; initial: Stats; notice?: string }) {
   const [s, setS] = useState<Stats>(initial);
+  const [art, setArt] = useState(initialArt);
   const [highlights, setHighlights] = useState(ev.highlights);
   const [description, setDescription] = useState(ev.description);
   const local = (d: string, o: Intl.DateTimeFormatOptions, loc = "en-GB") => new Intl.DateTimeFormat(loc, { timeZone: ev.timezone, ...o }).format(new Date(d));
@@ -64,7 +67,9 @@ export default function Dashboard({ ev, qr, link, initial, notice }: { ev: Ev; q
         <div className="stack" style={{ gap: 20 }}>
           <section className="card" aria-label="Your event code">
             <div className="row" style={{ alignItems: "flex-start" }}>
-              <div style={{ width: 132, flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: qr }} />
+              {art.chosen
+                ? <img src={`/api/events/${ev.id}/qr-art/${art.chosen}?w=320`} alt="Your artistic QR code" style={{ width: 132, flexShrink: 0, borderRadius: 8 }} />
+                : <div style={{ width: 132, flexShrink: 0 }} dangerouslySetInnerHTML={{ __html: qr }} />}
               <div className="stack" style={{ gap: 6, minWidth: 0 }}>
                 <h3>Put this on the screen.</h3>
                 <p className="small" style={{ wordBreak: "break-all" }}>{link.replace(/^https?:\/\//, "")}</p>
@@ -75,6 +80,7 @@ export default function Dashboard({ ev, qr, link, initial, notice }: { ev: Ev; q
                 </div>
               </div>
             </div>
+            <QrArt eventId={ev.id} art={art} setArt={setArt} />
           </section>
 
           <section className="stats" aria-label="Live numbers">

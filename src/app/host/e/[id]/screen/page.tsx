@@ -5,6 +5,7 @@ import { sql, migrate } from "@/lib/db";
 import { currentHost } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { Burst } from "@/components/ui";
+import { chosenArtId } from "@/lib/qrart";
 
 export const dynamic = "force-dynamic";
 export default async function Screen({ params }: { params: Promise<{ id: string }> }) {
@@ -14,7 +15,8 @@ export default async function Screen({ params }: { params: Promise<{ id: string 
   if (!isUuid(id)) notFound();
   const [ev] = await sql`select * from events where id = ${id} and host_id = ${h.id}`; if (!ev) notFound();
   const link = `${env.baseUrl}/${ev.slug}`;
-  const qr = await QRCode.toString(link, { type: "svg", margin: 0, errorCorrectionLevel: "M" });
+  const art = await chosenArtId(ev as { id: string; slug: string; qr_art_key: string | null });
+  const qr = art ? "" : await QRCode.toString(link, { type: "svg", margin: 0, errorCorrectionLevel: "M" });
   return (
     <main style={{ minHeight: "100dvh", display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)", alignItems: "center", gap: "6vw", padding: "6vw", background: "#fff" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "2.4vw" }}>
@@ -23,7 +25,9 @@ export default async function Screen({ params }: { params: Promise<{ id: string 
         <p style={{ fontSize: "2vw" }}>Choose to be shown or covered. Get every photo you&apos;re in tomorrow morning.</p>
         <p style={{ fontSize: "2.4vw", color: "#0A0A0A" }}>{link.replace(/^https?:\/\//, "")}</p>
       </div>
-      <div style={{ width: "100%", maxWidth: "70vh", justifySelf: "center" }} dangerouslySetInnerHTML={{ __html: qr }} />
+      {art
+        ? <img src={`/api/events/${ev.id}/qr-art/${art}`} alt={`QR code for ${link}`} style={{ width: "100%", maxWidth: "70vh", justifySelf: "center", display: "block", aspectRatio: "1" }} />
+        : <div style={{ width: "100%", maxWidth: "70vh", justifySelf: "center" }} dangerouslySetInnerHTML={{ __html: qr }} />}
     </main>
   );
 }

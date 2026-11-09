@@ -142,6 +142,16 @@ create table if not exists interest (
   updated_at timestamptz not null default now()
 );
 
+-- Artistic QR candidates that passed the scan test. Ids double as unguessable image URLs.
+create table if not exists qr_art (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid not null references events(id) on delete cascade,
+  key text not null,
+  theme text not null default '',
+  created_at timestamptz not null default now()
+);
+create index if not exists qr_art_event on qr_art(event_id, created_at);
+
 -- Changes to existing databases (keep idempotent).
 alter table photos add column if not exists stale_at timestamptz;
 alter table photos add column if not exists hold boolean not null default false;
@@ -151,3 +161,14 @@ alter table photos add column if not exists checked_at timestamptz;
 -- running or rollback-able deploy still writes them.
 alter table guests alter column prefs set default '{"post":true,"roundup":true,"likes":true}';
 create index if not exists photos_stale on photos(stale_at) where stale_at is not null;
+-- Artistic QR: the chosen candidate's storage key (null = plain QR) and paid generation runs so far.
+alter table events add column if not exists qr_art_key text;
+alter table events add column if not exists qr_art_runs int not null default 0;
+alter table qr_art add column if not exists url text not null default '';
+-- One row per paid generation run, for the per-host and daily caps.
+create table if not exists qr_art_run (
+  id bigserial primary key,
+  event_id uuid not null references events(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+create index if not exists qr_art_run_day on qr_art_run(created_at);
