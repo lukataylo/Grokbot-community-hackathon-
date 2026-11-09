@@ -145,8 +145,10 @@ test("host sets up, guests join, photos are tiled and delivered, posts are share
   await g2.getByRole("button", { name: "Skip, I'll check back" }).click();
   await g2.getByRole("button", { name: "Posts" }).click();
   await g2.getByRole("button", { name: "Everyone" }).click();
+  // The "Like them all" queue walks a guest through every post they haven't liked yet.
+  await g2.getByRole("button", { name: /Like them all/ }).click();
   const popup = g2.waitForEvent("popup");
-  await g2.getByRole("button", { name: /^Like/ }).first().click();
+  await g2.getByRole("button", { name: /Open and like/ }).click();
   await (await popup).close();
   await g2.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
   await g2.getByRole("button", { name: "Yes, liked" }).click();
