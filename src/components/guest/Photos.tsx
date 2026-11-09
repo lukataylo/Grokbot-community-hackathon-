@@ -93,7 +93,8 @@ export function Viewer({ p, feed, onClose, onShare, toast }: { p: Photo; feed: F
         <span className="small" style={{ color: "#A8A6A1" }}>{p.with_me ? "You're in this" : p.mine ? "You took this" : feed.event.name}</span>
         <span style={{ width: 44 }} />
       </div>
-      <img src={img(p.id, p.v, 1600)} alt="Photo from the event. Faces of anyone who didn't say yes are tiled." />
+      <img src={img(p.id, p.v, 1600)} alt={p.ai ? "Photo from the event. Faces of anyone who didn't say yes are replaced by AI stand-ins." : "Photo from the event. Faces of anyone who didn't say yes are tiled."} />
+      {p.ai && <p className="small center" style={{ color: "#A8A6A1", margin: "6px 0 0" }}>Covered faces are AI stand-ins</p>}
       <div className="bar">
         <button className="btn alt" disabled={busy} onClick={async () => { setBusy(true); const r = await savePhotos([p], "lumzel"); setBusy(false); if (r !== "cancelled") toast(r === "shared" ? "Saved" : "Downloaded"); }}><Icon name="down" size={20} />Save</button>
         {feed.event.sharing && <button className="btn amber" onClick={onShare}><Icon name="share" size={20} />Post</button>}

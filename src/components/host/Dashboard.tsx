@@ -11,13 +11,14 @@ type Stats = {
   leaders: Array<{ name: string; clicks: number; cheers: number }>;
   event: { delivered_at: string | null; deliver_at: string; sharing_unlocked: boolean };
 };
-type Ev = { id: string; slug: string; name: string; startsAt: string; endsAt: string; deliverAt: string; timezone: string; description: string; highlights: string; sharing: boolean; delivered: boolean };
+type Ev = { id: string; slug: string; name: string; startsAt: string; endsAt: string; deliverAt: string; timezone: string; description: string; highlights: string; sharing: boolean; delivered: boolean; faceStyle: "tiles" | "standins" };
 
 export default function Dashboard({ ev, qr, art: initialArt, link, initial, notice }: { ev: Ev; qr: string; art: ArtState; link: string; initial: Stats; notice?: string }) {
   const [s, setS] = useState<Stats>(initial);
   const [art, setArt] = useState(initialArt);
   const [highlights, setHighlights] = useState(ev.highlights);
   const [description, setDescription] = useState(ev.description);
+  const [faceStyle, setFaceStyle] = useState(ev.faceStyle);
   const local = (d: string, o: Intl.DateTimeFormatOptions, loc = "en-GB") => new Intl.DateTimeFormat(loc, { timeZone: ev.timezone, ...o }).format(new Date(d));
   const hm = { hour: "2-digit", minute: "2-digit", hourCycle: "h23" } as const;
   const [when, setWhen] = useState({ date: local(ev.startsAt, {}, "en-CA"), start: local(ev.startsAt, hm), end: local(ev.endsAt, hm), deliver: local(ev.deliverAt, hm) });
@@ -150,6 +151,16 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
               {!s.leaders.length && <p className="small">Posts appear here as guests share.</p>}
             </section>
           )}
+
+          <section className="card" aria-label="AI stand-ins">
+            <label className="li" style={{ padding: 0, opacity: s.event.sharing_unlocked ? 1 : 0.55 }}>
+              <span><b>AI stand-ins</b><small>{s.event.sharing_unlocked
+                ? "Instead of tiles, covered faces become a natural face of someone who doesn't exist. The AI only ever sees the tiled photo, and tiles show until each stand-in is ready."
+                : "Part of social sharing"}</small></span>
+              <input type="checkbox" className="switch" aria-label="AI stand-ins" checked={s.event.sharing_unlocked && faceStyle === "standins"} disabled={!s.event.sharing_unlocked || !!busy}
+                onChange={(e) => { const next = e.target.checked ? "standins" : "tiles"; act("faces", async () => { await api(`/api/events/${ev.id}`, { method: "PATCH", json: { faceStyle: next } }); setFaceStyle(next); }, next === "standins" ? "AI stand-ins on. Photos update over the next few minutes." : "Back to tiles"); }} />
+            </label>
+          </section>
 
           {!delivered && <section className="card" aria-label="When">
             <h3>When</h3>

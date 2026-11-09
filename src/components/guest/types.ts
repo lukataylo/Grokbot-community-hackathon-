@@ -1,7 +1,7 @@
-export type Photo = { id: string; v: number; mine: boolean; with_me: boolean };
+export type Photo = { id: string; v: number; mine: boolean; with_me: boolean; ai?: boolean };
 export type Me = { name: string; choice: "show" | "cover" | null; taggable: boolean; email: string | null; hasFace: boolean; push: boolean; prefs: { post: boolean; roundup: boolean; likes: boolean }; resume: string };
 export type Feed = {
-  event: { name: string; hostedBy: string; startsAt: string; endsAt: string; deliverAt: string; delivered: boolean; sharing: boolean; uploads: string; timezone: string };
+  event: { name: string; hostedBy: string; startsAt: string; endsAt: string; deliverAt: string; delivered: boolean; sharing: boolean; uploads: string; timezone: string; faceStyle?: "tiles" | "standins" };
   me: Me | null; guests: number; pending: number; photos: Photo[]; total: number;
 };
 export const local = {

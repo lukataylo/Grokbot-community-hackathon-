@@ -29,5 +29,5 @@ export default async function EventPage({ params, searchParams }: Props) {
   const notice = q.paid && ev.sharing_unlocked ? "Sharing is on for this event" : q.created ? "Event created" : q.cancelled ? "Payment cancelled" : undefined;
   const art = await artState(ev as QrEvent);
   return <Dashboard qr={qr} art={art} link={link} initial={initial} notice={notice}
-    ev={{ id: ev.id, slug: ev.slug, name: ev.name, startsAt: ev.starts_at.toISOString(), endsAt: ev.ends_at.toISOString(), deliverAt: ev.deliver_at.toISOString(), timezone: ev.timezone, description: ev.description, highlights: ev.highlights, sharing: ev.sharing_unlocked, delivered: !!ev.delivered_at }} />;
+    ev={{ id: ev.id, slug: ev.slug, name: ev.name, startsAt: ev.starts_at.toISOString(), endsAt: ev.ends_at.toISOString(), deliverAt: ev.deliver_at.toISOString(), timezone: ev.timezone, description: ev.description, highlights: ev.highlights, sharing: ev.sharing_unlocked, delivered: !!ev.delivered_at, faceStyle: ev.face_style === "standins" ? "standins" : "tiles" }} />;
 }

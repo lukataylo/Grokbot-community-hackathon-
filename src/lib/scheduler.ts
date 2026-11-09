@@ -19,7 +19,11 @@ async function tick() {
     // Retention: originals and published photos leave after the host's retention window.
     const old = await sql`select p.id, p.original_key, p.public_key from photos p join events e on e.id = p.event_id
       where e.delivered_at is not null and e.delivered_at < now() - make_interval(days => e.retention_days) limit 200`;
-    for (const p of old) { await store.del(p.original_key); if (p.public_key) await store.del(p.public_key); await sql`delete from photos where id = ${p.id}`; }
+    for (const p of old) {
+      await store.del(p.original_key); if (p.public_key) await store.del(p.public_key);
+      for (const c of await sql`select key from standin_cache where photo_id = ${p.id}`) await store.del(c.key as string); // stand-in overlays
+      await sql`delete from photos where id = ${p.id}`;
+    }
     // Face patterns go with the event, as the selfie screen promises.
     await sql`update guests g set embedding = null from events e where e.id = g.event_id and g.embedding is not null
       and e.delivered_at is not null and e.delivered_at < now() - make_interval(days => e.retention_days)`;

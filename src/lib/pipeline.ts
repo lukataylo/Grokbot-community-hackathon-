@@ -2,8 +2,9 @@ import sharp from "sharp";
 import type postgres from "postgres";
 import { sql } from "./db";
 import * as store from "./storage";
-import { detectRegions, similarity, MATCH_THRESHOLD, type Region } from "./faces";
+import { detectRegions, similarity, MATCH_THRESHOLD, MATCH_MARGIN, type Region } from "./faces";
 import { renderTiled } from "./tiles";
+import { useStandins, setHash, cachedStandin, requestStandins } from "./standins";
 import { chat, parseJson, dataUrl } from "./llm";
 import { env } from "./env";
 
@@ -114,10 +115,12 @@ async function render(photoId: string) {
   for (const r of regions) {
     r.guestId = null;
     if (r.kind !== "face" || !r.embedding) continue;
-    for (const gst of guests) {
-      const s = await similarity(r.embedding, gst.embedding as number[]);
-      if (s >= MATCH_THRESHOLD) pairs.push({ r, who: gst.id as string, s });
-    }
+    // Only a clear match counts: above the threshold and well ahead of the next most similar guest.
+    const scored = [];
+    for (const gst of guests) scored.push({ who: gst.id as string, s: await similarity(r.embedding, gst.embedding as number[]) });
+    scored.sort((a, b) => b.s - a.s);
+    const [best, second] = scored;
+    if (best && best.s >= MATCH_THRESHOLD && (!second || best.s - second.s >= MATCH_MARGIN)) pairs.push({ r, ...best });
   }
   const people = new Set<string>();
   for (const { r, who } of pairs.sort((a, b) => b.s - a.s)) {
@@ -127,20 +130,32 @@ async function render(photoId: string) {
   const showing = new Set(guests.filter((x) => x.choice === "show").map((x) => x.id as string));
   const toTile = regions.filter((r) => !(r.guestId && showing.has(r.guestId)));
   const out = await renderTiled(original, toTile);
+  // AI stand-ins (paid events): only ever made from `out`, the tiled render, and only once the photo is past review
+  // (a reviewer must see tiles, not faces). A stand-in made for exactly this tiled set is reused; otherwise the
+  // tiles go out now and the stand-in version follows as a later render. Any doubt publishes the tiles.
+  const [ev] = await sql`select face_style, sharing_unlocked from events where id = ${p.event_id}`;
+  const hash = setHash(toTile);
+  const wantStandins = !!ev && useStandins(ev) && toTile.length > 0 && !(p.needs_review && !p.reviewed_at) && !["hidden", "failed"].includes(p.status);
+  const standin = wantStandins ? await cachedStandin(photoId, hash, out, toTile, guests as never) : null;
   const rev = (p.render_rev as number) + 1;
   const key = `e/${p.event_id}/pub/${photoId}-${rev}.jpg`;
-  await store.put(key, out);
+  await store.put(key, standin ?? out);
+  let status = "", settled = false;
   await sql.begin(async (tx) => {
     // Status from the row as it is now: the host may have hidden or approved it while we rendered.
-    await tx`update photos set public_key = ${key}, render_rev = ${rev}, tiled_count = ${toTile.length},
+    const [row] = await tx`update photos set public_key = ${key}, render_rev = ${rev}, tiled_count = ${toTile.length},
+      has_standins = ${!!standin}, tile_set = ${hash},
       status = case when status in ('hidden', 'failed') then status when needs_review and reviewed_at is null then 'review' else 'ready' end,
-      regions = ${tx.json(regions.map((r) => ({ ...r })) as never)} where id = ${photoId}`;
+      regions = ${tx.json(regions.map((r) => ({ ...r })) as never)} where id = ${photoId} returning status`;
+    status = (row?.status as string) ?? "";
     // Clear the re-render mark only if nobody changed anything while we rendered.
-    await tx`update photos set stale_at = null, hold = false where id = ${photoId} and date_trunc('milliseconds', stale_at) is not distinct from ${staleAt}`;
+    settled = (await tx`update photos set stale_at = null, hold = false where id = ${photoId} and date_trunc('milliseconds', stale_at) is not distinct from ${staleAt}`).count > 0;
     await tx`delete from photo_people where photo_id = ${photoId}`;
     for (const gid of people) await tx`insert into photo_people (photo_id, guest_id) values (${photoId}, ${gid}) on conflict do nothing`;
   });
   if (p.public_key && p.public_key !== key) await store.del(p.public_key);
+  // Not when a newer change already marked it again: that render decides (and pays) instead.
+  if (wantStandins && !standin && status === "ready" && settled) requestStandins({ photoId, eventId: p.event_id, hash, toTile }, requestRender);
 }
 
 /**

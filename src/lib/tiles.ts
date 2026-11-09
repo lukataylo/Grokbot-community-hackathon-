@@ -1,6 +1,27 @@
 import sharp from "sharp";
 import type { Region } from "./faces";
 
+export type TileRect = { ex: number; ey: number; ew: number; eh: number; w: number; h: number; block: number; cols: number; rows: number };
+
+/**
+ * The rectangle a region's tiles are drawn in, clipped to the image (null when too small to tile).
+ * Stand-ins (standins.ts) may change pixels only inside these same rectangles.
+ */
+export function tileRect(r: Region, width: number, height: number): TileRect | null {
+  // Grow faces to take in hair and ears; head estimates are already generous.
+  const gx = r.kind === "face" ? 1.5 : 1.15, gy = r.kind === "face" ? 1.7 : 1.15;
+  const cx = r.x + r.w / 2, cy = r.y + r.h / 2 - (r.kind === "face" ? r.h * 0.08 : 0);
+  let w = r.w * gx, h = r.h * gy;
+  const block = Math.max(8, Math.round(Math.max(w, h) / 9));
+  const cols = Math.max(3, Math.ceil(w / block)), rows = Math.max(3, Math.ceil(h / block));
+  w = cols * block; h = rows * block;
+  const left = Math.round(cx - w / 2), top = Math.round(cy - h / 2);
+  const ex = Math.max(0, left), ey = Math.max(0, top);
+  const ew = Math.min(width, left + w) - ex, eh = Math.min(height, top + h) - ey;
+  if (ew < 4 || eh < 4) return null;
+  return { ex, ey, ew, eh, w, h, block, cols, rows };
+}
+
 /**
  * Burns soft tiles into every region: a coarse mosaic of rounded squares, averaged per block,
  * fading out in an ellipse around the head. Baked into the pixels, never an overlay.
@@ -11,17 +32,9 @@ export async function renderTiled(original: Buffer, regions: Region[]): Promise<
   const layers: import("sharp").OverlayOptions[] = [];
 
   for (const r of regions) {
-    // Grow faces to take in hair and ears; head estimates are already generous.
-    const gx = r.kind === "face" ? 1.5 : 1.15, gy = r.kind === "face" ? 1.7 : 1.15;
-    const cx = r.x + r.w / 2, cy = r.y + r.h / 2 - (r.kind === "face" ? r.h * 0.08 : 0);
-    let w = r.w * gx, h = r.h * gy;
-    const block = Math.max(8, Math.round(Math.max(w, h) / 9));
-    const cols = Math.max(3, Math.ceil(w / block)), rows = Math.max(3, Math.ceil(h / block));
-    w = cols * block; h = rows * block;
-    const left = Math.round(cx - w / 2), top = Math.round(cy - h / 2);
-    const ex = Math.max(0, left), ey = Math.max(0, top);
-    const ew = Math.min(width, left + w) - ex, eh = Math.min(height, top + h) - ey;
-    if (ew < 4 || eh < 4) continue;
+    const t = tileRect(r, width, height);
+    if (!t) continue;
+    const { ex, ey, ew, eh, w, h, block, cols, rows } = t;
 
     // Average colour per block (area-averaged downscale, then a light blur so no block keeps a feature).
     const { data } = await sharp(original)

@@ -1,7 +1,9 @@
+import { z } from "zod";
 import { sql } from "@/lib/db";
 import { route, json, requireHostEvent, HttpError } from "@/lib/api";
 import { EventInput } from "@/lib/eventInput";
 import { schedule, fmt } from "@/lib/time";
+import { rerenderEvent } from "@/lib/pipeline";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -28,5 +30,14 @@ export const PATCH = route(async (req: Request, { params }: Ctx) => {
   };
   const set = Object.fromEntries(Object.entries(cols).filter(([, v]) => v !== undefined));
   if (Object.keys(set).length) await sql`update events set ${sql(set)} where id = ${ev.id}`;
+
+  // AI stand-ins are part of social sharing. Either way the photos re-render: switching on, the tiles stay up
+  // until each stand-in is ready (no hold needed); switching off, the next render publishes plain tiles.
+  if ("faceStyle" in raw) {
+    const style = z.enum(["tiles", "standins"]).parse(raw.faceStyle);
+    if (style === "standins" && !ev.sharing_unlocked) throw new HttpError(403, "AI stand-ins are part of social sharing. Unlock sharing first.");
+    const [changed] = await sql`update events set face_style = ${style} where id = ${ev.id} and face_style <> ${style} returning id`;
+    if (changed) await rerenderEvent(ev.id);
+  }
   return json({ ok: true });
 });

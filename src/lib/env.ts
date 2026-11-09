@@ -21,6 +21,7 @@ export const env = {
   visionModel: process.env.VISION_MODEL || "openai/gpt-6-luna",
   textModel: process.env.TEXT_MODEL || "deepseek/deepseek-v4.1-flash",
   qrArtModel: process.env.QR_ART_MODEL || "google/gemini-3-pro-image",
+  standinModel: process.env.STANDIN_MODEL || "google/gemini-3.1-flash-image",
   agentDebug: !!process.env.AGENT_DEBUG,
   resendKey: process.env.RESEND_API_KEY || "",
   mailFrom: process.env.MAIL_FROM || "Lumzel <hello@lumzel.com>",

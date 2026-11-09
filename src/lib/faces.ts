@@ -112,7 +112,17 @@ export async function selfieEmbedding(input: Buffer): Promise<number[] | null | 
   return Array.from(faces[0].embedding!);
 }
 
-export const MATCH_THRESHOLD = 0.6; // conservative: a weak match means tiled, never shown
+/** Every face the detector finds in an image (any size, low confidence included), with its embedding when it has one. */
+export async function facesIn(input: Buffer): Promise<Array<{ x: number; y: number; w: number; h: number; score: number; embedding?: number[] }>> {
+  const h = await getHuman();
+  const r = await run(h, await sharp(input).jpeg().toBuffer());
+  return r.face.map((f) => ({ x: f.box[0], y: f.box[1], w: f.box[2], h: f.box[3], score: f.score, embedding: f.embedding?.length ? Array.from(f.embedding) : undefined }));
+}
+
+// Measured on this model: the same person scores ~0.95 selfie-to-photo; different people scored up to 0.69.
+// A weak or ambiguous match means tiled, never shown.
+export const MATCH_THRESHOLD = 0.75;
+export const MATCH_MARGIN = 0.1; // the best guest must beat the runner-up by this much
 
 export async function similarity(a: number[], b: number[]) {
   const h = await getHuman();

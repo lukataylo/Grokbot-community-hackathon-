@@ -121,6 +121,7 @@ footer nav a:hover{color:var(--paper)}
 </ul>
 <h3>People in photos who never scanned the code</h3>
 <p>We detect faces and heads in every photo so we can cover them. We don't try to identify anyone who hasn't given us a selfie, and the detection data stays with that photo and is deleted with it.</p>
+<p><strong>AI stand-ins.</strong> On some paid events the host can choose AI stand-ins instead of tiles. A covered face is then replaced by a natural-looking face of a fictional person who doesn't exist. To make it, we send an image model only the photo as it already looks with every covered face tiled; it never receives the original photo or an uncovered face of anyone who didn't say yes. Only the tiled areas are changed, and we check every stand-in with face matching and discard any that resemble the person it covers or any guest, so a stand-in never contains the covered person's face. If anything fails, the photo keeps its tiles. Photos with stand-ins are labelled in the app, and the stand-in images are deleted with the photo.</p>
 <h3>Visitors to a shared photo link</h3>
 <p>We count link previews and clicks so the host and guest can see how far a post travelled. We don't build a profile of you.</p>
 
@@ -149,7 +150,7 @@ footer nav a:hover{color:var(--paper)}
     <tr><td>Railway</td><td>Hosting the app, database and photo storage, all in the EU (Amsterdam, Netherlands)</td></tr>
     <tr><td>Resend</td><td>Sending sign-in links and photo emails</td></tr>
     <tr><td>Stripe</td><td>Payments</td></tr>
-    <tr><td>OpenRouter and the AI model providers it routes to</td><td>A second privacy check on photos that are already fully tiled, and drafting post captions. They never receive an uncovered face of someone who didn't say yes.</td></tr>
+    <tr><td>OpenRouter and the AI model providers it routes to</td><td>A second privacy check on photos that are already fully tiled, AI stand-in faces on events that use them (from the already-tiled photo), and drafting post captions. They never receive an uncovered face of someone who didn't say yes.</td></tr>
     <tr><td>Cloudflare</td><td>Domain, email forwarding and cookieless web analytics</td></tr>
     <tr><td>Google Fonts, cdnjs and jsDelivr</td><td>Fonts and scripts on lumzel.com. Your browser contacts them directly, so they see your IP address.</td></tr>
   </tbody>

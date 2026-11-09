@@ -54,7 +54,7 @@ export function Choose({ slug, feed, onDone, step = true }: { slug: string; feed
           <span className="radio">{choice === "show" && <Icon name="check" size={14} color="#fff" width={2.6} />}</span>
         </button>
         <button type="button" className="opt" aria-pressed={choice === "cover"} onClick={() => setChoice("cover")}>
-          <span className="ico"><Icon name="cover" size={26} /></span><span><b>Cover me</b><small>Your face becomes soft tiles</small></span>
+          <span className="ico"><Icon name="cover" size={26} /></span><span><b>Cover me</b><small>{feed.event.faceStyle === "standins" ? "Your face is replaced by an AI stand-in" : "Your face becomes soft tiles"}</small></span>
           <span className="radio">{choice === "cover" && <Icon name="check" size={14} color="#fff" width={2.6} />}</span>
         </button>
       </div>

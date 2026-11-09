@@ -172,3 +172,33 @@ create table if not exists qr_art_run (
   created_at timestamptz not null default now()
 );
 create index if not exists qr_art_run_day on qr_art_run(created_at);
+-- AI stand-in faces (paid events): 'tiles' or 'standins', and paid generation runs so far.
+alter table events add column if not exists face_style text not null default 'tiles' check (face_style in ('tiles', 'standins'));
+alter table events add column if not exists standin_runs int not null default 0;
+-- Whether the published version has stand-ins, and which set of regions it tiled (standins.ts setHash).
+alter table photos add column if not exists has_standins boolean not null default false;
+alter table photos add column if not exists tile_set text;
+-- One row per paid stand-in generation, for the per-host and daily caps and per-photo attempts.
+create table if not exists standin_run (
+  id bigserial primary key,
+  event_id uuid not null references events(id) on delete cascade,
+  photo_id uuid references photos(id) on delete set null,
+  set_hash text not null,
+  model text not null default '',
+  outcome text not null default 'started',
+  error text,
+  created_at timestamptz not null default now(),
+  finished_at timestamptz
+);
+create index if not exists standin_run_day on standin_run(created_at);
+create index if not exists standin_run_photo on standin_run(photo_id, set_hash);
+-- A passed stand-in per photo and tiled set: the overlay (stand-in pixels inside the tiled rectangles only) and
+-- the embeddings of its fictional faces, re-checked against the guests whenever it's reused.
+create table if not exists standin_cache (
+  photo_id uuid not null references photos(id) on delete cascade,
+  set_hash text not null,
+  key text not null,
+  faces jsonb not null default '[]',
+  created_at timestamptz not null default now(),
+  primary key (photo_id, set_hash)
+);
