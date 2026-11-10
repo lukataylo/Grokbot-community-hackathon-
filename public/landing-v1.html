@@ -37,7 +37,7 @@ function lzSplit(root){(root||document).querySelectorAll('.split:not([data-split
 [hidden] { display: none !important; }
 .fp .hero, .fp nav { visibility: hidden; }
 html { color-scheme: light; }
-body { background: var(--bg); color: var(--ink); font-family: var(--display); font-size: 18px; line-height: 1.45; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--display); font-size: 18px; line-height: 1.45; letter-spacing: -0.01em; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 .wrap { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
 nav { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; padding-block: 18px; background: rgba(255,255,255,0.86); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .brand { display: flex; align-items: center; gap: 9px; font-size: 22px; font-weight: 500; letter-spacing: -0.045em; color: var(--ink); text-decoration: none; }
@@ -323,10 +323,10 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
 
   // Close: the mega burst opens up as the section arrives.
   gsap.set('.close .mega', { x: 0, y: 0, xPercent: -50, yPercent: -50 });
-  gsap.fromTo('.close .mega', { scale: 0.82, rotation: -6, opacity: 0.4 }, { scale: 1, rotation: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: '.close', start: 'top bottom', end: 'center center', scrub: true } });
+  if (matchMedia('(pointer: fine)').matches) gsap.fromTo('.close .mega', { scale: 0.82, rotation: -6, opacity: 0.4 }, { scale: 1, rotation: 0, opacity: 1, ease: 'none', scrollTrigger: { trigger: '.close', start: 'top bottom', end: 'center center', scrub: true } });
 
   // Close: the opening line, inverted.
-  gsap.from('.close .split .line > span', { yPercent: 110, duration: 1, ease: 'expo.out', stagger: 0.04, scrollTrigger: { trigger: '.close', start: 'top 70%' } });
+  gsap.from('.close .split .line > span', { yPercent: 110, duration: 1, ease: 'expo.out', stagger: 0.04, scrollTrigger: { trigger: '.close', start: 'top 85%' } });
 })();
 </script>
 <script>
