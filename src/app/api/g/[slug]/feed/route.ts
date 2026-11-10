@@ -2,6 +2,7 @@ import { sql } from "@/lib/db";
 import { route, json, eventBySlug } from "@/lib/api";
 import { currentGuest } from "@/lib/auth";
 import { useStandins } from "@/lib/standins";
+import { roundupsLeft } from "@/lib/notify";
 
 type Ctx = { params: Promise<{ slug: string }> };
 export const GET = route(async (_req: Request, { params }: Ctx) => {
@@ -15,7 +16,7 @@ export const GET = route(async (_req: Request, { params }: Ctx) => {
   const [{ guests }] = await sql`select count(*)::int as guests from guests where event_id = ${ev.id}`;
   return json({
     event: { name: ev.name, hostedBy: ev.hosted_by, startsAt: ev.starts_at, endsAt: ev.ends_at, deliverAt: ev.deliver_at, delivered, sharing: ev.sharing_unlocked, uploads: ev.uploads, timezone: ev.timezone,
-      faceStyle: useStandins(ev) ? "standins" : "tiles" },
+      faceStyle: useStandins(ev) ? "standins" : "tiles", roundups: roundupsLeft(ev as unknown as Parameters<typeof roundupsLeft>[0]) },
     me: g ? { name: g.name, choice: g.choice, taggable: g.taggable, email: g.email, hasFace: !!g.embedding, push: !!g.push, prefs: g.prefs, resume: g.resume_code } : null,
     guests, pending,
     // Photos are live for guests as soon as faces are tiled; the morning notification is just a nudge.

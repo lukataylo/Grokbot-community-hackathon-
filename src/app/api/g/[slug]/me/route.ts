@@ -2,6 +2,7 @@ import { z } from "zod";
 import { sql } from "@/lib/db";
 import { route, json, requireGuest, limit } from "@/lib/api";
 import { markStale, photosOf, settleGuestChange } from "@/lib/pipeline";
+import { forgetName } from "@/lib/posts";
 
 type Ctx = { params: Promise<{ slug: string }> };
 const Body = z.object({
@@ -23,7 +24,9 @@ export const PATCH = route(async (req: Request, { params }: Ctx) => {
   const ids = await sql.begin(async (tx) => {
     // Compare with the choice as it is now, under a row lock, not as it was when this request arrived:
     // a slow request must not skip the re-render another request made necessary.
-    const [cur] = await tx`select choice from guests where id = ${g.id} for update`;
+    const [cur] = await tx`select choice, name from guests where id = ${g.id} for update`;
+    // Covered, or no longer taggable: other guests' stored post previews stop naming them, in the same commit.
+    if (cover || b.taggable === false) await forgetName(tx as never, g.event_id, g.id, String(cur?.name ?? g.name));
     await tx`update guests set
     choice = coalesce(${b.choice ?? null}, choice),
     taggable = ${cover} = false and coalesce(${b.taggable ?? null}, taggable),
@@ -48,6 +51,7 @@ export const DELETE = route(async (_req: Request, { params }: Ctx) => {
   const ids = await sql.begin(async (tx) => {
     const ids = await photosOf(tx, g.id, g.event_id);
     await markStale(tx, ids, true); // marked before the delete takes their matches with it
+    await forgetName(tx as never, g.event_id, g.id, g.name);
     await tx`delete from guests where id = ${g.id}`;
     return ids;
   });

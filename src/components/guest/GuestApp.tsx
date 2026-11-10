@@ -43,7 +43,8 @@ export default function GuestApp({ slug, initial, vapid }: { slug: string; initi
   if (!me.choice || over === "choose") return <Choose slug={slug} feed={feed} step={!me.choice} onDone={() => { setOver(null); reload(); }} />;
   if ((!me.hasFace && !local.get(k("selfieSkip"))) || over === "selfie")
     return <FindMe slug={slug} feed={feed} onDone={() => { setOver(null); reload(); }} onSkip={() => { local.set(k("selfieSkip"), "1"); setOver(null); reload(); }} />;
-  const needNotify = !me.push && !me.email && !local.get(k("notifyDone"));
+  // Once the photos are out, an event without sharing has nothing left to notify anyone about.
+  const needNotify = !me.push && !me.email && !local.get(k("notifyDone")) && !(feed.event.delivered && !feed.event.sharing);
   if (needNotify || over === "notify")
     return <Notify slug={slug} feed={feed} vapid={vapid} standaloneStart={standalone} onDone={() => { local.set(k("notifyDone"), "1"); setOver(null); reload(); }} />;
 
@@ -52,7 +53,7 @@ export default function GuestApp({ slug, initial, vapid }: { slug: string; initi
     <div className="shell">
       {node}
       {tab === "photos" && <Photos slug={slug} feed={feed} reload={reload} open={setView} toast={toast} />}
-      {tab === "posts" && showPosts && <Posts slug={slug} feed={feed} focus={focus} />}
+      {tab === "posts" && showPosts && <Posts slug={slug} feed={feed} focus={focus} toast={toast} />}
       {tab === "you" && <You slug={slug} feed={feed} reload={reload} toast={toast} editChoice={() => setOver("choose")} retakeSelfie={() => setOver("selfie")} setupNotify={() => setOver("notify")} />}
       <nav className="tabs" aria-label="Sections">
         <button aria-current={tab === "photos" ? "page" : undefined} onClick={() => setTab("photos")}><Icon name="photo" />Photos</button>

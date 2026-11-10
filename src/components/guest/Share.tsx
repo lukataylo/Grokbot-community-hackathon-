@@ -60,7 +60,7 @@ export function ShareFlow({ slug, p, feed, onClose, toast }: { slug: string; p: 
   }
   async function submit(e: React.FormEvent) {
     e.preventDefault(); setBusy(true); setErr("");
-    try { await api(`/api/g/${slug}/posts`, { method: "POST", json: { url, code: draft?.code } }); setStage("done"); }
+    try { await api(`/api/g/${slug}/posts`, { method: "POST", json: { url, code: draft?.code, caption: draft ? text : undefined } }); setStage("done"); }
     catch (x) { setErr((x as Error).message); }
     setBusy(false);
   }
@@ -108,7 +108,7 @@ export function ShareFlow({ slug, p, feed, onClose, toast }: { slug: string; p: 
 
         {stage === "link" && <form className="stack" onSubmit={submit}>
           <h2>Posted? Send us the link.</h2>
-          <p>So tonight&apos;s guests can like it.</p>
+          <p>So tonight&apos;s guests can like it.{draft ? " They see your words as a preview." : ""}</p>
           <div className="panel"><h3>{platform === "x" ? "On X, on your post" : "In LinkedIn, on your post"}</h3>
             <div className="step"><span className="num" style={{ background: "#fff" }}>1</span><span>{platform === "x" ? "Tap Share" : "Tap ··· at the top right"}</span></div>
             <div className="step"><span className="num" style={{ background: "#fff" }}>2</span><span>{platform === "x" ? "Tap Copy link" : "Tap Copy link to post"}</span></div>
@@ -122,7 +122,7 @@ export function ShareFlow({ slug, p, feed, onClose, toast }: { slug: string; p: 
         {stage === "done" && <div className="stack" style={{ alignItems: "center", textAlign: "center", padding: "12px 0" }}>
           <Rays className="ink" style={{ width: 160, height: 160, margin: "8px 0 12px" }} />
           <h2>You're in the burst.</h2>
-          <p>People in your photo hear first. Everyone here can like it.</p>
+          <p>People in your photo hear first. Reply to comments in the first hour. It keeps a post moving.</p>
           <button className="btn" onClick={onClose}>Done</button>
         </div>}
       </div>

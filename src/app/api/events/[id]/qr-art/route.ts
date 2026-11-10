@@ -22,7 +22,7 @@ export const POST = route(async (_req: Request, { params }: Ctx) => {
   if (running.has(ev.id)) throw new HttpError(409, "Already making your art. Give it a minute.");
   running.add(ev.id);
   try {
-    limit(`qrart:${h.id}`, 2, 3600_000);
+    try { limit(`qrart:${h.id}`, 2, 3600_000); } catch { throw new HttpError(429, "Two tries an hour. Try again later. Your tries are safe."); }
     const claimed = await sql.begin(async (tx) => {
       await tx`select pg_advisory_xact_lock(hashtext('qrart-runs'))`; // serialise the cap checks
       const [{ host, day }] = await tx`select

@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "../ui";
+import { roundupLine } from "./Notify";
 import { platform, type Feed } from "./types";
 
 export function You({ slug, feed, reload, editChoice, setupNotify, retakeSelfie, toast }: { slug: string; feed: Feed; reload: () => void; editChoice: () => void; setupNotify: () => void; retakeSelfie: () => void; toast: (m: string) => void }) {
@@ -8,9 +9,12 @@ export function You({ slug, feed, reload, editChoice, setupNotify, retakeSelfie,
   const [email, setEmail] = useState(me.email ?? "");
   const [prefs, setPrefs] = useState(me.prefs);
   const p = platform();
+  // The switches follow what the server holds: they can be changed on the set-up screens too.
+  useEffect(() => setPrefs(me.prefs), [me.prefs.post, me.prefs.roundup, me.prefs.likes]); // eslint-disable-line react-hooks/exhaustive-deps
+  const hid = feed.event.faceStyle === "standins" ? "covered by an AI stand-in" : "tiled", round = roundupLine(feed.event);
   async function save(body: Record<string, unknown>, msg = "Saved") { await api(`/api/g/${slug}/me`, { method: "PATCH", json: body }); toast(msg); reload(); }
   async function forget() {
-    if (!confirm("Remove you from this event? Your face data and tags are deleted and you'll be tiled in every photo.")) return;
+    if (!confirm(`Remove you from this event? Your face data and tags are deleted and you'll be ${hid} in every photo.`)) return;
     await api(`/api/g/${slug}/me`, { method: "DELETE" }); location.reload();
   }
   return (
@@ -19,11 +23,11 @@ export function You({ slug, feed, reload, editChoice, setupNotify, retakeSelfie,
       <h1>{me.name}</h1>
       <div className="list">
         <button className="li" style={{ background: "none", border: 0, borderBottom: "1px solid var(--line)", textAlign: "left", width: "100%", cursor: "pointer" }} onClick={editChoice}>
-          <span>How you appear<small>{me.choice === "cover" ? "Cover me: your face is tiled" : `Show me${me.taggable ? ", happy to be tagged" : ", no tags"}`}</small></span><span className="small">Change</span></button>
+          <span>How you appear<small>{me.choice === "cover" ? (feed.event.faceStyle === "standins" ? "Cover me: an AI stand-in replaces your face" : "Cover me: your face is tiled") : `Show me${me.taggable ? ", happy to be tagged" : ", no tags"}`}</small></span><span className="small">Change</span></button>
         <button className="li" style={{ background: "none", border: 0, borderBottom: "1px solid var(--line)", textAlign: "left", width: "100%", cursor: "pointer" }} onClick={retakeSelfie}>
           <span>Face pattern<small>{me.hasFace ? "Saved. Only used to find you." : "Not added"}</small></span><span className="small">{me.hasFace ? "Retake" : "Add"}</span></button>
         {me.hasFace && <button className="li" style={{ background: "none", border: 0, borderBottom: "1px solid var(--line)", textAlign: "left", width: "100%", cursor: "pointer" }} onClick={async () => { await api(`/api/g/${slug}/selfie`, { method: "DELETE" }); toast("Face pattern deleted"); reload(); }}>
-          <span>Delete my face pattern<small>You'll be tiled in every photo</small></span><span className="small">Delete</span></button>}
+          <span>Delete my face pattern<small>You&apos;ll be {hid} in every photo</small></span><span className="small">Delete</span></button>}
       </div>
       <div className="sec-h" style={{ marginTop: 8 }}><h3>Notifications</h3></div>
       <div className="list">
@@ -31,14 +35,14 @@ export function You({ slug, feed, reload, editChoice, setupNotify, retakeSelfie,
           {me.push ? <button className="link" onClick={async () => { await api(`/api/g/${slug}/push`, { method: "DELETE" }); reload(); }}>Turn off</button> : <button className="link" onClick={setupNotify}>Set up</button>}</div>
         {feed.event.sharing && <>
           <label className="li"><span>You're in someone's post</span><input type="checkbox" className="switch" checked={prefs.post} onChange={(e) => { const n = { ...prefs, post: e.target.checked }; setPrefs(n); save({ prefs: n }); }} /></label>
-          <label className="li"><span>Daily round-up<small>For three days</small></span><input type="checkbox" className="switch" checked={prefs.roundup} onChange={(e) => { const n = { ...prefs, roundup: e.target.checked }; setPrefs(n); save({ prefs: n }); }} /></label>
+          {round && <label className="li"><span>New posts<small>{round}</small></span><input type="checkbox" className="switch" checked={prefs.roundup} onChange={(e) => { const n = { ...prefs, roundup: e.target.checked }; setPrefs(n); save({ prefs: n }); }} /></label>}
           <label className="li"><span>Likes on your post</span><input type="checkbox" className="switch" checked={prefs.likes} onChange={(e) => { const n = { ...prefs, likes: e.target.checked }; setPrefs(n); save({ prefs: n }); }} /></label>
         </>}
       </div>
-      <form className="stack" onSubmit={(e) => { e.preventDefault(); save({ email }, "Email saved"); }}>
-        <label className="field">Email for your round-up<input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></label>
+      {(!feed.event.delivered || me.email) && <form className="stack" onSubmit={(e) => { e.preventDefault(); save({ email }, "Email saved"); }}>
+        <label className="field">Email for your photos<input type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" /></label>
         <button className="btn alt">Save email</button>
-      </form>
+      </form>}
       <div className="panel"><h3>On another device?</h3><p className="small">Open {location.host}/r/{me.resume}</p></div>
       <button className="link" style={{ color: "var(--err)" }} onClick={forget}>Remove me from this event</button>
     </>

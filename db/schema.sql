@@ -210,3 +210,15 @@ create table if not exists migrations (
 -- Guest-matching rule a photo was last rendered under (see pipeline.ts MATCH_RULE).
 alter table photos add column if not exists match_rule int;
 alter table photos add column if not exists match_rev int; -- render_rev that match_rule was stamped at
+-- What a post says, when the guest wrote it from our draft: shown as the preview in the like queue.
+alter table posts add column if not exists caption text;
+-- Comment ideas written for one guest about one post: generated once, then reused.
+create table if not exists comment_ideas (
+  post_id uuid not null references posts(id) on delete cascade,
+  guest_id uuid not null references guests(id) on delete cascade,
+  options jsonb not null,
+  ai boolean not null default false,
+  created_at timestamptz not null default now(),
+  primary key (post_id, guest_id)
+);
+create index if not exists comment_ideas_guest on comment_ideas(guest_id);

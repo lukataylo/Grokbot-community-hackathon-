@@ -32,8 +32,8 @@ export function Photos({ slug, feed, reload, open, toast }: { slug: string; feed
   return (
     <>
       <div className="top"><span className="ink" style={{ fontSize: 17, fontWeight: 500, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.name}</span>{ev.delivered ? <span>{feed.total} photo{feed.total === 1 ? "" : "s"}</span> : <span className="live"><i />Live</span>}</div>
-      {!feed.total ? <div className="moment" style={{ paddingTop: 40 }}>
-        <Rays spin style={{ width: 200, height: 200 }} />
+      {!feed.total ? <div className="empty">
+        <Rays spin />
         <h1>No photos yet.</h1>
         <p>Add yours. Anyone who hasn&apos;t said yes is {ev.faceStyle === "standins" ? "covered by an AI stand-in" : "tiled"}.</p>
       </div> : <div className="stack" style={{ gap: 8 }}>

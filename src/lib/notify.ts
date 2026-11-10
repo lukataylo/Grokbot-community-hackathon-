@@ -54,21 +54,67 @@ export async function notifyPost(postId: string) {
   }
 }
 
-/** Once a day at 11:00 for three days after delivery: "N new posts from <event>". */
+/**
+ * The round-up of new posts, timed for reach. Early likes and comments carry a post furthest, so the day's
+ * round-up goes out twenty minutes after the first new post (long enough for a few more to join it), not at a
+ * fixed time of day. Two things can hold it longer: it never follows the "photos are ready" message by less than
+ * an hour, and a post made at night waits for 08:00. So most posts in it are past their first hour, and the
+ * message doesn't claim otherwise.
+ * It stays inside what guests agreed to: at most one a day, three in all, within three days of their photos
+ * arriving, in the daytime. A guest hears only about posts that are still news to them: not their own, not ones
+ * they have already liked, and not ones they were told about the moment they went up.
+ */
+const ROUNDUP_WAIT_MIN = 20;
+/**
+ * What the opt-in screens may still promise: how many round-ups are left, and the last moment one could go out.
+ * Null once none can (sharing off, all three sent, or the three days after delivery are over). Before delivery
+ * the three days haven't started, so `until` is null. Mirrors the rules in roundups() below.
+ */
+export function roundupsLeft(ev: { sharing_unlocked: boolean; delivered_at: Date | string | null; roundups_sent: number; last_roundup_at: Date | string | null; timezone: string }, now = Date.now()): { left: number; until: string | null } | null {
+  const unsent = 3 - Number(ev.roundups_sent ?? 0);
+  if (!ev.sharing_unlocked || unsent <= 0) return null;
+  if (!ev.delivered_at) return { left: unsent, until: null };
+  const delivered = new Date(ev.delivered_at).getTime(), end = delivered + 3 * 86_400_000;
+  const from = Math.max(now, delivered + 3_600_000, ev.last_roundup_at ? new Date(ev.last_roundup_at).getTime() + 20 * 3_600_000 : 0);
+  const fmt = new Intl.DateTimeFormat("en-GB", { hour: "numeric", minute: "numeric", hour12: false, timeZone: ev.timezone });
+  const hm = (t: number) => { const p = fmt.formatToParts(new Date(t)); return [Number(p.find((x) => x.type === "hour")?.value) % 24, Number(p.find((x) => x.type === "minute")?.value)]; };
+  const day = (h: number) => h >= 8 && h < 21;
+  // The first daytime moment at or after t, and the last one at or before it. A clock change can leave the jump an hour out, so look again.
+  const up = (t: number) => { for (let k = 0; k < 4; k++) { const [h, m] = hm(t); if (day(h)) break; t += ((h >= 21 ? 32 - h : 8 - h) * 60 - m) * 60_000; } return t; };
+  const down = (t: number) => { for (let k = 0; k < 4; k++) { const [h, m] = hm(t); if (day(h)) break; t -= ((h >= 21 ? h - 21 : h + 3) * 60 + m + 1) * 60_000; } return t; };
+  // The sender looks once a minute, so the last minute of the window can't be counted on.
+  const until = down(end - 60_000);
+  let n = 0;
+  for (let t = up(from); t <= until && n < unsent; t = up(t + 20 * 3_600_000)) n++;
+  return n ? { left: n, until: new Date(until).toISOString() } : null;
+}
 export async function roundups() {
-  const events = await sql`select * from events where sharing_unlocked and delivered_at is not null and roundups_sent < 3
-    and delivered_at < now() - interval '3 hours' and (last_roundup_at is null or last_roundup_at < now() - interval '20 hours')`;
+  const events = await sql`select e.*, (select min(p.created_at) from posts p where p.event_id = e.id and p.created_at > coalesce(e.last_roundup_at, e.starts_at)) as first_new
+    from events e where e.sharing_unlocked and e.delivered_at is not null and e.roundups_sent < 3
+    and e.delivered_at < now() - interval '1 hour' and e.delivered_at > now() - interval '3 days'
+    and (e.last_roundup_at is null or e.last_roundup_at < now() - interval '20 hours')`;
   for (const ev of events) {
-    const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: ev.timezone }).format(new Date()));
-    if (hour < 11 || hour > 13) continue;
+    if (!ev.first_new || Date.now() - new Date(ev.first_new).getTime() < ROUNDUP_WAIT_MIN * 60_000) continue;
+    const hour = Number(new Intl.DateTimeFormat("en-GB", { hour: "numeric", hour12: false, timeZone: ev.timezone }).format(new Date())) % 24;
+    if (hour < 8 || hour >= 21) continue; // a late-night post waits for the morning
     const since = ev.last_roundup_at ?? ev.starts_at; // posts from the night itself count in the first round-up
-    const [{ n }] = await sql`select count(*)::int as n from posts where event_id = ${ev.id} and created_at > ${since}`;
-    await sql`update events set roundups_sent = roundups_sent + 1, last_roundup_at = now() where id = ${ev.id}`;
-    if (!n) continue;
+    // Claim it first, so two ticks (or two instances during a deploy) can't both send it.
+    const [mine] = await sql`update events set roundups_sent = roundups_sent + 1, last_roundup_at = now() where id = ${ev.id} and roundups_sent = ${ev.roundups_sent} returning id`;
+    if (!mine) continue;
+    const posts = await sql`select id, guest_id, photo_id from posts where event_id = ${ev.id} and created_at > ${since}`;
+    if (!posts.length) continue;
+    const ids = posts.map((p) => p.id as string);
+    const liked = new Set((await sql`select post_id, guest_id from cheers where post_id in ${sql(ids)}`).map((c) => `${c.post_id}:${c.guest_id}`));
+    const inPhoto = new Set((await sql`select p.id, pp.guest_id from posts p join photo_people pp on pp.photo_id = p.photo_id where p.id in ${sql(ids)}`).map((c) => `${c.id}:${c.guest_id}`));
     const guests = await sql`select id, prefs from guests where event_id = ${ev.id}`;
     for (const g of guests) {
-      if ((g.prefs as { roundup?: boolean })?.roundup === false) continue;
-      await pushGuest(g.id, { title: ev.name, body: `${n} new post${n === 1 ? "" : "s"} from ${ev.name}. Cheer them on.`, url: `${env.baseUrl}/${ev.slug}?tab=posts`, tag: `roundup-${ev.id}` });
+      const prefs = (g.prefs ?? {}) as { roundup?: boolean; post?: boolean };
+      if (prefs.roundup === false) continue;
+      const n = posts.filter((p) => p.guest_id !== g.id && !liked.has(`${p.id}:${g.id}`) && !(prefs.post !== false && inPhoto.has(`${p.id}:${g.id}`))).length;
+      if (!n) continue;
+      try {
+        await pushGuest(g.id, { title: ev.name, body: `${n} new post${n === 1 ? "" : "s"} from ${ev.name}. A like helps ${n === 1 ? "it" : "them"} travel.`, url: `${env.baseUrl}/${ev.slug}?tab=posts`, tag: `roundup-${ev.id}` });
+      } catch (e) { console.error("[roundup] guest", g.id, e); } // one bad subscription must not stop the rest
     }
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { api, Icon, Logo, RAYS, Rays, img, shrink, useToast } from "../ui";
+import { api, Burst, Icon, Logo, RAYS, Rays, img, shrink, useToast } from "../ui";
 import QrArt from "./QrArt";
 import type { ArtState } from "@/lib/qrart";
 
@@ -57,35 +57,37 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
   const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? "" : "s"}`;
 
   return (
-    <main className="shell wide" style={{ gap: 28 }}>
+    <main>
       {node}
+      <header className="ev-hero"><div className="ev-hero-in">
       <div className="top"><Logo href="/host" /><a className="link" href="/host">All events</a></div>
 
-      <header className="ev-head">
+      <div className="ev-head">
         <Rays spin />
         <div className="ev-title">
           <span className="ev-tag">{status === "Live" && <i />}{status}</span>
-          <h1>{ev.name}</h1>
-          <p>{t(ev.startsAt, { weekday: "long", day: "numeric", month: "long" })} · <span style={{ whiteSpace: "nowrap" }}>{hhmm(ev.startsAt)}–{hhmm(ev.endsAt)}</span></p>
+          <h1 className={ev.name.length > 22 ? "long" : undefined}>{ev.name}</h1>
+          <p><span>{t(ev.startsAt, { weekday: "long", day: "numeric", month: "long" })} · <span style={{ whiteSpace: "nowrap" }}>{hhmm(ev.startsAt)}–{hhmm(ev.endsAt)}</span></span></p>
         </div>
         <section className="qr-card" aria-label="Your event code">
-          <div className="row" style={{ alignItems: "flex-start", gap: 16 }}>
-            {art.chosen
-              ? <img className="qr" src={`/api/events/${ev.id}/qr-art/${art.chosen}?w=320`} alt="Your artistic QR code" />
-              : <div className="qr" role="img" aria-label="Your event QR code" dangerouslySetInnerHTML={{ __html: qr }} />}
-            <div className="stack" style={{ gap: 6, minWidth: 0 }}>
-              <h2 style={{ fontSize: 17, letterSpacing: "-0.015em" }}>Put this on the screen.</h2>
-              <p className="small" style={{ wordBreak: "break-all" }}>{link.replace(/^https?:\/\//, "")}</p>
+          <div className="qr-top">
+            <div className="qr-box">{art.chosen
+              ? <img className="qr" src={`/api/events/${ev.id}/qr-art/${art.chosen}?w=640`} alt="Your artistic QR code" />
+              : <div className="qr" role="img" aria-label="Your event QR code" dangerouslySetInnerHTML={{ __html: qr }} />}</div>
+            <div className="qr-side">
+              <h2>Put this on the screen.</h2>
+              <p className="small" style={{ overflowWrap: "anywhere" }}>{link.replace(/^https?:\/\//, "")}</p>
             </div>
           </div>
-          <div className="qr-actions">
-            <a className="btn sm" href={`/host/e/${ev.id}/screen`} target="_blank">Screen mode</a>
-            <a className="btn alt sm" href={`/host/e/${ev.id}/poster`} target="_blank">Poster</a>
-            <button className="btn alt sm" onClick={() => { navigator.clipboard.writeText(link); toast("Link copied"); }}>Copy link</button>
-          </div>
-          <QrArt eventId={ev.id} art={art} setArt={setArt} />
+          <QrArt eventId={ev.id} art={art} setArt={setArt}>
+            <a className="qr-act" href={`/host/e/${ev.id}/screen`} target="_blank" aria-label="Screen mode, opens in a new tab"><Icon name="screen" size={24} /><span>Screen</span><span className="nt"><Icon name="ext" size={14} width={2} /></span></a>
+            <a className="qr-act" href={`/host/e/${ev.id}/poster`} target="_blank" aria-label="Poster, opens in a new tab"><Icon name="poster" size={24} /><span>Poster</span><span className="nt"><Icon name="ext" size={14} width={2} /></span></a>
+            <button type="button" className="qr-act" onClick={() => { navigator.clipboard.writeText(link); toast("Link copied"); }}><Icon name="copy" size={24} /><span>Copy link</span></button>
+          </QrArt>
         </section>
-      </header>
+      </div>
+      </div></header>
+      <div className="shell wide dash-body" style={{ gap: 28 }}>
       {err && <div className="err" role="alert">{err}</div>}
 
       <section className="stats ev-stats" aria-label="Live numbers">
@@ -156,7 +158,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
 
           {!s.event.sharing_unlocked && (
             <section className="upsell o4" aria-label="Social sharing">
-              <h2>Switch on social sharing</h2>
+              <div className="row between" style={{ alignItems: "flex-start" }}><h2>Switch on social sharing</h2><Burst size={68} width={9} /></div>
               <p className="small">Guests post the night. Everyone likes each other&apos;s posts.</p>
               <div className="stack" style={{ gap: 8 }}>
                 {["A post written for every guest", "Smart links that count clicks", "Guests like each other's posts", "A live leaderboard"].map((x) => <div key={x} className="step" style={{ fontSize: 15 }}><Icon name="check" size={18} width={2.2} />{x}</div>)}
@@ -197,6 +199,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
 
 
         </div>
+      </div>
       </div>
     </main>
   );

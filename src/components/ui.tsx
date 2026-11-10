@@ -28,6 +28,16 @@ export function Rays({ className = "", style, you = true, draw = true, spin = fa
   );
 }
 
+/** Onboarding header: the event on the left, one tick per step on the right. */
+export function Steps({ name, n, of = 3 }: { name: string; n?: number; of?: number }) {
+  return (
+    <div className="top">
+      <span className="ob-ev"><Burst size={18} you="ink" width={12} /><span>{name}</span></span>
+      {n ? <span className="ticks" role="img" aria-label={`Step ${n} of ${of}`}>{Array.from({ length: of }, (_, k) => <i key={k} className={k < n ? "on" : undefined} />)}</span> : null}
+    </div>
+  );
+}
+
 export function Logo({ href = "/" }: { href?: string }) {
   return <a className="mark" href={href} aria-label="lumzel home"><Burst size={22} you="ink" />lumzel</a>;
 }
@@ -49,6 +59,12 @@ const paths: Record<string, string> = {
   home: "M4 4h16v16H4zM12 8v8M8 12h8",
   lock: "M5 11h14v9H5zM8 11V8a4 4 0 0 1 8 0v3",
   back: "M15 5l-7 7 7 7",
+  screen: "M3.5 5h17v11.5h-17zM8 20h8M12 16.5V20",
+  poster: "M6 3.5h12v17H6zM9.5 7.5h5v5h-5zM9.5 16.5h5",
+  comment: "M5 5h14v11h-8l-4 3.5V16H5z",
+  repost: "M7 11V7h10l-2.5-2.5M17 13v4H7l2.5 2.5",
+  send: "M20 4L4 11l6 2.5L12.5 20z",
+  bars: "M6 19v-6M12 19V5M18 19v-9",
 };
 export function Icon({ name, size = 22, color = "currentColor", width = 1.7, label }: { name: keyof typeof paths | string; size?: number; color?: string; width?: number; label?: string }) {
   const isClose = name === "close";

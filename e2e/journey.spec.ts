@@ -60,7 +60,7 @@ test("host sets up, guests join, photos are tiled and delivered, posts are share
   await g1.getByRole("button", { name: "Continue" }).click();
   await expect(g1.getByRole("heading", { name: "One photo of you." })).toBeVisible();
   await g1.locator("input[type=file][capture]").setInputFiles(fx("selfie.jpg"));
-  await expect(g1.getByRole("heading", { name: /Want your photos/ })).toBeVisible({ timeout: 60_000 });
+  await expect(g1.getByRole("heading", { name: /Famous by|Now get famous|Wake up to your photos|Your photos, delivered/ })).toBeVisible({ timeout: 60_000 });
   await noSideScroll(g1, "notify why");
   await g1.getByRole("button", { name: "Yes, set it up" }).click();
   // iPhone/iPad in a browser tab must install first; Android/desktop go straight to choosing.

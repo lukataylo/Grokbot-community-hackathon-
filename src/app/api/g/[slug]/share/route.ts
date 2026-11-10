@@ -40,6 +40,5 @@ export const POST = route(async (req: Request, { params }: Ctx) => {
     event: { name: ev.name, hostedBy: ev.hosted_by, venue: ev.venue, date: fmt(ev.starts_at, ev.timezone, { weekday: "long", day: "numeric", month: "long" }),
       linkedin: ev.linkedin_handle, x: ev.x_handle, hashtag: ev.hashtag, template: ev.caption_template, description: ev.description, highlights: ev.highlights },
   });
-  await sql`update shares set caption = ${out.captions[0].text} where code = ${s.code}`;
   return json({ code: s.code, link, captions: out.captions, tags: tags.map((t) => t.name), ai: out.usedModel });
 });

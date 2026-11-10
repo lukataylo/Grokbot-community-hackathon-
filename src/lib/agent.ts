@@ -16,7 +16,7 @@ export type AgentInput = {
 };
 export type Caption = { style: Style; text: string; body: string; mentions: string[] };
 
-const BANNED = ["thrilled", "excited to share", "humbled", "game-changer", "game changer", "delighted to announce", "incredible", "amazing journey", "synergy", "unpack", "delve", "buzzing", "electric atmosphere", "next level", "rockstar", "ninja", "lumzel", "mosaic", "pixelat", "blurred", "tiles"];
+export const BANNED = ["thrilled", "excited to share", "humbled", "game-changer", "game changer", "delighted to announce", "incredible", "amazing journey", "synergy", "unpack", "delve", "buzzing", "electric atmosphere", "next level", "rockstar", "ninja", "lumzel", "mosaic", "pixelat", "blurred", "tiles"];
 const LIMITS: Record<Platform, Record<Style, [number, number]>> = {
   linkedin: { thanks: [100, 700], insight: [120, 700], short: [40, 230] },
   x: { thanks: [40, 250], insight: [40, 250], short: [20, 160] },
