@@ -41,7 +41,7 @@ body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--d
 .wrap { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
 nav { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; right: 0; z-index: 20; display: flex; justify-content: space-between; align-items: center; padding-block: 18px; background: rgba(255,255,255,0.86); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .brand { display: flex; align-items: center; gap: 9px; font-size: 22px; font-weight: 500; letter-spacing: -0.045em; color: var(--ink); text-decoration: none; }
-.pill { display: inline-flex; align-items: center; height: 42px; padding: 0 20px; border-radius: 999px; background: var(--ink); color: #FFFFFF; font-size: 15px; font-weight: 500; text-decoration: none; }
+.pill { display: inline-flex; align-items: center; height: 42px; padding: 0 20px; border-radius: 2px; background: var(--ink); color: #FFFFFF; font-size: 15px; font-weight: 500; text-decoration: none; }
 .pill.ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1px var(--quiet); }
 .pill:focus-visible, .brand:focus-visible { outline: 2px solid var(--you); outline-offset: 3px; }
 h1, h2 { margin: 0; font-weight: 500; letter-spacing: -0.045em; line-height: 0.98; text-wrap: balance; }
@@ -55,13 +55,14 @@ section { position: relative; }
 .hero svg { width: 88px; height: 88px; }
 .hero p { margin: 0; font-size: clamp(18px, 1.6vw, 22px); color: var(--muted); max-width: 34ch; }
 /* Each line is sized from the longer one, so neither can clip between 320px and 2560px. */
-.hero-h { font-size: min(calc((100vw - 40px) / 12.4), 124px); max-width: none; line-height: 0.93; }
+.hero-h { font-size: min(calc((100vw - 40px) / 10.8), 132px); max-width: none; line-height: 0.93; }
 .hero-h .line { padding: 0.1em 0 0.2em; margin: -0.1em 0 -0.2em; vertical-align: top; }
 .hero-h .l { display: block; white-space: nowrap; }
 @media (max-width: 600px) { .hero-h { font-size: clamp(36px, 11vw, 56px); } .hero-h .l { white-space: normal; } }
 .scene { height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(20px, 5svh, 56px); overflow: hidden; padding-top: 72px; padding-bottom: 24px; }
 .caption { position: relative; width: 100%; text-align: center; z-index: 2; pointer-events: none; }
 .caption h2 { margin: 0 auto; }
+@media (max-width: 359px) { .scene h2 { font-size: 34px; } }
 .swap { position: relative; display: grid; }
 .swap > * { grid-area: 1 / 1; }
 .stage { position: relative; flex: none; width: min(680px, 92vw, calc((100svh - 330px) * 2.06)); aspect-ratio: 680 / 330; }
@@ -156,6 +157,72 @@ section { position: relative; }
   .done { box-shadow: 6px 6px 0 var(--you); }
   .close-card { margin-right: 6px; }
 }
+/* Ad-cost calculator: the same reach, bought as LinkedIn ads, against one flat £50. */
+.calc { padding-block: clamp(90px, 14vh, 160px); }
+.calc-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: clamp(32px, 6vw, 96px); align-items: start; max-width: 1360px; margin: 0 auto; }
+.calc h2 { font-size: clamp(40px, 6vw, 92px); max-width: 11ch; line-height: 0.95; }
+.ctls { margin-top: clamp(28px, 4vw, 48px); max-width: 640px; }
+.ctl { display: grid; grid-template-columns: 1fr auto; align-items: baseline; padding-top: 14px; border-top: 1px solid var(--quiet); }
+.ctl label { font-size: 18px; color: var(--ink); }
+.ctl .out { font-size: 28px; font-weight: 500; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.ctl input[type=range] { -webkit-appearance: none; appearance: none; grid-column: 1 / -1; width: 100%; height: 48px; margin: 0; padding: 0; background: transparent; cursor: pointer; touch-action: pan-y; --p: 50%; }
+.ctl input[type=range]::-webkit-slider-runnable-track { height: 4px; background: linear-gradient(to right, var(--ink) var(--p), #8E8E8A var(--p)); }
+.ctl input[type=range]::-moz-range-track { height: 4px; background: #8E8E8A; }
+.ctl input[type=range]::-moz-range-progress { height: 4px; background: var(--ink); }
+.ctl input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 28px; height: 28px; margin-top: -12px; background: var(--ink); border: 0; border-radius: 2px; box-shadow: 3px 3px 0 var(--you); }
+.ctl input[type=range]::-moz-range-thumb { width: 28px; height: 28px; background: var(--ink); border: 0; border-radius: 2px; box-shadow: 3px 3px 0 var(--you); }
+.ctl input[type=range]:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.sum { background: var(--ink); color: #FFFFFF; border: 1.5px solid var(--ink); border-radius: 2px; padding: clamp(24px, 4vw, 36px); box-shadow: 10px 10px 0 var(--you); display: flex; flex-direction: column; gap: 22px; }
+.sum p { margin: 0; }
+.sum-top { display: flex; align-items: center; gap: 16px; }
+.sum-top svg { flex: none; width: 92px; height: 92px; overflow: visible; }
+.sum-top line { stroke: #FFFFFF; stroke-width: 1.25px; vector-effect: non-scaling-stroke; }
+.sum-top line.you { stroke: var(--you); stroke-width: 2.5px; }
+.sum-top b { display: block; font-size: 28px; font-weight: 500; letter-spacing: -0.035em; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.sum-top p > span { color: #B9B9B4; font-size: 16px; font-variant-numeric: tabular-nums; }
+.bars { display: flex; flex-direction: column; gap: 16px; }
+.bar { display: grid; grid-template-columns: 1fr auto; align-items: baseline; row-gap: 8px; font-size: 18px; }
+.bar b { font-size: 24px; font-weight: 500; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.bar i { grid-column: 1 / -1; display: block; height: 16px; width: var(--w, 100%); min-width: 4px; background: #FFFFFF; transition: width .35s var(--ease); }
+.bar.lz i { background: var(--you); }
+.bar small { grid-column: 1 / -1; color: #B9B9B4; font-size: 14px; font-variant-numeric: tabular-nums; }
+.save { border-top: 1px solid rgba(255,255,255,.22); padding-top: 20px; }
+.save .k { font-size: 18px; }
+/* The number's box keeps one height at either size, so the card doesn't jump mid-drag. */
+.save .n { display: flex; align-items: flex-end; height: calc(clamp(64px, 8vw, 104px) * 0.95); color: var(--you); font-size: clamp(64px, 8vw, 104px); font-weight: 500; letter-spacing: -0.05em; line-height: 0.95; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.save .n.long { font-size: clamp(44px, 5.4vw, 72px); }
+.sum .note { margin-top: -20px; color: #B9B9B4; font-size: 15px; line-height: 1.4; min-height: 2.8em; }
+.sum details { border-top: 1px solid rgba(255,255,255,.22); padding-top: 14px; font-size: 14px; line-height: 1.45; color: #D6D6D2; }
+.sum summary { display: flex; justify-content: space-between; align-items: center; min-height: 44px; cursor: pointer; list-style: none; color: #FFFFFF; font-size: 15px; font-weight: 500; }
+.sum summary::-webkit-details-marker { display: none; }
+.sum summary::after { content: "+"; font-size: 22px; font-weight: 400; line-height: 1; }
+.sum details[open] summary::after { content: "\2212"; }
+.sum summary:focus-visible { outline: 2px solid var(--you); outline-offset: 3px; }
+.sum details p { margin: 6px 0 0; }
+.sum details ul { margin: 8px 0 4px; padding-left: 18px; }
+.sum details li + li { margin-top: 6px; }
+.sum details a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.sum details a:focus-visible { outline: 2px solid var(--you); outline-offset: 2px; }
+.sum .qual { margin-top: -14px; color: #FFFFFF; font-size: 15px; line-height: 1.4; }
+.now { display: none; }
+.vh { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (max-width: 860px) {
+  .calc-in { grid-template-columns: 1fr; }
+  .calc h2 { margin-left: auto; margin-right: auto; text-align: center; font-size: clamp(40px, 11vw, 64px); }
+  .ctls { max-width: none; }
+  /* The card is below the fold while you drag on a phone: the two numbers ride along at the bottom until it is in view. */
+  .now { position: sticky; bottom: 12px; z-index: 2; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 10px 0 0; padding: 12px 14px; background: var(--ink); color: #FFFFFF; border-radius: 2px; box-shadow: 4px 4px 0 var(--you); font-size: 14px; font-variant-numeric: tabular-nums; transition: opacity .2s; }
+  .now b { font-size: 18px; font-weight: 500; letter-spacing: -0.02em; }
+  .now span + span b { color: var(--you); }
+  .now.off { opacity: 0; visibility: hidden; }
+  .now > span { white-space: nowrap; }
+  /* Narrow phones: label over number, so the strip is the same height whatever the numbers are. */
+  @media (max-width: 371px) { .now { align-items: stretch; padding: 9px 12px; } .now > span { display: grid; grid-template-rows: 17px 22px; font-size: 12px; } .now > span + span { justify-items: end; } .now b { line-height: 22px; } }
+  .sum { box-shadow: 6px 6px 0 var(--you); margin-right: 6px; }
+  .sum-top svg { width: 64px; height: 64px; }
+  /* Always two lines here, so a longer number never changes the card's height. */
+  .sum-top .nw { display: block; white-space: nowrap; }
+}
 footer { display: flex; justify-content: space-between; padding-block: 28px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--quiet); }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
@@ -172,15 +239,15 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
 <main id="top">
   <section class="hero wrap">
     <svg id="heroBurst" viewBox="0 0 200 200" aria-hidden="true"><g stroke="#0A0A0A" stroke-width="4" fill="none" stroke-linecap="butt"><path d="M100 100L43.8 89.0"/><path d="M100 100L87.3 42.9"/><path d="M100 100L107.4 49.7"/><path d="M100 100L156.9 97.9"/><path d="M100 100L137.6 149.0"/><path d="M100 100L81.9 172.5"/><path d="M100 100L126.0 160.1"/><path d="M100 100L77.0 139.9"/><path d="M100 100L73.2 120.0"/><path d="M100 100L129.6 57.0"/><path d="M100 100L187.8 127.5"/></g></svg>
-    <h1 class="hero-h"><span class="split l">Your event was great.</span><span class="split l muted">Now make 140 people say so.</span></h1>
+    <h1 class="hero-h"><span class="split l">Your event was great.</span><span class="split l muted">Now make people say so.</span></h1>
   </section>
   <script>lzSplit(document.querySelector('.hero'));</script>
 
   <section class="scene" id="gather">
     <div class="caption wrap">
       <div class="swap">
-        <h2 class="g1">Your guests took 412 photos.</h2>
-        <h2 class="g2" style="opacity:0">Lumzel pools them in one place.</h2>
+        <h2 class="g1">Guests took 412 photos. You saw four.</h2>
+        <h2 class="g2" style="opacity:0">Lumzel puts them all in one place.</h2>
         <h2 class="g3" style="opacity:0">Then guests post them for you.</h2>
         <h2 class="g4" style="opacity:0">Then they like each other's posts.</h2>
       </div>
@@ -191,8 +258,8 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
 
   <section class="steps wrap" id="how">
     <h2 class="step">Put one QR code on the screen.</h2>
-    <h2 class="step">Guests post the night, live.</h2>
-    <h2 class="step">Everyone likes each other's posts.</h2>
+    <h2 class="step">Guests add photos as it happens.</h2>
+    <h2 class="step">Phones buzz. Likes happen.</h2>
     <div class="phone-wrap"><div class="iphone lock" role="img" aria-label="An iPhone lock screen during the event with two Lumzel notifications: Sam posted a photo you're in. Give it a like? And: 3 posts from Builders' Night to like."><span class="ib ib-a"></span><span class="ib ib-u"></span><span class="ib ib-d"></span><span class="ib ib-p"></span><div class="bez"><div class="scr" aria-hidden="true"><div class="sb"><span class="tm"></span><span class="di"></span><span class="ic"><svg viewBox="0 0 71 13" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="4.5" y="6" width="3" height="6" rx="1"/><rect x="9" y="3.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="1" width="3" height="11" rx="1"/><path d="M22.1 4.6A10.5 10.5 0 0 1 36.9 4.6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><path d="M24.9 7.4A6.5 6.5 0 0 1 34.1 7.4" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round"/><circle cx="29.5" cy="10.6" r="1.6"/><rect x="44.5" y="1" width="23" height="11" rx="3.5" fill="none" stroke="#000" stroke-opacity=".4" stroke-width="1"/><rect x="46.5" y="3" width="19" height="7" rx="2"/><rect x="68.6" y="4.6" width="1.6" height="3.8" rx=".8" fill-opacity=".4"/></svg></span></div><div class="lk"><div class="dt">Thursday 12 November</div><div class="ck">21:14</div><div class="nt" id="note"><span class="ai"><svg viewBox="0 0 200 200" aria-hidden="true"><path fill="none" stroke="#fff" stroke-width="12" d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0"/><path fill="none" stroke="#FFB000" stroke-width="12" d="M100 100L187.8 127.5"/></svg></span><span><b>Lumzel <span>now</span></b>Sam posted a photo you're in. Give it a like?</span></div><div class="nt n2" id="note2"><span class="ai"><svg viewBox="0 0 200 200" aria-hidden="true"><path fill="none" stroke="#fff" stroke-width="12" d="M100 100L43.8 89.0M100 100L87.3 42.9M100 100L107.4 49.7M100 100L156.9 97.9M100 100L137.6 149.0M100 100L81.9 172.5M100 100L126.0 160.1M100 100L77.0 139.9M100 100L73.2 120.0M100 100L129.6 57.0"/><path fill="none" stroke="#FFB000" stroke-width="12" d="M100 100L187.8 127.5"/></svg></span><span><b>Lumzel <span>2m ago</span></b>3 posts from Builders' Night to like</span></div></div><div class="hm"><i></i></div></div></div></div></div>
   </section>
 
@@ -200,13 +267,13 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
     <div class="caption wrap">
       <div class="swap">
         <h2 class="b1">Every guest who shares is a ray.</h2>
-        <h2 class="b2" style="opacity:0">Watch your event travel.</h2>
+        <h2 class="b2" style="opacity:0">Watch your event leave the room.</h2>
       </div>
     </div>
-    <svg viewBox="0 0 200 200" aria-label="A burst of eleven rays, one per person who added photos">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
       <g stroke="#0A0A0A" stroke-width="1.4" fill="none" id="rays"><path d="M100 100L43.8 89.0"/><path d="M100 100L87.3 42.9"/><path d="M100 100L107.4 49.7"/><path d="M100 100L156.9 97.9"/><path d="M100 100L137.6 149.0"/><path d="M100 100L81.9 172.5"/><path d="M100 100L126.0 160.1"/><path d="M100 100L77.0 139.9"/><path d="M100 100L73.2 120.0"/><path d="M100 100L129.6 57.0"/><path d="M100 100L187.8 127.5" id="youRay"/></g>
     </svg>
-    <div class="count" id="count">28 of 140 guests posted</div>
+    <div class="count" id="count">28 guests posted</div>
   </section>
 
   <section class="close" id="host" aria-labelledby="close-h">
@@ -233,6 +300,56 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
     </div>
   </section>
   <script>lzSplit(document.getElementById('host'));</script>
+
+  <section class="calc" id="calc" aria-labelledby="calc-h">
+    <div class="calc-in wrap">
+      <div>
+        <h2 id="calc-h">Or pay LinkedIn for it.</h2>
+        <div class="ctls">
+          <div class="ctl">
+            <label for="rGuests">Guests</label><span class="out" id="oGuests" aria-hidden="true">150</span>
+            <input type="range" id="rGuests" min="20" max="1000" step="10" value="150">
+          </div>
+          <div class="ctl">
+            <label for="rPct">Guests who post</label><span class="out" id="oPct" aria-hidden="true">20%</span>
+            <input type="range" id="rPct" min="5" max="60" step="1" value="20">
+          </div>
+          <div class="ctl">
+            <label for="rFol">Followers each</label><span class="out" id="oFol" aria-hidden="true">800</span>
+            <input type="range" id="rFol" min="100" max="2000" step="50" value="800">
+          </div>
+          <p class="now" id="cNow" aria-hidden="true"><span>LinkedIn ads <b id="nAds">£132</b></span><span><span id="nK">You'd save about</span> <b id="nSave">£82</b></span></p>
+        </div>
+      </div>
+      <div class="sum" id="sum">
+        <div class="sum-top" aria-hidden="true">
+          <svg viewBox="0 0 200 200" id="mini"></svg>
+          <p><b><span id="cPosts">30</span> <span id="cPostsW">posts</span></b><span><span class="nw">About <span id="cViews">4,800</span> views</span> <span class="nw">at 20% reach</span></span></p>
+        </div>
+        <div class="bars" aria-hidden="true">
+          <p class="bar ads"><span>LinkedIn ads</span><b id="cMid">£132</b><i id="bAds"></i><small id="cRange">£96–£168 for that many views</small></p>
+          <p class="bar lz"><span>Lumzel</span><b>£50</b><i id="bLz"></i></p>
+        </div>
+        <div class="save" aria-hidden="true">
+          <p class="k" id="cK">You'd save about</p>
+          <p class="n" id="cSave">£82</p>
+        </div>
+        <p class="qual">Ads are targeted and guaranteed. Posts aren't.</p>
+        <p class="note" id="cNote" aria-hidden="true">An estimate, per event. Running it is free.</p>
+        <p class="vh" id="cText">30 posts, about 4,800 views at 20% reach. As LinkedIn ads, about £132, somewhere from £96 to £168. With Lumzel, £50. Estimated saving, £82. An estimate, per event.</p>
+        <p class="vh" id="cSay" role="status" aria-live="polite"></p>
+        <details>
+          <summary>How we worked this out</summary>
+          <p>An estimate, not a promise: posts × followers × 20% reach, priced as LinkedIn ads per 1,000 impressions (LinkedIn's word for views). The sliders are your guesses to make.</p>
+          <ul>
+            <li>20% reach sits below the typical post for every account size up to 2,500 followers (22% to 41%: <a href="https://theshieldindex.beehiiv.com/p/february-2026-linkedin-reach-benchmarks-by-follower-bracket" target="_blank" rel="noopener">The Shield Index</a>, 50,000 posts, February 2026).</li>
+            <li>LinkedIn ads in the UK: £20 to £35 per 1,000 impressions. That is Lever Digital's 2026 figure as quoted by <a href="https://www.stackmatix.com/blog/linkedin-cpm-explained" target="_blank" rel="noopener">Stackmatix</a> (September 2026), and The B2B House's as quoted by <a href="https://www.charle.co.uk/articles/linkedin-statistics/" target="_blank" rel="noopener">Charle</a> (January 2026). We show the middle, £27.50. Yours depends on targeting.</li>
+          </ul>
+          <p>Ads don't carry a friend's name. These posts do.</p>
+        </details>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer class="wrap"><span>lumzel · London</span><span><a href="/privacy" style="color:inherit">Privacy &amp; cookies</a></span></footer>
@@ -284,7 +401,8 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
   var vw = window.innerWidth, vh = window.innerHeight;
   gsap.set(tiles, {
     x: function () { return gsap.utils.random(-vw * 0.45, vw * 0.45); },
-    y: function () { return gsap.utils.random(-vh * 0.4, vh * 0.35); },
+    // On a phone the headline sits right above the stage: keep loose tiles off its words.
+    y: function () { return (vw < 900 || vh > vw) ? gsap.utils.random(-vh * 0.02, vh * 0.26) : gsap.utils.random(-vh * 0.4, vh * 0.35); },
     rotation: function () { return gsap.utils.random(-28, 28); },
     scale: function () { return gsap.utils.random(0.6, 1.25); }
   });
@@ -314,7 +432,7 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
   rays.forEach(function (p) { var L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
   var count = document.getElementById('count');
   var b = gsap.timeline({ scrollTrigger: { trigger: '#burst', start: 'top top', end: '+=150%', scrub: 0.8, pin: true, pinType: pinType, anticipatePin: 1,
-    onUpdate: function (self) { var n = Math.max(1, Math.min(28, Math.round(self.progress * 33))); count.textContent = n + ' of 140 guests posted'; } } });
+    onUpdate: function (self) { var n = Math.max(1, Math.min(28, Math.round(self.progress * 33))); count.textContent = n + (n === 1 ? ' guest posted' : ' guests posted'); } } });
   b.to(rays, { strokeDashoffset: 0, ease: 'none', stagger: 0.12, duration: 0.25 })
    .to(rays, { stroke: '#FFB000', strokeWidth: 2.2, duration: 0.2, stagger: 0.02 })
    .to('#burst .b1', { opacity: 0, y: -20, duration: 0.15 }, '<')
@@ -345,6 +463,102 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
       .then(function () { f.hidden = true; var d = document.getElementById('i-done'); d.hidden = false; d.focus(); })
       .catch(function (x) { msg.textContent = x.message === 'Please check the form.' ? 'Enter a valid email.' : x.message; go.disabled = false; go.textContent = 'Get beta access'; email.focus(); });
   });
+})();
+</script>
+<script>
+// Ad-cost calculator. Independent of the animation script, like the sign-up form.
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var rG = $('rGuests'), rP = $('rPct'), rF = $('rFol');
+  if (!rG || !rP || !rF) return;
+  var nf = new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 });
+  var gbp = function (n) { return '£' + nf.format(Math.round(n)); };
+  var REACH = 0.2, CPM = [20, 35], PRICE = 50;
+  var mini = $('mini'), NS = 'http://www.w3.org/2000/svg', sayT, hushT;
+  // Two significant figures: the estimate isn't finer than that.
+  function about(n) { if (n < 10) return Math.round(n); var m = Math.pow(10, Math.floor(Math.log(n) / Math.LN10) - 1); return Math.round(n / m) * m; }
+  // Rays in the small burst: one per post (up to 120), spread by the golden angle.
+  function draw(posts, followers) {
+    var n = Math.max(1, Math.min(posts, 120));
+    var len = 34 + 56 * (Math.log(followers / 100) / Math.log(50));
+    while (mini.childNodes.length > n) mini.removeChild(mini.lastChild);
+    while (mini.childNodes.length < n) { var l = document.createElementNS(NS, 'line'); l.setAttribute('x1', 100); l.setAttribute('y1', 100); mini.appendChild(l); }
+    for (var k = 0; k < n; k++) {
+      var a = ((k * 137.508) % 360) * Math.PI / 180, L = len * (0.55 + 0.45 * ((k * 53) % 17) / 16), line = mini.childNodes[k];
+      if (k === 0) { a = Math.atan2(27.5, 87.8); L = Math.min(96, len + 8); line.setAttribute('class', 'you'); }
+      line.setAttribute('x2', (100 + Math.cos(a) * L).toFixed(1)); line.setAttribute('y2', (100 + Math.sin(a) * L).toFixed(1));
+    }
+  }
+  function fill(r) { r.style.setProperty('--p', ((r.value - r.min) / (r.max - r.min) * 100) + '%'); }
+  function calc() {
+    var g = +rG.value, p = +rP.value, f = +rF.value;
+    $('oGuests').textContent = nf.format(g); $('oPct').textContent = p + '%'; $('oFol').textContent = nf.format(f);
+    rG.setAttribute('aria-valuetext', nf.format(g) + ' guests'); rP.setAttribute('aria-valuetext', p + '% of guests post'); rF.setAttribute('aria-valuetext', nf.format(f) + ' followers each');
+    [rG, rP, rF].forEach(fill);
+    // Everything is priced from the numbers on the card: whole posts, and views to two significant figures.
+    var posts = Math.max(1, Math.round(g * p / 100)), views = about(posts * f * REACH);
+    var lo = views / 1000 * CPM[0], hi = views / 1000 * CPM[1], raw = (lo + hi) / 2, mid = Math.round(raw);
+    var rlo = Math.round(lo), rhi = Math.round(hi), save = mid - PRICE, top = Math.max(mid, PRICE);
+    var midTxt = raw < 1 ? 'under £1' : gbp(mid), viewsTxt = nf.format(views);
+    $('cPosts').textContent = nf.format(posts); $('cPostsW').textContent = posts === 1 ? 'post' : 'posts';
+    $('cViews').textContent = viewsTxt;
+    $('cMid').textContent = midTxt.charAt(0).toUpperCase() + midTxt.slice(1);
+    $('cRange').textContent = (hi < 1 ? 'Under £1' : raw < 1 ? 'Up to £1' : rlo === rhi ? 'About ' + gbp(hi) : gbp(lo) + '–' + gbp(hi)) + ' for that many views';
+    $('bAds').style.setProperty('--w', (mid / top * 100) + '%');
+    $('bLz').style.setProperty('--w', (PRICE / top * 100) + '%');
+    // A saving is only claimed when there is one. "Close" means the range on the card straddles £50.
+    var k = save > 0 ? "You'd save about" : 'At this size', big = save > 0 ? gbp(save) : save === 0 ? 'A draw.' : 'Ads win.';
+    var n = $('cSave');
+    $('cK').textContent = k; n.textContent = big; n.className = big.length > 5 ? 'n long' : 'n';
+    var note = save > 0 ? (rlo < PRICE ? 'A close call at this size: ads could come in under £50.' : 'An estimate, per event. Running it is free.')
+      : save === 0 ? 'About the same as ads at this size. Running it is still free.'
+      : rhi > PRICE ? 'Only just: at the top of the range, ads cost more than £50.'
+      : 'LinkedIn ads cost less than £50 here. Running it is still free.';
+    $('cNote').textContent = note;
+    $('nAds').textContent = $('cMid').textContent; $('nK').textContent = save > 0 ? k : ''; $('nSave').textContent = big;
+    draw(posts, f);
+    var say = nf.format(posts) + (posts === 1 ? ' post, about ' : ' posts, about ') + viewsTxt + ' views at 20% reach. As LinkedIn ads, ' + (raw < 1 ? '' : 'about ') + midTxt + (raw >= 1 && rlo !== rhi ? ', somewhere from ' + gbp(lo) + ' to ' + gbp(hi) : '') + '. With Lumzel, £50. '
+      + (save > 0 ? 'Estimated saving, ' + big + '.' + (rlo < PRICE ? ' A close call: ads could come in under £50.' : '')
+        : save === 0 ? 'About the same as ads at this size.'
+        : 'Ads are cheaper at this size.' + (rhi > PRICE ? ' Only just: at the top of the range, ads cost more than £50.' : '')) + ' An estimate, per event.';
+    // The sentence is always there to read; it is spoken once, after the slider has rested.
+    $('cText').textContent = say;
+    clearTimeout(sayT); clearTimeout(hushT);
+    sayT = setTimeout(function () { $('cSay').textContent = say; hushT = setTimeout(function () { $('cSay').textContent = ''; }, 5000); }, 1000);
+  }
+  // On a phone a scroll often starts on a slider. A touch moves the number only once it is clearly
+  // a sideways drag, or a tap that stays put; a scroll that begins on a slider leaves it alone.
+  [rG, rP, rF].forEach(function (r) {
+    var held = null, want = null, scroll = false, x0 = 0, y0 = 0, sy = 0;
+    function far(t) { return Math.abs(t.clientX - x0) >= 6 || Math.abs(t.clientY - y0) >= 6; }
+    r.addEventListener('touchstart', function (e) {
+      var t = e.targetTouches[0];
+      if (!t || e.targetTouches.length > 1) return;
+      held = r.value; want = null; scroll = false; x0 = t.clientX; y0 = t.clientY; sy = window.pageYOffset;
+    }, { passive: true });
+    r.addEventListener('touchmove', function (e) {
+      var t = e.targetTouches[0];
+      if (held === null || scroll || !t || !far(t)) return;
+      if (Math.abs(t.clientX - x0) > Math.abs(t.clientY - y0) && window.pageYOffset === sy) {
+        held = null;
+        if (want !== null && r.value !== want) { r.value = want; calc(); }
+      } else scroll = true;
+    }, { passive: true });
+    r.addEventListener('touchend', function (e) {
+      var t = e.changedTouches[0], tap = held !== null && !scroll && !!t && !far(t) && window.pageYOffset === sy;
+      // After any late input event from this touch.
+      setTimeout(function () { if (tap && want !== null && r.value !== want) { r.value = want; calc(); } held = null; want = null; }, 0);
+    }, { passive: true });
+    r.addEventListener('touchcancel', function () { setTimeout(function () { held = null; want = null; }, 0); }, { passive: true });
+    r.addEventListener('input', function () {
+      if (held !== null) { want = r.value; r.value = held; return; }
+      calc();
+    });
+  });
+  // The riding read-out steps aside once the card's own number is on screen.
+  if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { $('cNow').classList.toggle('off', es[0].isIntersecting); }, { threshold: 0.6 }).observe($('cSave'));
+  calc();
+  clearTimeout(sayT); clearTimeout(hushT);
 })();
 </script>
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "bab7cb7263114691a2cf926454de6401"}'></script>
