@@ -10,6 +10,8 @@ type Stats = {
   recent: Array<{ id: string; render_rev: number }>;
   leaders: Array<{ name: string; clicks: number; cheers: number }>;
   event: { delivered_at: string | null; deliver_at: string; sharing_unlocked: boolean };
+  /** This host still has their free first event. */
+  free?: boolean;
 };
 type Ev = { id: string; slug: string; name: string; startsAt: string; endsAt: string; deliverAt: string; timezone: string; description: string; highlights: string; sharing: boolean; delivered: boolean; faceStyle: "tiles" | "standins" };
 
@@ -163,9 +165,13 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
               <div className="stack" style={{ gap: 8 }}>
                 {["A post written for every guest", "Smart links that count clicks", "Guests like each other's posts", "A live leaderboard"].map((x) => <div key={x} className="step" style={{ fontSize: 15 }}><Icon name="check" size={18} width={2.2} />{x}</div>)}
               </div>
-              <p className="price"><b>£25</b>per event</p>
-              <button className="btn" disabled={!!busy} onClick={() => act("pay", async () => { const r = await api<{ url: string }>(`/api/events/${ev.id}/checkout`, { method: "POST" }); location.href = r.url; })}>{busy === "pay" ? <span className="spin" /> : "Unlock for £50"}</button>
-              <p className="hint center">Discount code? Add it at checkout.</p>
+              {s.free ? <p className="price"><b>Free</b>first event, then £25</p> : <p className="price"><b>£25</b>per event</p>}
+              <button className="btn" disabled={!!busy} onClick={() => act("pay", async () => {
+                const r = await api<{ url?: string; free?: boolean }>(`/api/events/${ev.id}/checkout`, { method: "POST" });
+                // Free: reload, so every part of the page (posts, stand-ins) sees sharing on.
+                location.href = r.free ? `/host/e/${ev.id}?free=1` : r.url!;
+              })}>{busy === "pay" ? <span className="spin" /> : s.free ? "Switch it on, free" : "Unlock for £25"}</button>
+              {!s.free && <p className="hint center">Discount code? Add it at checkout.</p>}
             </section>
           )}
 

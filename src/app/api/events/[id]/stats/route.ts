@@ -1,10 +1,11 @@
 import { sql } from "@/lib/db";
 import { route, json, requireHostEvent } from "@/lib/api";
+import { hasFreeShare } from "@/lib/freeshare";
 
 type Ctx = { params: Promise<{ id: string }> };
 
 export const GET = route(async (_req: Request, { params }: Ctx) => {
-  const { ev } = await requireHostEvent((await params).id);
+  const { h, ev } = await requireHostEvent((await params).id);
   const [c] = await sql`select
       (select count(*)::int from guests where event_id = ${ev.id}) as guests,
       (select count(*)::int from guests where event_id = ${ev.id} and push is not null) as notify,
@@ -26,5 +27,5 @@ export const GET = route(async (_req: Request, { params }: Ctx) => {
     from guests g where g.event_id = ${ev.id}
       and (exists(select 1 from shares s where s.guest_id = g.id) or exists(select 1 from posts p where p.guest_id = g.id))
     order by clicks desc, cheers desc limit 10`;
-  return json({ counts: c, review, recent, leaders, event: { delivered_at: ev.delivered_at, deliver_at: ev.deliver_at, sharing_unlocked: ev.sharing_unlocked } });
+  return json({ counts: c, review, recent, leaders, event: { delivered_at: ev.delivered_at, deliver_at: ev.deliver_at, sharing_unlocked: ev.sharing_unlocked }, free: !ev.sharing_unlocked && (await hasFreeShare(h.id)) });
 });

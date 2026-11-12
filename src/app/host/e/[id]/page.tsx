@@ -8,8 +8,10 @@ import { stripe, markPaid } from "@/lib/stripe";
 import Dashboard from "@/components/host/Dashboard";
 import { artState, type QrEvent } from "@/lib/qrart";
 
-type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ paid?: string; created?: string; cancelled?: string }> };
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ paid?: string; created?: string; cancelled?: string; free?: string }> };
 export const dynamic = "force-dynamic";
+
+import { hasFreeShare } from "@/lib/freeshare";
 
 export default async function EventPage({ params, searchParams }: Props) {
   await migrate();
@@ -25,8 +27,8 @@ export default async function EventPage({ params, searchParams }: Props) {
   const link = `${env.baseUrl}/${ev.slug}`;
   const qr = await QRCode.toString(link, { type: "svg", margin: 0, errorCorrectionLevel: "M", color: { dark: "#0A0A0A", light: "#FFFFFF" } });
   const initial = { counts: { guests: 0, cover: 0, taggable: 0, notify: 0, photos: 0, processing: 0, tiled: 0, delivered: 0, posts: 0, clicks: 0, previews: 0, cheers: 0 }, review: [], recent: [], leaders: [],
-    event: { delivered_at: ev.delivered_at?.toISOString() ?? null, deliver_at: ev.deliver_at.toISOString(), sharing_unlocked: ev.sharing_unlocked } };
-  const notice = q.paid && ev.sharing_unlocked ? "Sharing is on for this event" : q.created ? "Event created" : q.cancelled ? "Payment cancelled" : undefined;
+    event: { delivered_at: ev.delivered_at?.toISOString() ?? null, deliver_at: ev.deliver_at.toISOString(), sharing_unlocked: ev.sharing_unlocked }, free: !ev.sharing_unlocked && (await hasFreeShare(h.id)) };
+  const notice = q.free && ev.sharing_unlocked ? "Sharing is on. This one's on us." : q.paid && ev.sharing_unlocked ? "Sharing is on for this event" : q.created ? "Event created" : q.cancelled ? "Payment cancelled" : undefined;
   const art = await artState(ev as QrEvent);
   return <Dashboard qr={qr} art={art} link={link} initial={initial} notice={notice}
     ev={{ id: ev.id, slug: ev.slug, name: ev.name, startsAt: ev.starts_at.toISOString(), endsAt: ev.ends_at.toISOString(), deliverAt: ev.deliver_at.toISOString(), timezone: ev.timezone, description: ev.description, highlights: ev.highlights, sharing: ev.sharing_unlocked, delivered: !!ev.delivered_at, faceStyle: ev.face_style === "standins" ? "standins" : "tiles" }} />;

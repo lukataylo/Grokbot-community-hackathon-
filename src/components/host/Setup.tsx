@@ -9,7 +9,7 @@ type F = {
 const today = () => new Date().toISOString().slice(0, 10);
 const STEPS = ["Basics", "About", "Brand", "Privacy", "Delivery", "Share kit"];
 
-export default function Setup({ hostName }: { hostName: string }) {
+export default function Setup({ hostName, firstFree = false }: { hostName: string; firstFree?: boolean }) {
   const [i, setI] = useState(0);
   const [f, setF] = useState<F>({
     name: "", hostedBy: hostName, venue: "", date: today(), start: "19:00", end: "22:00", deliver: "07:30",
@@ -88,7 +88,7 @@ export default function Setup({ hostName }: { hostName: string }) {
         <p className="hint">Each guest gets three versions to edit.</p>
         <div className="panel">
           <div className="row between"><h3>Free</h3><span className="small">QR, consent, live photos, round-up</span></div>
-          <div className="row between" style={{ borderTop: "1px solid var(--rule)", paddingTop: 8 }}><h3>£25 to share</h3><span className="small">Posts, smart links, likes, leaderboard</span></div>
+          <div className="row between" style={{ borderTop: "1px solid var(--rule)", paddingTop: 8 }}><h3>{firstFree ? "Sharing, free" : "£25 to share"}</h3><span className="small">{firstFree ? "Your first event. Then £25 each." : "Posts, smart links, likes, leaderboard"}</span></div>
         </div>
       </>}
 

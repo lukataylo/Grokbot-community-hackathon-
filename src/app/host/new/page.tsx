@@ -4,6 +4,7 @@ import { migrate } from "@/lib/db";
 import Setup from "@/components/host/Setup";
 import { canHost } from "@/lib/beta";
 import { Logo } from "@/components/ui";
+import { hasFreeShare } from "@/lib/freeshare";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "New event" };
@@ -22,5 +23,5 @@ export default async function NewEvent() {
       <a className="btn" href="/#interest">Get beta access</a>
     </main>
   );
-  return <Setup hostName={h.name ?? ""} />;
+  return <Setup hostName={h.name ?? ""} firstFree={await hasFreeShare(h.id)} />;
 }

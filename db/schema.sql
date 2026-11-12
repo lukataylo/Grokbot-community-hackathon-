@@ -222,3 +222,6 @@ create table if not exists comment_ideas (
   primary key (post_id, guest_id)
 );
 create index if not exists comment_ideas_guest on comment_ideas(guest_id);
+-- First event free: one per host account.
+alter table hosts add column if not exists free_used_at timestamptz;
+alter table hosts add column if not exists free_event_id uuid;
