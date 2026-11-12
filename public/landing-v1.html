@@ -157,6 +157,47 @@ section { position: relative; }
   .done { box-shadow: 6px 6px 0 var(--you); }
   .close-card { margin-right: 6px; }
 }
+/* The story: a camera roll, one photo out, a post, the likes, then the whole feed. */
+.story { gap: clamp(12px, 3svh, 32px); }
+.story .swap > :not(.s1) { opacity: 0; }
+.sstage { position: relative; flex: 1 1 0; min-height: 0; width: min(1040px, 92vw); container: story / size; }
+#gather #stage { position: absolute; left: 50%; top: 50%; width: min(680px, 100cqw, 206cqh); translate: -50% -50%; }
+.post { position: absolute; left: 50%; top: 50%; width: min(380px, 88cqw, 70cqh); translate: -50% -50%; container-type: inline-size; background: #fff; border: 1.5px solid var(--ink); border-radius: 2px; box-shadow: 10px 10px 0 var(--ink); opacity: 0; color: var(--ink); text-align: left; }
+.post header { display: grid; grid-template-columns: 11cqi minmax(0, 1fr) auto; gap: 3cqi; align-items: center; padding: 4.5cqi 4.5cqi 3cqi; }
+.post .av { width: 11cqi; height: 11cqi; display: grid; place-items: center; background: var(--ink); color: #fff; font-size: 3.8cqi; font-weight: 500; letter-spacing: -0.02em; }
+.post .who b { display: block; font-size: 4.4cqi; font-weight: 500; letter-spacing: -0.03em; line-height: 1.1; }
+.post .who small { display: block; font-size: 3.3cqi; color: #6E6E68; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.post .net { align-self: start; font-size: 3.1cqi; font-weight: 500; color: #6E6E68; letter-spacing: 0; }
+.post p { margin: 0; padding: 0 4.5cqi 3.5cqi; font-size: 4cqi; line-height: 1.35; letter-spacing: -0.01em; }
+.post .ph { aspect-ratio: 3 / 2; background-color: var(--tile); background-repeat: no-repeat; }
+.post .rx { display: flex; align-items: center; gap: 1.6cqi; padding: 2.8cqi 4.5cqi; font-size: 3.4cqi; color: #55554F; border-bottom: 1px solid var(--quiet); }
+.post .hrt { flex: none; width: 5.4cqi; height: 5.4cqi; display: grid; place-items: center; background: var(--you); border-radius: 50%; }
+.post .hrt svg { width: 70%; height: 70%; fill: var(--ink); }
+.post .n { font-weight: 500; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 2.4ch; }
+.post .lk { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; }
+.post .cm { white-space: nowrap; }
+.post .acts { display: flex; justify-content: space-around; padding: 2.4cqi 2cqi 2.8cqi; font-size: 3.4cqi; font-weight: 500; color: #55554F; }
+.post .acts span { display: flex; align-items: center; gap: 1.4cqi; }
+.post .acts svg { width: 4.6cqi; height: 4.6cqi; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.post .fly { position: absolute; left: 6cqi; bottom: 14cqi; width: 0; height: 0; pointer-events: none; }
+.post .fly i { position: absolute; left: 0; top: 0; width: 7cqi; height: 7cqi; display: grid; place-items: center; background: var(--you); border-radius: 50%; opacity: 0; }
+.post .fly svg { width: 64%; height: 64%; fill: var(--ink); }
+.feed { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 2.2cqh 2cqw; }
+.mini { position: relative; container-type: size; display: flex; flex-direction: column; min-height: 0; background: #fff; border: 1.5px solid var(--ink); border-radius: 2px; opacity: 0; text-align: left; overflow: hidden; }
+.mini .mh { display: flex; align-items: center; gap: 4cqmin; padding: 4cqmin 5cqmin; font-size: max(11px, 9cqmin); font-weight: 500; letter-spacing: -0.02em; white-space: nowrap; overflow: hidden; }
+.mini .mh i { flex: none; width: max(14px, 12cqmin); height: max(14px, 12cqmin); background: var(--ink); }
+.mini .mi { flex: 1; min-height: 0; background-color: var(--tile); background-repeat: no-repeat; }
+.mini .mf { display: flex; align-items: center; gap: 4cqmin; padding: 3.5cqmin 5cqmin; font-size: max(11px, 9cqmin); font-weight: 500; font-variant-numeric: tabular-nums; }
+.mini .mf svg { width: max(12px, 10cqmin); height: max(12px, 10cqmin); fill: var(--you); }
+.mini .mf b { font-weight: 500; }
+.mini .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--you); transform: scaleX(0); transform-origin: left; }
+@container story (max-width: 560px) { .feed { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mini:nth-child(n+7) { display: none; } }
+.story-count { opacity: 0; min-width: 0; padding-inline: 20px; }
+.story.static .post, .story.static #stage { display: none; }
+.story.static .mini, .story.static .story-count { opacity: 1; }
+.story.static .mini .bar { transform: none; }
+.story.static .swap > * { opacity: 0; }
+.story.static .swap > .s7 { opacity: 1; }
 /* Ad-cost calculator: the same reach, bought as LinkedIn ads, against one flat £50. */
 .calc { padding-block: clamp(90px, 14vh, 160px); }
 .calc-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 480px); gap: clamp(32px, 6vw, 96px); align-items: start; max-width: 1360px; margin: 0 auto; }
@@ -243,16 +284,39 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
   </section>
   <script>lzSplit(document.querySelector('.hero'));</script>
 
-  <section class="scene" id="gather">
+  <section class="scene story" id="gather" aria-label="What Lumzel does">
     <div class="caption wrap">
       <div class="swap">
-        <h2 class="g1">Guests took 412 photos. You saw four.</h2>
-        <h2 class="g2" style="opacity:0">Lumzel puts them all in one place.</h2>
-        <h2 class="g3" style="opacity:0">Then guests post them for you.</h2>
-        <h2 class="g4" style="opacity:0">Then they like each other's posts.</h2>
+        <h2 class="s1">Your guests take 412 photos.</h2>
+        <h2 class="s2">Lumzel pulls out the good ones.</h2>
+        <h2 class="s3">Sam posts one. We wrote the words.</h2>
+        <h2 class="s4">Everyone who was there likes it.</h2>
+        <h2 class="s5">Then Priya posts hers.</h2>
+        <h2 class="s6">Then everyone does.</h2>
+        <h2 class="s7">Your event takes over LinkedIn.</h2>
       </div>
     </div>
-    <div class="stage" id="stage" aria-hidden="true"></div>
+    <div class="sstage" aria-hidden="true">
+      <div class="stage" id="stage"></div>
+      <article class="post p1">
+        <header><span class="av">SO</span><span class="who"><b>Sam Okafor</b><small>Founder, Kiln · 1st · 2h</small></span><span class="net">LinkedIn</span></header>
+        <p>Best room I've been in all year. Thank you Builders' Night, and everyone who demoed.</p>
+        <div class="ph" style="background-image:url(/landing/img/group_px.jpg);background-position:50% 72%;background-size:cover"></div>
+        <div class="rx"><span class="hrt"><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></span><span class="n">0</span><span class="lk">Priya, Tom and others</span><span class="cm">9 comments</span></div>
+        <div class="acts"><span><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg>Like</span><span><svg viewBox="0 0 24 24"><path d="M5 5h14v11h-8l-4 3.5V16H5z"/></svg>Comment</span><span><svg viewBox="0 0 24 24"><path d="M7 11V7h10l-2.5-2.5M17 13v4H7l2.5 2.5"/></svg>Repost</span><span><svg viewBox="0 0 24 24"><path d="M20 4L4 11l6 2.5L12.5 20z"/></svg>Send</span></div>
+        <div class="fly"><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i></div>
+      </article>
+      <article class="post p2">
+        <header><span class="av">PN</span><span class="who"><b>Priya Nair</b><small>Engineer, Halo · 1st · 2h</small></span><span class="net">LinkedIn</span></header>
+        <p>Three demos in, someone shipped a voice agent live on stage. Builders' Night never misses.</p>
+        <div class="ph" style="background-image:url(/landing/img/group.jpg);background-position:8% 78%;background-size:210% auto"></div>
+        <div class="rx"><span class="hrt"><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></span><span class="n">0</span><span class="lk">Sam, Ama and others</span><span class="cm">6 comments</span></div>
+        <div class="acts"><span><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg>Like</span><span><svg viewBox="0 0 24 24"><path d="M5 5h14v11h-8l-4 3.5V16H5z"/></svg>Comment</span><span><svg viewBox="0 0 24 24"><path d="M7 11V7h10l-2.5-2.5M17 13v4H7l2.5 2.5"/></svg>Repost</span><span><svg viewBox="0 0 24 24"><path d="M20 4L4 11l6 2.5L12.5 20z"/></svg>Send</span></div>
+        <div class="fly"><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i><i><svg viewBox="0 0 24 24"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg></i></div>
+      </article>
+      <div class="feed" id="feed"></div>
+    </div>
+    <p class="count story-count" id="sCount">30 posts. About 4,800 views. One night.</p>
   </section>
 
 
@@ -368,15 +432,22 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
     var c = i % 8, r = Math.floor(i / 8);
     t.style.left = (c * 12.4 + 0.6) + '%'; t.style.top = (r * 20.4) + '%';
   }
-  var youIdx = [3, 9, 14, 22, 29, 36], likeIdx = [1, 6, 11, 17, 19, 25, 27, 31, 34, 38];
+  // The feed at the end: every card is a guest's post from the same night.
+  var feed = document.getElementById('feed'), minis = [];
+  var people = [['Sam Okafor', 64, 1, '50% 62%', 'cover'], ['Priya Nair', 51, 0, '8% 46%', '210% auto'], ['Tom Reid', 38, 0, '45% 46%', '240% auto'], ['Ama Kyei', 47, 1, '70% 46%', '230% auto'], ['Leo Marsh', 29, 0, '96% 46%', '220% auto'], ['Hana Sato', 42, 1, '30% 46%', '200% auto'], ['Ravi Patel', 33, 0, '60% 46%', '260% auto'], ['Zoe Lund', 26, 1, '90% 46%', '240% auto'], ['Ben Adeyemi', 45, 0, '20% 46%', '230% auto']];
+  var HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19s-7-4.3-7-9.2A3.8 3.8 0 0 1 12 7.6a3.8 3.8 0 0 1 7 2.2C19 14.7 12 19 12 19z"/></svg>';
+  people.forEach(function (q) {
+    var m = document.createElement('div'); m.className = 'mini';
+    m.innerHTML = '<div class="mh"><i></i>' + q[0] + '</div><div class="mi" style="background-image:url(/landing/img/group' + (q[2] ? '_px' : '') + '.jpg);background-position:' + q[3] + ';background-size:' + q[4] + '"></div><div class="mf">' + HEART + '<b>' + q[1] + '</b></div><span class="bar"></span>';
+    feed.appendChild(m); minis.push(m);
+  });
+  var story = document.getElementById('gather');
 
   // Headlines were split into masked words inline, before first paint (lzSplit).
 
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (!window.gsap || reduce) {
-    youIdx.forEach(function (k) { tiles[k].style.setProperty('--y', '0.9'); });
-    likeIdx.forEach(function (k) { tiles[k].style.setProperty('--y', '0.45'); });
-    document.querySelectorAll('#gather .swap > *').forEach(function (h, i, all) { h.style.opacity = i === all.length - 1 ? '1' : '0'; });
+    story.classList.add('static');
     document.getElementById('youRay').setAttribute('stroke', '#FFB000');
     return;
   }
@@ -407,18 +478,51 @@ footer { display: flex; justify-content: space-between; padding-block: 28px; col
     scale: function () { return gsap.utils.random(0.6, 1.25); }
   });
   var pinType = (window.Lenis && matchMedia('(pointer: fine)').matches) ? 'transform' : 'fixed';
-  var g = gsap.timeline({ scrollTrigger: { trigger: '#gather', start: 'top top', end: '+=200%', scrub: 0.8, pin: true, pinType: pinType, anticipatePin: 1 } });
-  g.to(tiles, { x: 0, y: 0, rotation: 0, scale: 1, ease: 'power3.inOut', stagger: { each: 0.01, from: 'random' }, duration: 1 })
-   .to('#gather .g1', { opacity: 0, y: -20, duration: 0.2 }, 0.35)
-   .fromTo('#gather .g2', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, 0.45)
-   .to('#gather .g2', { opacity: 0, y: -20, duration: 0.2 }, 1.1)
-   .fromTo('#gather .g3', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, 1.2)
-   .to(youIdx.map(function (k) { return tiles[k]; }), { '--y': 0.9, duration: 0.3, stagger: 0.04 }, 1.2)
-   .to('#gather .g3', { opacity: 0, y: -20, duration: 0.2 }, 1.75)
-   .fromTo('#gather .g4', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, 1.85)
-   .to(likeIdx.map(function (k) { return tiles[k]; }), { '--y': 0.45, duration: 0.25, stagger: 0.03 }, 1.85)
-   .to(youIdx.map(function (k) { return tiles[k]; }), { scale: 1.08, duration: 0.12, yoyo: true, repeat: 1, stagger: 0.03 }, 1.9)
-   .to({}, { duration: 0.3 });
+  var S = '#gather ', p1 = story.querySelector('.p1'), p2 = story.querySelector('.p2'), sstage = story.querySelector('.sstage'), stg = document.getElementById('stage');
+  var g = gsap.timeline({ scrollTrigger: { trigger: '#gather', start: 'top top', end: '+=560%', scrub: 0.8, pin: true, pinType: pinType, anticipatePin: 1, invalidateOnRefresh: true } });
+  function swap(a, b, at) { g.to(S + a, { opacity: 0, y: -20, duration: 0.2 }, at).fromTo(S + b, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, at + 0.1); }
+  function likes(card, to, at, dur) {
+    var o = { v: 0 }, n = card.querySelector('.n');
+    g.to(o, { v: to, duration: dur, ease: 'power1.out', onUpdate: function () { n.textContent = Math.round(o.v); } }, at);
+    g.to(card.querySelector('.lk'), { opacity: 1, duration: 0.2 }, at + 0.15);
+    card.querySelectorAll('.fly i').forEach(function (h, k) {
+      var t = at + k * dur / 14;
+      g.fromTo(h, { x: 0, y: 0, opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.12 }, t)
+       .to(h, { x: function () { return gsap.utils.random(-10, card.offsetWidth * 0.55); }, y: function () { return -gsap.utils.random(card.offsetWidth * 0.5, card.offsetWidth * 1.1); }, duration: 0.6, ease: 'power1.out' }, t)
+       .to(h, { opacity: 0, duration: 0.2 }, t + 0.4);
+    });
+  }
+  // 1. A night's camera rolls fall into one place.
+  g.to(tiles, { x: 0, y: 0, rotation: 0, scale: 1, ease: 'power3.inOut', stagger: { each: 0.01, from: 'random' }, duration: 1 });
+  // 2. One photo comes out of the grid: tile 19 (column 3, row 2) moves to the middle.
+  var hero = tiles[19], others = tiles.filter(function (t) { return t !== hero; });
+  swap('.s1', '.s2', 1.15);
+  g.to(others, { opacity: 0.14, duration: 0.3, stagger: { each: 0.004, from: 'random' } }, 1.2)
+   .to(hero, { zIndex: 3, x: function () { return stg.offsetWidth * (0.5 - (3 * 0.124 + 0.006 + 0.055)); },
+     y: function () { var W = stg.offsetWidth, H = stg.offsetHeight; return H / 2 - (2 * 0.204 * H + W * 0.04125); },
+     scale: 2.6, boxShadow: '6px 6px 0 #0A0A0A', duration: 0.45, ease: 'power3.inOut' }, 1.25);
+  // 3. It becomes Sam's post.
+  swap('.s2', '.s3', 1.9);
+  g.to(tiles, { opacity: 0, duration: 0.2 }, 1.95)
+   .fromTo(p1, { opacity: 0, scale: 0.55 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'power3.out' }, 1.95);
+  // 4. The room likes it.
+  swap('.s3', '.s4', 2.6);
+  likes(p1, 64, 2.7, 0.8);
+  // 5. Priya's post arrives: side by side when there's room, in turn on a phone.
+  var wide = function () { return sstage.offsetWidth >= p1.offsetWidth * 2.2 + 40; };
+  swap('.s4', '.s5', 3.75);
+  g.to(p1, { x: function () { return wide() ? -p1.offsetWidth * 0.58 : -sstage.offsetWidth * 0.2; }, scale: function () { return wide() ? 0.92 : 0.82; }, opacity: function () { return wide() ? 0.55 : 0; }, duration: 0.4, ease: 'power2.inOut' }, 3.8)
+   .fromTo(p2, { opacity: 0, x: function () { return sstage.offsetWidth * 0.6; } }, { opacity: 1, x: function () { return wide() ? p1.offsetWidth * 0.58 : 0; }, duration: 0.45, ease: 'power3.out' }, 3.85);
+  likes(p2, 51, 4.35, 0.7);
+  // 6. Then everyone does.
+  swap('.s5', '.s6', 5.25);
+  g.to([p1, p2], { opacity: 0, scale: 0.6, duration: 0.3, ease: 'power2.in' }, 5.3)
+   .fromTo(minis, { opacity: 0, scale: 0.7, y: 30 }, { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: 'back.out(1.4)', stagger: 0.06 }, 5.45);
+  // 7. The feed is the event.
+  swap('.s6', '.s7', 6.15);
+  g.to(story.querySelectorAll('.mini .bar'), { scaleX: 1, duration: 0.25, stagger: 0.04 }, 6.2)
+   .fromTo('#sCount', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.25 }, 6.3)
+   .to({}, { duration: 0.5 });
 
 
   // Steps: each line rises as it enters; the notification drops in.
