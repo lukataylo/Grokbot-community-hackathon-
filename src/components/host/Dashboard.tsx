@@ -163,7 +163,7 @@ export default function Dashboard({ ev, qr, art: initialArt, link, initial, noti
               <div className="stack" style={{ gap: 8 }}>
                 {["A post written for every guest", "Smart links that count clicks", "Guests like each other's posts", "A live leaderboard"].map((x) => <div key={x} className="step" style={{ fontSize: 15 }}><Icon name="check" size={18} width={2.2} />{x}</div>)}
               </div>
-              <p className="price"><b>£50</b>per event</p>
+              <p className="price"><b>£25</b>per event</p>
               <button className="btn" disabled={!!busy} onClick={() => act("pay", async () => { const r = await api<{ url: string }>(`/api/events/${ev.id}/checkout`, { method: "POST" }); location.href = r.url; })}>{busy === "pay" ? <span className="spin" /> : "Unlock for £50"}</button>
               <p className="hint center">Discount code? Add it at checkout.</p>
             </section>

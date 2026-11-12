@@ -15,7 +15,7 @@ export const env = {
   localStore: process.env.LOCAL_STORE_DIR || ".data/store",
   stripeSecret: process.env.STRIPE_SECRET_KEY || "",
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET || "",
-  priceAmount: 5000,
+  priceAmount: 2500,
   currency: "gbp",
   openrouterKey: process.env.OPENROUTER_API_KEY || "",
   visionModel: process.env.VISION_MODEL || "openai/gpt-6-luna",

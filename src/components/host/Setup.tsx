@@ -88,7 +88,7 @@ export default function Setup({ hostName }: { hostName: string }) {
         <p className="hint">Each guest gets three versions to edit.</p>
         <div className="panel">
           <div className="row between"><h3>Free</h3><span className="small">QR, consent, live photos, round-up</span></div>
-          <div className="row between" style={{ borderTop: "1px solid var(--rule)", paddingTop: 8 }}><h3>£50 to share</h3><span className="small">Posts, smart links, likes, leaderboard</span></div>
+          <div className="row between" style={{ borderTop: "1px solid var(--rule)", paddingTop: 8 }}><h3>£25 to share</h3><span className="small">Posts, smart links, likes, leaderboard</span></div>
         </div>
       </>}
 
